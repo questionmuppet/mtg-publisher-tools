@@ -29,7 +29,6 @@ final class Mtgtools_Installation
      */
     public function uninstall()
     {
-        error_log( "You uninstalled." );
     }
 
     /**
