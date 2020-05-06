@@ -1,16 +1,16 @@
 <?php
 /**
- * Mtg_Tools_Plugin
+ * Mtgtools_Plugin
  * 
  * Main plugin class
  */
 
-namespace Mtg_Publisher_Tools;
+namespace Mtgtools;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-final class Mtg_Tools_Plugin
+final class Mtgtools_Plugin
 {
 	// Plugin instance
 	private static $instance;

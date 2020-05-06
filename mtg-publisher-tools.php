@@ -14,14 +14,17 @@ Text Domain: mtg-publisher-tools
 // Exit if accessed directly
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
-// Paths
-define( 'MTGTOOLS__ADMIN_SLUG', 'mtg-tools' );
-define( 'MTGTOOLS__PATH', plugin_dir_path( __FILE__ ) );
-define( 'MTGTOOLS__TEMPLATE_PATH', MTGTOOLS__PATH . 'templates/' );
-define( 'MTGTOOLS__ASSETS_URL', plugin_dir_url( __FILE__ ) . 'assets/' );
+// Define constants
+require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
 
 // Enable autoloading
 require_once( MTGTOOLS__PATH . 'vendor/autoload.php' );
 
+// Activation hooks
+register_activation_hook( __FILE__, function() {
+    $installation = new Mtgtools\Mtgtools_Installation();
+    $installation->activate();
+});
+
 // Initialize plugin
-add_action( 'init', array( Mtg_Publisher_Tools\Mtg_Tools_Plugin::get_instance(), 'init' ) );
+add_action( 'init', array( Mtgtools\Mtgtools_Plugin::get_instance(), 'init' ) );
