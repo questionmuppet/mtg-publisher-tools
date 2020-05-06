@@ -1,0 +1,11 @@
+{
+    "name": "questionmuppet/mtg-publisher-tools",
+    "description": "Creates shortcodes for use in Magic: The Gathering articles and blog posts, including mana symbols and card images.",
+    "require": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Mtg_Publisher_Tools\\": "src/"
+        }
+    }
+}
