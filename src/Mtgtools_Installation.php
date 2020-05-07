@@ -8,7 +8,7 @@
 namespace Mtgtools;
 
 // Exit if accessed directly
-defined( 'ABSPATH' ) or die("Don't mess with it!");
+defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
 final class Mtgtools_Installation
 {
