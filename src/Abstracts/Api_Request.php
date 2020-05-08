@@ -38,6 +38,12 @@ abstract class Api_Request extends Data
     );
     
     /**
+     * -------------
+     * O U T P U T S
+     * -------------
+     */
+    
+    /**
      * Perform HTTP request and return response body
      * 
      * @throws HttpRequestException
@@ -53,6 +59,22 @@ abstract class Api_Request extends Data
             throw new $class( $message );
         }
         return wp_remote_retrieve_body( $this->get_response() );
+    }
+    
+    /**
+     * Get HTTP status code
+     */
+    public function get_status_code() : string
+    {
+        return wp_remote_retrieve_response_code( $this->get_response() );
+    }
+
+    /**
+     * Get HTTP status message
+     */
+    public function get_status_message() : string
+    {
+        return wp_remote_retrieve_response_message( $this->get_response() );
     }
 
     /**
@@ -70,22 +92,6 @@ abstract class Api_Request extends Data
         return "Mtgtools\\Exceptions\\" . $coda;
     }
     
-    /**
-     * Get HTTP status code
-     */
-    public function get_status_code() : string
-    {
-        return wp_remote_retrieve_response_code( $this->get_response() );
-    }
-
-    /**
-     * Get HTTP status messagae
-     */
-    public function get_status_message() : string
-    {
-        return wp_remote_retrieve_response_message( $this->get_response() );
-    }
-
     /**
      * -------------
      * R E Q U E S T
