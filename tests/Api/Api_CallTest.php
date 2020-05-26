@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-use PHPUnit\Framework\TestCase;
+use Mtgtools\Api\Api_Call;
 
-final class Api_CallTest extends TestCase
+class Api_CallTest extends WP_UnitTestCase
 {
     /**
      * Request stub object
@@ -12,11 +12,9 @@ final class Api_CallTest extends TestCase
     /**
      * Common set-up for all tests
      */
-    protected function setUp() : void
+    public function setUp() : void
     {
-        define( 'ABSPATH', "C:\Lodestone\wordpress-4.8.2-2\apps\wordpress\\" );
-        require_once( __DIR__ . '/../../constants.php' );
-        $this->request = $this->createStub( \Mtgtools\Interfaces\Remote_Request::class );
+        $this->request = $this->createMock( \Mtgtools\Interfaces\Remote_Request::class );
     }
 
     /**
@@ -32,8 +30,8 @@ final class Api_CallTest extends TestCase
             'code'    => '200',
             'message' => 'OK',
         ]);
-        $api_call = new Api_Call( $request );
-        $this->assertEqualsCanonicalizing( $response, $api_call->get_response_body() );
+        $api_call = new Api_Call( $this->request );
+        $this->assertEqualsCanonicalizing( $response, $api_call->get_result() );
     }
 
     /**
