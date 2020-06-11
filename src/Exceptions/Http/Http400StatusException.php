@@ -5,7 +5,7 @@
  * Exception thrown when an HTTP call returns a 4xx status (client error)
  */
 
-namespace Mtgtools\Exceptions;
+namespace Mtgtools\Exceptions\Http;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

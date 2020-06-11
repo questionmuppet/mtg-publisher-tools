@@ -5,7 +5,7 @@
  * Exception thrown when a connection cannot be made for an HTTP request
  */
 
-namespace Mtgtools\Exceptions;
+namespace Mtgtools\Exceptions\Http;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

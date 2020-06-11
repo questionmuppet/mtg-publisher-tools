@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 use Mtgtools\Api\Api_Call;
+use Mtgtools\Exceptions\Http as Exceptions;
 
 class Api_CallTest extends WP_UnitTestCase
 {
@@ -32,6 +33,48 @@ class Api_CallTest extends WP_UnitTestCase
         ]);
         $api_call = new Api_Call( $this->request );
         $this->assertEqualsCanonicalizing( $response, $api_call->get_result() );
+    }
+
+    /**
+     * TEST: 500 status
+     */
+    public function test500HttpStatusThrows500Exception() : void
+    {
+        $this->expectException( Exceptions\Http500StatusException::class );
+        $this->set_request_response([
+            'code'    => '504',
+            'message' => 'Gateway Timeout',
+        ]);
+        $api_call = new Api_Call( $this->request );
+        $api_call->get_result();
+    }
+
+    /**
+     * TEST: 400 status
+     */
+    public function test400HttpStatusThrows400Exception() : void
+    {
+        $this->expectException( Exceptions\Http400StatusException::class );
+        $this->set_request_response([
+            'code'    => '404',
+            'message' => 'Not Found',
+        ]);
+        $api_call = new Api_Call( $this->request );
+        $api_call->get_result();
+    }
+
+    /**
+     * TEST: 400 status
+     */
+    public function testUnknownHttpStatusThrowsGenericException() : void
+    {
+        $this->expectException( Exceptions\HttpStatusException::class );
+        $this->set_request_response([
+            'code'    => '100',
+            'message' => 'Continue',
+        ]);
+        $api_call = new Api_Call( $this->request );
+        $api_call->get_result();
     }
 
     /**
