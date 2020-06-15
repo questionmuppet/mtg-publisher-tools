@@ -31,15 +31,19 @@ final class Mtgtools_Plugin
 	 */
 	public function init()
 	{
-		$this->add_hooks();
+		$this->symbols()->add_hooks();
     }
     
 	/**
-	 * Add WordPress hooks
+	 * Get mana symbols module
 	 */
-    protected function add_hooks()
+    protected function symbols() : Mtgtools_Symbols
     {
-        
+		if ( !isset( $this->symbols ) )
+		{
+			$this->symbols = new Mtgtools_Symbols();
+		}
+		return $this->symbols;
     }
 
 }   // End of class
