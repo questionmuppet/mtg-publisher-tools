@@ -7,7 +7,6 @@
 
 namespace Mtgtools;
 use Mtgtools\Symbols\Symbol_Db_Ops;
-use Mtgtools\Enqueue\Css_Asset;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -32,7 +31,15 @@ class Mtgtools_Symbols
      */
     public function add_hooks() : void
     {
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_shortcode( 'mana_symbols',    array( $this, 'parse_mana_symbols' ) );
+    }
+
+    /**
+     * Enqueue CSS/JS assets
+     */
+    public function enqueue_assets() : void
+    {
     }
 
     /**
