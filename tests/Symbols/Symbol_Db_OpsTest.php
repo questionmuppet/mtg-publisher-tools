@@ -4,7 +4,7 @@ use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Symbols\Mana_Symbol;
 use Mtgtools\Exceptions\Db as Exceptions;
 
-class Symbol_Db_OpsTest extends WP_UnitTestCase
+class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
 {
     /**
      * Dummy table name
@@ -178,34 +178,6 @@ class Symbol_Db_OpsTest extends WP_UnitTestCase
         $this->expectException( \OutOfRangeException::class );
 
         $this->db_ops->get_symbol( '{FAKE}' );
-    }
-
-    /**
-     * ---------------------
-     *   P R O D U C E R S
-     * ---------------------
-     */
-
-    /**
-     * Get mock Mana_Symbol object
-     */
-    private function get_mock_symbol( array $args = [] ) : Mana_Symbol
-    {
-        $args = array_merge([
-            'is_valid'       => true,
-            'pattern'        => '{T}',
-            'english_phrase' => 'tap this permanent',
-            'svg_uri'        => 'https://img.scryfall.com/symbology/T.svg',
-        ], $args );
-
-        $symbol = $this->createMock( Mana_Symbol::class );
-
-        $symbol->method('is_valid')->willReturn( $args['is_valid'] );
-        $symbol->method('get_pattern')->willReturn( $args['pattern'] );
-        $symbol->method('get_english_phrase')->willReturn( $args['english_phrase'] );
-        $symbol->method('get_svg_uri')->willReturn( $args['svg_uri'] );
-
-        return $symbol;
     }
 
 }   // End of class
