@@ -49,9 +49,20 @@ abstract class Data
             array_merge( $this->abstract_defaults, $this->defaults )
         );
     }
+    
+    /**
+     * Get property in string format
+     */
+    protected function get_string_prop( string $key ) : string
+    {
+        $prop = $this->get_prop( $key );
+        return is_scalar( $prop ) ? strval( $prop ) : '';
+    }
 
     /**
      * Get property
+     * 
+     * @return mixed
      */
     protected function get_prop( string $key )
     {
@@ -60,6 +71,8 @@ abstract class Data
 
     /**
      * Set property
+     * 
+     * @return mixed
      */
     protected function set_prop( string $key, $value )
     {
@@ -69,7 +82,7 @@ abstract class Data
     /**
      * Delete property
      */
-    protected function delete_prop( string $key )
+    protected function delete_prop( string $key ) : void
     {
         unset( $this->props[ $key ] );
     }
