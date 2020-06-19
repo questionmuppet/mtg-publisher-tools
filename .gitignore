@@ -1,6 +1,2 @@
 vendor/**
 bin/**
-tests/bootstrap.php
-.phpcs.xml.dist
-.travis.yml
-phpunit.xml.dist
