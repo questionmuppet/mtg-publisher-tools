@@ -18,7 +18,7 @@ final class Mtgtools_Plugin
     /**
 	 * Access plugin’s working instance
 	 */
-	public static function get_instance()
+	public static function get_instance() : Mtgtools_Plugin
 	{
 		NULL === self::$instance and self::$instance = new self;
 		return self::$instance;
@@ -29,7 +29,7 @@ final class Mtgtools_Plugin
 	 *
 	 * @hooked init
 	 */
-	public function init()
+	public function init() : void
 	{
 		$this->symbols()->add_hooks();
     }
@@ -37,11 +37,13 @@ final class Mtgtools_Plugin
 	/**
 	 * Get mana symbols module
 	 */
-    protected function symbols() : Mtgtools_Symbols
+    public function symbols() : Mtgtools_Symbols
     {
 		if ( !isset( $this->symbols ) )
 		{
-			$this->symbols = new Mtgtools_Symbols();
+			global $wpdb;
+			$db_ops = new \Mtgtools\Symbols\Symbol_Db_Ops( $wpdb );
+			$this->symbols = new Mtgtools_Symbols( $db_ops );
 		}
 		return $this->symbols;
     }
