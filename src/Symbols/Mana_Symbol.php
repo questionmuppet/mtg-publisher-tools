@@ -27,13 +27,24 @@ class Mana_Symbol extends Data
      */
     public function is_valid() : bool
     {
-        return strlen( $this->get_pattern() );
+        return strlen( $this->get_plaintext() );
     }
 
     /**
-     * Get plaintext pattern to find in text
+     * Get regexp pattern to find in text
      */
     public function get_pattern() : string
+    {
+        return sprintf(
+            "/%s/",
+            preg_quote( $this->get_plaintext() )
+        );
+    }
+
+    /**
+     * Get plaintext key
+     */
+    public function get_plaintext() : string
     {
         return $this->get_string_prop( 'plaintext' );
     }

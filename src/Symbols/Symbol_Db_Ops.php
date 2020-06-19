@@ -61,7 +61,7 @@ class Symbol_Db_Ops extends Data
         foreach ( $rows as $data )
         {
             $new = new Mana_Symbol( $data );
-            $symbols[ $new->get_pattern() ] = $new;
+            $symbols[ $new->get_plaintext() ] = $new;
         }
         return $symbols;
     }
@@ -75,16 +75,16 @@ class Symbol_Db_Ops extends Data
     {
         if ( !$symbol->is_valid() )
         {
-            throw new Exceptions\DbException( get_called_class() . " tried to add an invalid mana symbol with key '{$symbol->get_pattern()}' to the database." );
+            throw new Exceptions\DbException( get_called_class() . " tried to add an invalid mana symbol with key '{$symbol->get_plaintext()}' to the database." );
         }
-        if ( $this->symbol_exists( $symbol->get_pattern() ) )
+        if ( $this->symbol_exists( $symbol->get_plaintext() ) )
         {
-            throw new Exceptions\DbException( get_called_class() . " tried to add a duplicate mana symbol to the database. An entry already exists for key '{$symbol->get_pattern()}'." );
+            throw new Exceptions\DbException( get_called_class() . " tried to add a duplicate mana symbol to the database. An entry already exists for key '{$symbol->get_plaintext()}'." );
         }
         return (bool) $this->db->insert(
             $this->get_table(),
             [
-                'plaintext'      => $symbol->get_pattern(),
+                'plaintext'      => $symbol->get_plaintext(),
                 'english_phrase' => $symbol->get_english_phrase(),
                 'svg_uri'        => $symbol->get_svg_uri(),
             ],

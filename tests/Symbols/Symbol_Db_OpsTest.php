@@ -124,7 +124,7 @@ class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
         $this->db_ops->create_table();
         $this->db_ops->add_symbol( $symbol );
         
-        $result = $this->db_ops->delete_symbol( $symbol->get_pattern() );
+        $result = $this->db_ops->delete_symbol( $symbol->get_plaintext() );
         
         $this->assertTrue( $result );
     }
@@ -137,8 +137,8 @@ class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
     public function testCanGetAllManaSymbols() : void
     {
         $this->db_ops->create_table();
-        $symbol1 = $this->get_mock_symbol([ 'pattern' => '{T}' ]);
-        $symbol2 = $this->get_mock_symbol([ 'pattern' => '{Q}' ]);
+        $symbol1 = $this->get_mock_symbol([ 'plaintext' => '{T}' ]);
+        $symbol2 = $this->get_mock_symbol([ 'plaintext' => '{Q}' ]);
         $this->db_ops->add_symbol( $symbol1 );
         $this->db_ops->add_symbol( $symbol2 );
 
@@ -159,7 +159,7 @@ class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
         $symbol = $this->get_mock_symbol();
         $this->db_ops->add_symbol( $symbol );
 
-        $result = $this->db_ops->get_symbol( $symbol->get_pattern() );
+        $result = $this->db_ops->get_symbol( $symbol->get_plaintext() );
 
         $this->assertInstanceOf( Mana_Symbol::class, $result );
     }
@@ -172,7 +172,7 @@ class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
     public function testGettingNonexistentSymbolThrowsOutOfRangeException() : void
     {
         $this->db_ops->create_table();
-        $symbol = $this->get_mock_symbol([ 'pattern' => '{T}' ]);
+        $symbol = $this->get_mock_symbol([ 'plaintext' => '{T}' ]);
         $this->db_ops->add_symbol( $symbol );
 
         $this->expectException( \OutOfRangeException::class );

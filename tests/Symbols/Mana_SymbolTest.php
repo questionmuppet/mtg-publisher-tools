@@ -3,7 +3,7 @@ declare(strict_types=1);
 use Mtgtools\Symbols\Mana_Symbol;
 use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
 
-class Mana_SymbolTest extends WP_UnitTestCase
+class Mana_SymbolTest extends Mtgtools_UnitTestCase
 {
     /**
      * Include markup assertions
@@ -20,6 +20,7 @@ class Mana_SymbolTest extends WP_UnitTestCase
             'english_phrase' => '',
             'svg_uri'        => '',
         ]);
+        
         $this->assertFalse( $symbol->is_valid() );
     }
 
@@ -29,7 +30,8 @@ class Mana_SymbolTest extends WP_UnitTestCase
     public function testCanGetPublicProperties() : void
     {
         $symbol = $this->get_default_symbol();
-        $this->assertIsString( $symbol->get_pattern(), "Failed to get public property 'pattern'." );
+
+        $this->assertIsString( $symbol->get_plaintext(), "Failed to get public property 'plaintext'." );
         $this->assertIsString( $symbol->get_markup(), "Failed to get public property 'markup'." );
         $this->assertIsString( $symbol->get_english_phrase(), "Failed to get public property 'english_phrase'." );
         $this->assertIsString( $symbol->get_svg_uri(), "Failed to get public property 'svg_uri'." );
@@ -41,7 +43,9 @@ class Mana_SymbolTest extends WP_UnitTestCase
     public function testMarkupHasCorrectAttributes() : void
     {
         $symbol = $this->get_default_symbol();
+
         $html = $symbol->get_markup();
+
         $this->assertHasElementWithAttributes(
             [
                 'alt' => 'tap this permanent',
@@ -49,6 +53,18 @@ class Mana_SymbolTest extends WP_UnitTestCase
             ],
             $html
         );
+    }
+
+    /**
+     * TEST: get_pattern returns valid regex
+     */
+    public function testGetPatternReturnsValidRegex() : void
+    {
+        $symbol = $this->get_default_symbol();
+
+        $result = $symbol->get_pattern();
+
+        $this->assertIsValidRegex( $result );
     }
 
     /**
