@@ -12,7 +12,15 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
 final class Mtgtools_Plugin
 {
-	// Plugin instance
+	/**
+	 * Submodules
+	 */
+	private $symbols;
+	private $enqueue;
+
+	/**
+	 * Plugin instance
+	 */
 	private static $instance;
 	
     /**
@@ -46,6 +54,18 @@ final class Mtgtools_Plugin
 			$this->symbols = new Mtgtools_Symbols( $db_ops );
 		}
 		return $this->symbols;
-    }
+	}
+	
+	/**
+	 * Get enqueue module
+	 */
+	public function enqueue() : Mtgtools_Enqueue
+	{
+		if ( !isset( $this->enqueue ) )
+		{
+			$this->enqueue = new Mtgtools_Enqueue();
+		}
+		return $this->enqueue;
+	}
 
 }   // End of class

@@ -28,4 +28,16 @@ class Mtgtools_PluginTest extends WP_UnitTestCase
         $this->assertInstanceOf( \Mtgtools\Mtgtools_Symbols::class, $module );
     }
 
+    /**
+     * TEST: Can get enqueue module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetEnqueueModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->enqueue();
+
+        $this->assertInstanceOf( \Mtgtools\Mtgtools_Enqueue::class, $module );
+    }
+
 }   // End of class

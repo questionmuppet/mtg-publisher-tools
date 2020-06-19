@@ -15,6 +15,7 @@ Text Domain: mtg-publisher-tools
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
 // Define constants
+define( 'MTGTOOLS__FILE', __FILE__ );
 require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
 
 // Enable autoloading
