@@ -5,6 +5,21 @@ use \Mtgtools\Symbols\Mana_Symbol;
 abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
 {
     /**
+     * -----------------------
+     *   A S S E R T I O N S
+     * -----------------------
+     */
+
+    /**
+     * Assert valid regex formatting
+     */
+    public function assertIsValidRegex( $value, $message = '' )
+    {
+        $match = @preg_match( $value, "" );
+        $this->assertNotFalse( $match, $message );
+    }
+
+    /**
      * ---------------------
      *   P R O D U C E R S
      * ---------------------
