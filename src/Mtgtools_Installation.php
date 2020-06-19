@@ -22,6 +22,7 @@ final class Mtgtools_Installation
      */
     public function activate()
     {
+        $this->mtgtools()->symbols()->install_db_tables();
     }
 
     /**
@@ -29,6 +30,7 @@ final class Mtgtools_Installation
      */
     public function uninstall()
     {
+        $this->mtgtools()->symbols()->delete_db_tables();
     }
 
     /**
