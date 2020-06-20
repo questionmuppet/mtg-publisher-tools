@@ -51,7 +51,7 @@ final class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new \Mtgtools\Symbols\Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops );
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->enqueue() );
 		}
 		return $this->symbols;
 	}

@@ -72,7 +72,7 @@ class Mtgtools_Enqueue
     {
         if ( !isset( $this->version ) )
         {
-            $this->version = get_plugin_data( MTGTOOLS__FILE )['Version'];
+            $this->version = get_file_data( MTGTOOLS__FILE, array( 'Version' => 'Version' ) )['Version'];
         }
         return $this->version;
     }

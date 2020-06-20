@@ -7,6 +7,7 @@
 
 namespace Mtgtools;
 use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Symbols\Mana_Symbol;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -19,11 +20,17 @@ class Mtgtools_Symbols
     private $db_ops;
 
     /**
+     * Enqueue class
+     */
+    private $enqueue;
+
+    /**
      * Constructor
      */
-    public function __construct( Symbol_Db_Ops $db_ops )
+    public function __construct( Symbol_Db_Ops $db_ops, Mtgtools_Enqueue $enqueue )
     {
         $this->db_ops = $db_ops;
+        $this->enqueue = $enqueue;
     }
 
     /**
@@ -40,6 +47,10 @@ class Mtgtools_Symbols
      */
     public function enqueue_assets() : void
     {
+        $this->enqueue->add_style([
+            'key'  => 'mtgtools-symbols',
+            'path' => 'mtgtools-symbols.css',
+        ]);
     }
 
     /**
@@ -55,10 +66,25 @@ class Mtgtools_Symbols
             if ( $symbol->is_valid() )
             {
                 $patterns[] = $symbol->get_pattern();
-                $replacements[] = $symbol->get_markup();
+                $replacements[] = $this->get_markup( $symbol );
             }
         }
         return preg_replace( $patterns, $replacements, $content );
+    }
+
+    /**
+     * Get mana symbol HTML
+     */
+    private function get_markup( Mana_Symbol $symbol ) : string
+    {
+        ob_start();
+        load_mtgtools_template(
+            "symbols/mana-symbol.php",
+            [
+                'symbol' => $symbol
+            ]
+        );
+        return ob_get_clean();
     }
 
     /**

@@ -50,22 +50,9 @@ class Mana_Symbol extends Data
     }
 
     /**
-     * Get sanitized HTML markup for svg image
-     */
-    public function get_markup() : string
-    {
-        return sprintf(
-            '<img class="%s" alt="%s" src="%s" />',
-            esc_attr( $this->get_css_class() ),
-            esc_attr( $this->get_english_phrase() ),
-            esc_url( $this->get_svg_uri() )
-        );
-    }
-
-    /**
      * Get CSS class string for <img> tag
      */
-    private function get_css_class() : string
+    public function get_css_class() : string
     {
         return 'mtg-symbol';
     }
@@ -75,7 +62,7 @@ class Mana_Symbol extends Data
      */
     public function get_english_phrase() : string
     {
-        return $this->get_string_prop( 'english_phrase' );
+        return ucfirst( $this->get_string_prop( 'english_phrase' ) );
     }
 
     /**

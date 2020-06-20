@@ -1,30 +1,61 @@
 <?php
 declare(strict_types=1);
+use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 
 class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
 {
     /**
-     * Setup
+     * Include markup assertions
      */
-    public function setUp() : void
-    {
-        parent::setUp();
-    }
+    use MarkupAssertionsTrait;
     
+    /**
+     * TEST: Can enqueue assets
+     */
+    public function testCanEnqueueAssets() : void
+    {
+        $db_ops = $this->get_mock_db_ops();
+        $enqueue = $this->get_mock_enqueue();
+        $symbols = new Mtgtools_Symbols( $db_ops, $enqueue );
+
+        $result = $symbols->enqueue_assets();
+
+        $this->assertNull( $result );
+    }
+
     /**
      * TEST: Shortcode parser returns string
      */
-    public function testParseManaSymbolsReturnsString() : void
+    public function testParseManaSymbolsReturnsString() : string
     {
         $db_ops = $this->get_mock_db_ops();
         $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
-        $symbols = new Mtgtools_Symbols( $db_ops );
+        $enqueue = $this->get_mock_enqueue();
+        $symbols = new Mtgtools_Symbols( $db_ops, $enqueue );
 
         $result = $symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
 
         $this->assertIsString( $result );
+
+        return is_string( $result ) ? $result : '';
+    }
+
+    /**
+     * TEST: Correct attributes appear in shortcode markup
+     * 
+     * @depends testParseManaSymbolsReturnsString
+     */
+    public function testParseManaSymbolsReturnsCorrectMarkup( string $html ) : void
+    {
+        $this->assertHasElementWithAttributes(
+            [
+                'alt' => 'Tap this permanent',
+                'src' => 'https://img.scryfall.com/symbology/T.svg',
+            ],
+            $html
+        );
     }
 
     /**

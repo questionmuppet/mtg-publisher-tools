@@ -1,0 +1,14 @@
+/**
+ * Styles for mana symbol svgs
+ */
+
+abbr.mtg-abbreviation {
+    display: inline-block;
+    position: relative;
+}
+img.mtg-symbol {
+    position: relative;
+    bottom: .05em;
+    height: .9em;
+    margin: 0 .1em;
+}
