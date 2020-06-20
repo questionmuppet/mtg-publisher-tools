@@ -21,6 +21,9 @@ require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
 // Enable autoloading
 require_once( MTGTOOLS__PATH . 'vendor/autoload.php' );
 
+// Load namespaced functions
+require_once( MTGTOOLS__PATH . 'functions.php' );
+
 // Activation hooks
 register_activation_hook( __FILE__, function() {
     $installation = new Mtgtools\Mtgtools_Installation();
