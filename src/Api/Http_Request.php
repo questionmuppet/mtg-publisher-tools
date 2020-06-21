@@ -109,7 +109,7 @@ class Http_Request extends Data
     /**
      * Get sanitized URL for the request
      */
-    private function get_sanitized_url() : string
+    public function get_sanitized_url() : string
     {
         return esc_url_raw( $this->get_prop( 'url' ) );
     }

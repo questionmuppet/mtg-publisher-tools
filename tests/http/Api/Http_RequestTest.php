@@ -6,6 +6,18 @@ use Mtgtools\Exceptions\Http\HttpConnectionException;
 class Http_RequestTest extends WP_UnitTestCase
 {
     /**
+     * TEST: Can get sanitized url
+     */
+    public function testCanGetSanitizedUrl() : void
+    {
+        $request = $this->create_request([ 'url' => 'https://goo^^^gle.com' ]);
+
+        $result = $request->get_sanitized_url();
+
+        $this->assertEquals( 'https://google.com', $result );
+    }
+
+    /**
      * TEST: Can get status code
      */
     public function testCanGetStatusCode() : void
@@ -91,20 +103,6 @@ class Http_RequestTest extends WP_UnitTestCase
 
         $this->assertEquals( 101,   $result['id'] ?? '' );
         $this->assertEquals( 'foo', $result['title'] ?? '' );
-    }
-
-    /**
-     * TEST: Unsafe url is sanitized
-     * 
-     * @depends testCanGetStatusCode
-     */
-    public function testUnsafeUrlIsSanitized() : void
-    {
-        $request = $this->create_request([ 'url' => 'https://jsonpla^^^ceholder.typicode.com/posts/1/com^^^ments' ]);
-
-        $result = $request->get_status_code();
-
-        $this->assertEquals( 200, $result );
     }
 
     /**
