@@ -6,7 +6,7 @@
  */
 
 namespace Mtgtools\Api;
-use Exceptions\Http\HttpConnectionException;
+use Mtgtools\Exceptions\Http\HttpConnectionException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -23,13 +23,13 @@ class Http_Request extends \Mtgtools\Abstracts\Data implements \Mtgtools\Interfa
      */
     protected $required = array(
         'url',
+        'method',
     );
 
     /**
      * Default properties
      */
     protected $defaults = array(
-        'method'  => '',
         'valid_methods' => [ 'GET', 'POST', 'HEAD' ],
         'timeout' => 10,
         'body'    => [],
@@ -46,7 +46,10 @@ class Http_Request extends \Mtgtools\Abstracts\Data implements \Mtgtools\Interfa
      */
     public function get_response_body() : array
     {
-        return wp_remote_retrieve_body( $this->get_response() );
+        return json_decode(
+            wp_remote_retrieve_body( $this->get_response() ),
+            true
+        );
     }
     
     /**
