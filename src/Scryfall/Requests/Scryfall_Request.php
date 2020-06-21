@@ -8,12 +8,12 @@
 namespace Mtgtools\Scryfall\Requests;
 use Mtgtools\Abstracts\Data;
 use Mtgtools\Api;
-use Mtgtools\Exceptions;
+use Mtgtools\Exceptions\Api as Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-abstract class Scryfall_Request extends Data
+class Scryfall_Request extends Data
 {
     /**
      * Required properties
@@ -24,31 +24,49 @@ abstract class Scryfall_Request extends Data
      * Default properties
      */
     protected $defaults = array(
-        'type'        => '',
         'base_url'    => 'https://api.scryfall.com/',
-        'http_params' => [],
+        'full_url'    => '',
+        'expects'     => '',
+        'http_params' => [
+            'method' => 'GET',
+        ],
     );
+
+    /**
+     * Cached response data
+     */
+    private $response;
 
     /**
      * Get results from the API call
      */
-    abstract public function get_data();
+    public function get_data() : array
+    {
+        if ( !isset( $this->response ) )
+        {
+            $this->response = $this->fetch();
+        }
+        return $this->response;
+    }
     
     /**
      * Fetch from remote host
+     * 
+     * @throws ApiException
      */
-    protected function fetch() : \stdClass
+    protected function fetch() : array
     {
-        try
+        // Perform request
+        $request = new Api\Http_Request( $this->get_request_params() );
+        $api_call = new Api\Api_Call( $request );
+        $response = $api_call->get_result();
+
+        // Check response
+        if ( !$this->is_expected_type( $response ) )
         {
-            $request = new Api\Http_Request( $this->get_request_params() );
-            $api_call = new Api\Api_Call( $request );
-            return $api_call->get_result();
+            throw new Exceptions\ScryfallDataException( "A Scryfall API call returned an unexpected response type. Expected type: '{$this->get_expected_type()}'; returned type: '{$response['object']}'." );
         }
-        catch ( Exceptions\Http\HttpRequestException $e )
-        {
-            throw new Exceptions\Scryfall\ScryfallException( $e->getMessage() );
-        }
+        return $response;
     }
 
     /**
@@ -80,17 +98,17 @@ abstract class Scryfall_Request extends Data
     /**
      * Check response object against expected type
      */
-    protected function is_expected_type( \stdClass $response ) : bool
+    protected function is_expected_type( array $response ) : bool
     {
-        return $this->get_type() === $response->object;
+        return $this->get_expected_type() === $response['object'] ?? '';
     }
 
     /**
      * Get expected response type
      */
-    protected function get_type() : string
+    protected function get_expected_type() : string
     {
-        return $this->get_prop( 'type' );
+        return $this->get_prop( 'expects' );
     }
 
     /**
