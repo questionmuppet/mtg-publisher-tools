@@ -30,15 +30,29 @@ class Http_RequestTest extends WP_UnitTestCase
     }
 
     /**
+     * TEST: Can send HEAD request
+     * 
+     * testCanGetStatusCode
+     */
+    public function testCanSendHeadRequest() : void
+    {
+        $request = $this->create_request([ 'method' => 'HEAD' ]);
+
+        $result = $request->get_status_code();
+
+        $this->assertEquals( 200, $result );
+    }
+
+    /**
      * TEST: Can get response body
      */
-    public function testCanGetResponseBody() : array
+    public function testCanGetResponseBody() : string
     {
         $request = $this->create_request();
 
         $result = $request->get_response_body();
 
-        $this->assertIsArray( $result );
+        $this->assertIsString( $result );
 
         return $result;
     }
@@ -48,10 +62,49 @@ class Http_RequestTest extends WP_UnitTestCase
      * 
      * @depends testCanGetResponseBody
      */
-    public function testResponseBodyContainsCorrectData( array $result ) : void
+    public function testResponseBodyContainsCorrectData( string $response ) : void
     {
+        $result = json_decode( $response, true );
+
         $this->assertCount( 5, $result );
         $this->assertEquals( 'id labore ex et quam laborum', $result[0]['name'] ?? '' );
+    }
+
+    /**
+     * TEST: Can send POST data
+     * 
+     * @depends testResponseBodyContainsCorrectData
+     */
+    public function testCanSendPostData() : void
+    {
+        $request = $this->create_request([
+            'url'    => 'https://jsonplaceholder.typicode.com/posts',
+            'method' => 'POST',
+            'body'   => [
+                'title'  => 'foo',
+                'body'   => 'bar',
+                'userId' => 1,
+            ],
+        ]);
+
+        $result = json_decode( $request->get_response_body(), true );
+
+        $this->assertEquals( 101,   $result['id'] ?? '' );
+        $this->assertEquals( 'foo', $result['title'] ?? '' );
+    }
+
+    /**
+     * TEST: Unsafe url is sanitized
+     * 
+     * @depends testCanGetStatusCode
+     */
+    public function testUnsafeUrlIsSanitized() : void
+    {
+        $request = $this->create_request([ 'url' => 'https://jsonpla^^^ceholder.typicode.com/posts/1/com^^^ments' ]);
+
+        $result = $request->get_status_code();
+
+        $this->assertEquals( 200, $result );
     }
 
     /**
