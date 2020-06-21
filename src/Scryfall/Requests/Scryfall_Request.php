@@ -5,13 +5,15 @@
  * Performs a call to the Scryfall API and returns the result
  */
 
-namespace Mtgtools\Scryfall;
-use \Mtgtools\Api;
+namespace Mtgtools\Scryfall\Requests;
+use Mtgtools\Abstracts\Data;
+use Mtgtools\Api;
+use Mtgtools\Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Scryfall_Request extends \Mtgtools\Abstracts\Data
+abstract class Scryfall_Request extends Data
 {
     /**
      * Required properties
@@ -22,6 +24,7 @@ class Scryfall_Request extends \Mtgtools\Abstracts\Data
      * Default properties
      */
     protected $defaults = array(
+        'type'        => '',
         'base_url'    => 'https://api.scryfall.com/',
         'http_params' => [],
     );
@@ -29,11 +32,23 @@ class Scryfall_Request extends \Mtgtools\Abstracts\Data
     /**
      * Get results from the API call
      */
-    public function get_data() : array
+    abstract public function get_data();
+    
+    /**
+     * Fetch from remote host
+     */
+    protected function fetch() : \stdClass
     {
-        $request = new Api\Http_Request( $this->get_request_params() );
-        $api_call = new Api\Api_Call( $request );
-        return $api_call->get_result();
+        try
+        {
+            $request = new Api\Http_Request( $this->get_request_params() );
+            $api_call = new Api\Api_Call( $request );
+            return $api_call->get_result();
+        }
+        catch ( Exceptions\Http\HttpRequestException $e )
+        {
+            throw new Exceptions\Scryfall\ScryfallException( $e->getMessage() );
+        }
     }
 
     /**
@@ -60,6 +75,22 @@ class Scryfall_Request extends \Mtgtools\Abstracts\Data
     private function get_base_url() : string
     {
         return trailingslashit( $this->get_prop( 'base_url' ) );
+    }
+
+    /**
+     * Check response object against expected type
+     */
+    protected function is_expected_type( \stdClass $response ) : bool
+    {
+        return $this->get_type() === $response->object;
+    }
+
+    /**
+     * Get expected response type
+     */
+    protected function get_type() : string
+    {
+        return $this->get_prop( 'type' );
     }
 
     /**

@@ -16,9 +16,7 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
      */
     public function testCanEnqueueAssets() : void
     {
-        $db_ops = $this->get_mock_db_ops();
-        $enqueue = $this->get_mock_enqueue();
-        $symbols = new Mtgtools_Symbols( $db_ops, $enqueue );
+        $symbols = $this->get_mock_symbols();
 
         $result = $symbols->enqueue_assets();
 
@@ -32,9 +30,8 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     {
         $db_ops = $this->get_mock_db_ops();
         $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
-        $enqueue = $this->get_mock_enqueue();
-        $symbols = new Mtgtools_Symbols( $db_ops, $enqueue );
-
+        $symbols = $this->get_mock_symbols( $db_ops );
+        
         $result = $symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
 
         $this->assertIsString( $result );
@@ -56,6 +53,40 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
             ],
             $html
         );
+    }
+
+    /**
+     * Can install db tables
+     */
+    public function testCanInstallTables() : void
+    {
+        $symbols = $this->get_mock_symbols();
+
+        $result = $symbols->install_db_tables();
+
+        $this->assertNull( $result );
+    }
+
+    /**
+     * Can delete db tables
+     */
+    public function testCanDeleteTables() : void
+    {
+        $symbols = $this->get_mock_symbols();
+
+        $result = $symbols->delete_db_tables();
+
+        $this->assertNull( $result );
+    }
+
+    /**
+     * Get mock symbols module
+     */
+    private function get_mock_symbols( Symbol_Db_Ops $db_ops = null ) : Mtgtools_Symbols
+    {
+        $db_ops = $db_ops ? $db_ops : $this->get_mock_db_ops();
+        $enqueue = $this->get_mock_enqueue();
+        return new Mtgtools_Symbols( $db_ops, $enqueue );
     }
 
     /**
