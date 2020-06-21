@@ -18,17 +18,20 @@ class Scryfall_Request extends Data
     /**
      * Required properties
      */
-    protected $required = array( 'endpoint' );
+    protected $required = array(
+        'expects'
+    );
 
     /**
      * Default properties
      */
     protected $defaults = array(
+        'endpoint'    => '',
         'base_url'    => 'https://api.scryfall.com/',
-        'full_url'    => '',
-        'expects'     => '',
+        'full_url'    => null,
         'http_params' => [
-            'method' => 'GET',
+            'method'  => 'GET',
+            'body'    => [],
         ],
     );
 
@@ -84,7 +87,7 @@ class Scryfall_Request extends Data
      */
     private function get_full_url() : string
     {
-        return $this->get_base_url() . $this->get_endpoint();
+        return $this->get_prop( 'full_url' ) ?? $this->get_base_url() . $this->get_endpoint();
     }
 
     /**

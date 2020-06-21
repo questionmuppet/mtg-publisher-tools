@@ -6,13 +6,28 @@ use Mtgtools\Exceptions\Api as Exceptions;
 class Scryfall_RequestTest extends Mtgtools_UnitTestCase
 {
     /**
-     * TEST: Can fetch data from API
+     * TEST: Can fetch API data using full url
      */
-    public function testCanFetchApiData() : array
+    public function testCanFetchFullUrl() : void
     {
         $request = $this->create_request([
-            'expects'  => 'card',
+            'full_url' => 'https://api.scryfall.com/sets/mmq',
+            'expects'  => 'set',
+        ]);
+
+        $result = $request->get_data();
+
+        $this->assertIsArray( $result );
+    }
+
+    /**
+     * TEST: Can fetch API data using endpoint
+     */
+    public function testCanFetchEndpoint() : array
+    {
+        $request = $this->create_request([
             'endpoint' => 'cards/e9d5aee0-5963-41db-a22b-cfea40a967a3',
+            'expects'  => 'card',
         ]);
 
         $card = $request->get_data();
@@ -25,7 +40,7 @@ class Scryfall_RequestTest extends Mtgtools_UnitTestCase
     /**
      * TEST: Api data contains correct fields
      * 
-     * @depends testCanFetchApiData
+     * @depends testCanFetchEndpoint
      */
     public function testApiDataContainsCorrectFields( array $card ) : void
     {
@@ -36,13 +51,13 @@ class Scryfall_RequestTest extends Mtgtools_UnitTestCase
     /**
      * TEST: Bad request throws ApiStatusException
      * 
-     * @depends testCanFetchApiData
+     * @depends testCanFetchEndpoint
      */
     public function testBadRequestThrowsApiStatusException() : void
     {
         $request = $this->create_request([
-            'expects'  => 'card',
             'endpoint' => 'cards/search?q=is%3Aslick+cmc%3Ecmc',
+            'expects'  => 'card',
         ]);
 
         $this->expectException( Exceptions\ApiStatusException::class );
@@ -53,13 +68,13 @@ class Scryfall_RequestTest extends Mtgtools_UnitTestCase
     /**
      * TEST: Wrong response type throws ScryfallDataException
      * 
-     * @depends testCanFetchApiData
+     * @depends testCanFetchEndpoint
      */
     public function testWrongResponseTypeThrowsScryfallDataException() : void
     {
         $request = $this->create_request([
-            'expects'  => 'card',
             'endpoint' => 'sets/mmq',
+            'expects'  => 'card',
         ]);
 
         $this->expectException( Exceptions\ScryfallDataException::class );
@@ -72,10 +87,6 @@ class Scryfall_RequestTest extends Mtgtools_UnitTestCase
      */
     private function create_request( array $args ) : Scryfall_Request
     {
-        $args = array_merge([
-            'expects'  => '',
-            'endpoint' => '',
-        ], $args );
         return new Scryfall_Request( $args );
     }
 
