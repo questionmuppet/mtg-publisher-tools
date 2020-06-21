@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 use Mtgtools\Api\Api_Call;
-use Mtgtools\Exceptions\Http as Exceptions;
+use Mtgtools\Api\Http_Request;
+use Mtgtools\Exceptions\Api as Exceptions;
 
 class Api_CallTest extends WP_UnitTestCase
 {
@@ -15,65 +16,56 @@ class Api_CallTest extends WP_UnitTestCase
      */
     public function setUp() : void
     {
-        $this->request = $this->createMock( \Mtgtools\Interfaces\Remote_Request::class );
+        $this->request = $this->createMock( Http_Request::class );
     }
 
     /**
-     * TEST: Successful api call
+     * TEST: Can get result of successful api call
      */
     public function testCanGetResultOfSuccessfulApiCall() : void
     {
-        $response = [
-            'testKey' => 'testValue'
-        ];
+        $response = $this->get_dummy_response_data();
         $this->set_request_response([
-            'body'    => $response,
+            'body'    => json_encode( $response ),
             'code'    => '200',
             'message' => 'OK',
         ]);
+
         $api_call = new Api_Call( $this->request );
+        
         $this->assertEqualsCanonicalizing( $response, $api_call->get_result() );
     }
 
     /**
-     * TEST: 500 status
+     * TEST: Unsuccessful api call throws ApiStatusException
      */
-    public function test500HttpStatusThrows500Exception() : void
+    public function testUnsuccessfulHttpStatusThrowsApiStatusException() : void
     {
-        $this->expectException( Exceptions\Http500StatusException::class );
         $this->set_request_response([
             'code'    => '504',
             'message' => 'Gateway Timeout',
         ]);
         $api_call = new Api_Call( $this->request );
+
+        $this->expectException( Exceptions\ApiStatusException::class );
+        
         $api_call->get_result();
     }
 
     /**
-     * TEST: 400 status
+     * TEST: Malformed JSON response throws ApiJsonException
      */
-    public function test400HttpStatusThrows400Exception() : void
+    public function testMalformedJsonResponseThrowsApiJsonException() : void
     {
-        $this->expectException( Exceptions\Http400StatusException::class );
         $this->set_request_response([
-            'code'    => '404',
-            'message' => 'Not Found',
+            'body'    => '',
+            'code'    => '200',
+            'message' => 'OK',
         ]);
         $api_call = new Api_Call( $this->request );
-        $api_call->get_result();
-    }
 
-    /**
-     * TEST: 400 status
-     */
-    public function testUnknownHttpStatusThrowsGenericException() : void
-    {
-        $this->expectException( Exceptions\HttpStatusException::class );
-        $this->set_request_response([
-            'code'    => '100',
-            'message' => 'Continue',
-        ]);
-        $api_call = new Api_Call( $this->request );
+        $this->expectException( Exceptions\ApiJsonException::class );
+
         $api_call->get_result();
     }
 
@@ -86,10 +78,20 @@ class Api_CallTest extends WP_UnitTestCase
             'body'    => '',
             'code'    => '',
             'message' => '',
+            'url'     => '',
         ], $args);
         $this->request->method('get_response_body')->willReturn( $args['body'] );
         $this->request->method('get_status_code')->willReturn( $args['code'] );
         $this->request->method('get_status_message')->willReturn( $args['message'] );
+        $this->request->method('get_sanitized_url')->willReturn( $args['url'] );
+    }
+
+    /**
+     * Get dummy response data
+     */
+    private function get_dummy_response_data() : array
+    {
+        return array( 'testKey' => 'testValue' );
     }
 
 }   // End of test class

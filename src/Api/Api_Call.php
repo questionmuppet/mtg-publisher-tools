@@ -6,8 +6,7 @@
  */
 
 namespace Mtgtools\Api;
-use \Mtgtools\Interfaces\Remote_Request;
-use \Mtgtools\Exceptions\Http as Exceptions;
+use Mtgtools\Exceptions\Api as Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -22,21 +21,42 @@ class Api_Call
     /**
      * Constructor
      */
-    public function __construct( Remote_Request $request )
+    public function __construct( Http_Request $request )
     {
         $this->request = $request;
     }
 
     /**
      * Perform the call and return the result
+     * 
+     * @throws ApiException
      */
     public function get_result() : array
     {
         if ( !$this->status_is_ok() )
         {
-            $this->throw_http_exception( $this->request->get_status_code(), $this->get_error_message() );
+            throw new Exceptions\ApiStatusException(
+                sprintf(
+                    "An external API call returned an unsuccessful HTTP status code '%s: %s'.",
+                    $this->request->get_status_code(),
+                    $this->request->get_status_message()
+                )
+            );
         }
-        return $this->request->get_response_body();
+        return $this->decode( $this->request->get_response_body() );
+    }
+
+    /**
+     * Decode JSON response string
+     */
+    private function decode( string $body ) : array
+    {
+        $data = json_decode( $body, true );
+        if ( is_null( $data ) )
+        {
+            throw new Exceptions\ApiJsonException( "An API call returned malformed JSON. Cannot retrieve data from '{$this->request->get_sanitized_url()}'." );
+        }
+        return $data;
     }
 
     /**
@@ -45,34 +65,6 @@ class Api_Call
     private function status_is_ok() : bool
     {
         return "200" === $this->request->get_status_code();
-    }
-
-    /**
-     * Throw HTTP exception
-     */
-    private function throw_http_exception( string $status, string $message ) : void
-    {
-        if ( $status >= 500 ) {
-            throw new Exceptions\Http500StatusException( $message );
-        }
-        else if ( $status >= 400 ) {
-            throw new Exceptions\Http400StatusException( $message );
-        }
-        else {
-            throw new Exceptions\HttpStatusException( $message );
-        }
-    }
-    
-    /**
-     * Get error message
-     */
-    private function get_error_message() : string
-    {
-        return sprintf(
-            "An external API call returned an invalid HTTP status code '%s: %s'.",
-            $this->request->get_status_code(),
-            $this->request->get_status_message()
-        );
     }
 
 }   // End of class
