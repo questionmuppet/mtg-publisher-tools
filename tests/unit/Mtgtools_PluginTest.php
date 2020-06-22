@@ -2,7 +2,7 @@
 declare(strict_types=1);
 use Mtgtools\Mtgtools_Plugin;
 
-class Mtgtools_PluginTest extends WP_UnitTestCase
+class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
 {
     /**
      * TEST: Can get instance

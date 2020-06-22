@@ -16,7 +16,7 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
      */
     public function testCanEnqueueAssets() : void
     {
-        $symbols = $this->get_mock_symbols();
+        $symbols = $this->create_symbols_module();
 
         $result = $symbols->enqueue_assets();
 
@@ -30,13 +30,13 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     {
         $db_ops = $this->get_mock_db_ops();
         $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
-        $symbols = $this->get_mock_symbols( $db_ops );
+        $symbols = $this->create_symbols_module( $db_ops );
         
         $result = $symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
 
         $this->assertIsString( $result );
 
-        return is_string( $result ) ? $result : '';
+        return $result;
     }
 
     /**
@@ -56,11 +56,11 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Can install db tables
+     * TEST: Can install db tables
      */
     public function testCanInstallTables() : void
     {
-        $symbols = $this->get_mock_symbols();
+        $symbols = $this->create_symbols_module();
 
         $result = $symbols->install_db_tables();
 
@@ -68,11 +68,11 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Can delete db tables
+     * TEST: Can delete db tables
      */
     public function testCanDeleteTables() : void
     {
-        $symbols = $this->get_mock_symbols();
+        $symbols = $this->create_symbols_module();
 
         $result = $symbols->delete_db_tables();
 
@@ -80,9 +80,15 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Get mock symbols module
+     * ---------------------
+     *   P R O D U C E R S
+     * ---------------------
      */
-    private function get_mock_symbols( Symbol_Db_Ops $db_ops = null ) : Mtgtools_Symbols
+
+    /**
+     * Create symbols module
+     */
+    private function create_symbols_module( Symbol_Db_Ops $db_ops = null ) : Mtgtools_Symbols
     {
         $db_ops = $db_ops ? $db_ops : $this->get_mock_db_ops();
         $enqueue = $this->get_mock_enqueue();
