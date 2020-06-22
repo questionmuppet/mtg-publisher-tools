@@ -95,6 +95,29 @@ class Mtgtools_Symbols
     }
 
     /**
+     * ---------------------------
+     *   S Y M B O L   C A C H E
+     * ---------------------------
+     */
+
+    /**
+     * Import all symbols from external source
+     */
+    public function import_symbols() : void
+    {
+        foreach ( $this->source->get_mana_symbols() as $symbol )
+        {
+            $this->db_ops->add_symbol( $symbol );
+        }
+    }
+
+    /**
+     * ---------------------
+     *   D B   T A B L E S
+     * ---------------------
+     */
+
+    /**
      * Install database tables
      * 
      * @hooked Plugin activation
