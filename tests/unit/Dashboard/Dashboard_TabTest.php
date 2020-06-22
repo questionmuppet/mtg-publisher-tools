@@ -42,6 +42,16 @@ class Dashboard_TabTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can get id
+     */
+    public function testCanGetId() : void
+    {
+        $id = $this->tab->get_id();
+
+        $this->assertEquals( 'foo_bar', $id );
+    }
+
+    /**
      * TEST: Can enqueue assets
      */
     public function testCanEnqueueAssets() : void

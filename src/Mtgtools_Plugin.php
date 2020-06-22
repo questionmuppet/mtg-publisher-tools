@@ -43,6 +43,7 @@ final class Mtgtools_Plugin
 	public function init() : void
 	{
 		$this->symbols()->add_hooks();
+		$this->dashboard()->add_hooks();
     }
     
 	/**
