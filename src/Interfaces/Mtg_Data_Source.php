@@ -2,7 +2,7 @@
 /**
  * Mtg_Data_Source
  * 
- * Interface that exposes external Magic: The Gathering data to consumers
+ * Interface that exposes external Magic: The Gathering data to consumer classes
  */
 
 namespace Mtgtools\Interfaces;
