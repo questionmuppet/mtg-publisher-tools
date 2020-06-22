@@ -6,6 +6,9 @@
  */
 
 namespace Mtgtools;
+use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Scryfall\Scryfall_Data_Source;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -50,8 +53,8 @@ final class Mtgtools_Plugin
 		if ( !isset( $this->symbols ) )
 		{
 			global $wpdb;
-			$db_ops = new \Mtgtools\Symbols\Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->enqueue() );
+			$db_ops = new Symbol_Db_Ops( $wpdb );
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->enqueue(), $this->get_mtg_data_source() );
 		}
 		return $this->symbols;
 	}
@@ -66,6 +69,28 @@ final class Mtgtools_Plugin
 			$this->enqueue = new Mtgtools_Enqueue();
 		}
 		return $this->enqueue;
+	}
+
+	/**
+	 * ---------------------------
+	 *   D A T A   S O U R C E S
+	 * ---------------------------
+	 */
+
+	/**
+	 * Get Magic: The Gathering data source
+	 */
+	private function get_mtg_data_source() : Mtg_Data_Source
+	{
+		return apply_filters( 'mtgtools_mtg_data_source', $this->get_scryfall_source() );
+	}
+
+	/**
+	 * Get Scryfall data source
+	 */
+	private function get_scryfall_source() : Scryfall_Data_Source
+	{
+		return new Scryfall_Data_Source();
 	}
 
 }   // End of class

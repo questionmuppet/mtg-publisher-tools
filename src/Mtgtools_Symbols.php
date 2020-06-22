@@ -7,6 +7,7 @@
 
 namespace Mtgtools;
 use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
 
 // Exit if accessed directly
@@ -25,12 +26,18 @@ class Mtgtools_Symbols
     private $enqueue;
 
     /**
+     * MTG data source
+     */
+    private $source;
+
+    /**
      * Constructor
      */
-    public function __construct( Symbol_Db_Ops $db_ops, Mtgtools_Enqueue $enqueue )
+    public function __construct( Symbol_Db_Ops $db_ops, Mtgtools_Enqueue $enqueue, Mtg_Data_Source $source )
     {
         $this->db_ops = $db_ops;
         $this->enqueue = $enqueue;
+        $this->source = $source;
     }
 
     /**

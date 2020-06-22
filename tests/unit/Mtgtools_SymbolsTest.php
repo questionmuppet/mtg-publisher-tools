@@ -92,7 +92,8 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     {
         $db_ops = $db_ops ? $db_ops : $this->get_mock_db_ops();
         $enqueue = $this->get_mock_enqueue();
-        return new Mtgtools_Symbols( $db_ops, $enqueue );
+        $source = $this->get_mock_mtg_data_source();
+        return new Mtgtools_Symbols( $db_ops, $enqueue, $source );
     }
 
     /**
@@ -102,17 +103,6 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     {
         $db_ops = $this->createMock( Symbol_Db_Ops::class );
         return $db_ops;
-    }
-
-    /**
-     * Get mock Mana_Symbol objects
-     */
-    private function get_mock_mana_symbols() : array
-    {
-        return [
-            $this->get_mock_symbol(),
-            $this->get_mock_symbol([ 'plaintext' => '{Q}', 'pattern' => '/\{Q\}/' ]),
-        ];
     }
 
 }   // End of class

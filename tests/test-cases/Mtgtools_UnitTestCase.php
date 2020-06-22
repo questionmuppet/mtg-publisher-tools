@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
-use \Mtgtools\Mtgtools_Enqueue;
-use \Mtgtools\Symbols\Mana_Symbol;
+use Mtgtools\Mtgtools_Enqueue;
+use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Symbols\Mana_Symbol;
 
 abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
 {
@@ -33,6 +34,25 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
     {
         $enqueue = $this->createMock( Mtgtools_Enqueue::class );
         return $enqueue;
+    }
+
+    /**
+     * Get mock Mtg_Data_Source
+     */
+    protected function get_mock_mtg_data_source() : Mtg_Data_Source
+    {
+        return $this->createMock( Mtg_Data_Source::class );
+    }
+
+    /**
+     * Get several mock Mana_Symbol objects
+     */
+    protected function get_mock_mana_symbols() : array
+    {
+        return [
+            $this->get_mock_symbol(),
+            $this->get_mock_symbol([ 'plaintext' => '{Q}', 'pattern' => '/\{Q\}/' ]),
+        ];
     }
 
     /**
