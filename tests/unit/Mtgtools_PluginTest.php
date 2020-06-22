@@ -25,8 +25,21 @@ class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
     {
         $module = $instance->symbols();
 
-        $this->assertInstanceOf( \Mtgtools\Mtgtools_Symbols::class, $module );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Symbols::class, $module );
     }
+
+    /**
+     * TEST: Can get dashboard module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetDashboardModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->dashboard();
+
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Dashboard::class, $module );
+    }
+
 
     /**
      * TEST: Can get enqueue module
@@ -37,7 +50,7 @@ class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
     {
         $module = $instance->enqueue();
 
-        $this->assertInstanceOf( \Mtgtools\Mtgtools_Enqueue::class, $module );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Enqueue::class, $module );
     }
 
 }   // End of class

@@ -58,6 +58,18 @@ final class Mtgtools_Plugin
 		}
 		return $this->symbols;
 	}
+
+	/**
+	 * Get dashboard module
+	 */
+	public function dashboard() : Mtgtools_Dashboard
+	{
+		if ( !isset( $this->dashboard ) )
+		{
+			$this->dashboard = new Mtgtools_Dashboard( $this->enqueue() );
+		}
+		return $this->dashboard;
+	}
 	
 	/**
 	 * Get enqueue module
