@@ -24,6 +24,7 @@ class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
     {
         parent::setUp();
         $this->dashboard = new Mtgtools_Dashboard( $this->get_mock_enqueue() );
+        remove_all_filters( 'mtgtools_dashboard_tab_definitions' );
     }
 
     /**
