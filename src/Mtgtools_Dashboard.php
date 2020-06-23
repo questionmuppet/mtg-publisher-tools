@@ -6,12 +6,13 @@
  */
 
 namespace Mtgtools;
+use Mtgtools\Abstracts\Module;
 use Mtgtools\Dashboard\Dashboard_Tab;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Mtgtools_Dashboard
+class Mtgtools_Dashboard extends Module
 {
     /**
      * Dashboard tabs
@@ -22,19 +23,6 @@ class Mtgtools_Dashboard
      * Active tab
      */
     private $active;
-
-    /**
-     * Enqueue module
-     */
-    private $enqueue;
-
-    /**
-     * Constructor
-     */
-    public function __construct( Mtgtools_Enqueue $enqueue )
-    {
-        $this->enqueue = $enqueue;
-    }
 
     /**
      * ---------------------------------
@@ -70,7 +58,7 @@ class Mtgtools_Dashboard
     {
         if ( 'settings_page_' . MTGTOOLS__ADMIN_SLUG === $hook_suffix )
         {
-            $this->get_active_tab()->enqueue_assets( $this->enqueue );
+            $this->get_active_tab()->enqueue_assets( $this->mtgtools()->enqueue() );
         }
     }
 

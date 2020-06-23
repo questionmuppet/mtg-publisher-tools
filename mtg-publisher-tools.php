@@ -26,7 +26,8 @@ require_once( MTGTOOLS__PATH . 'functions.php' );
 
 // Activation hooks
 register_activation_hook( __FILE__, function() {
-    $installation = new Mtgtools\Mtgtools_Installation();
+    $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
+    $installation = new Mtgtools\Mtgtools_Installation( $plugin );
     $installation->activate();
 });
 

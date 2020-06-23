@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools;
+use Mtgtools\Abstracts\Module;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
@@ -13,17 +14,12 @@ use Mtgtools\Symbols\Mana_Symbol;
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Mtgtools_Symbols
+class Mtgtools_Symbols extends Module
 {
     /**
      * Class for handling database CRUD
      */
     private $db_ops;
-
-    /**
-     * Enqueue class
-     */
-    private $enqueue;
 
     /**
      * MTG data source
@@ -33,11 +29,11 @@ class Mtgtools_Symbols
     /**
      * Constructor
      */
-    public function __construct( Symbol_Db_Ops $db_ops, Mtgtools_Enqueue $enqueue, Mtg_Data_Source $source )
+    public function __construct( Symbol_Db_Ops $db_ops, Mtg_Data_Source $source, $plugin )
     {
         $this->db_ops = $db_ops;
-        $this->enqueue = $enqueue;
         $this->source = $source;
+        parent::__construct( $plugin );
     }
 
     /**
@@ -55,7 +51,7 @@ class Mtgtools_Symbols
      */
     public function enqueue_assets() : void
     {
-        $this->enqueue->add_style([
+        $this->mtgtools()->enqueue()->add_style([
             'key'  => 'mtgtools-symbols',
             'path' => 'mtgtools-symbols.css',
         ]);

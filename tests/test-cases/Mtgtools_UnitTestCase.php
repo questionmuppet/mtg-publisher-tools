@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
+use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Mtgtools_Enqueue;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
@@ -33,6 +34,14 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
      *   P R O D U C E R S
      * ---------------------
      */
+
+    /**
+     * Get mock plugin instance
+     */
+    protected function get_mock_plugin() : Mtgtools_Plugin
+    {
+        return $this->createMock( Mtgtools_Plugin::class );
+    }
 
     /**
      * Get mock Enqueue module

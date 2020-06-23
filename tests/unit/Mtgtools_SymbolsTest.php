@@ -1,16 +1,11 @@
 <?php
 declare(strict_types=1);
-use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
+
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 
 class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
 {
-    /**
-     * Include markup assertions
-     */
-    use MarkupAssertionsTrait;
-    
     /**
      * TEST: Can enqueue assets
      */
@@ -105,9 +100,8 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     private function create_symbols_module( array $args = [] ) : Mtgtools_Symbols
     {
         $db_ops  = $args['db_ops']  ?? $this->get_mock_db_ops();
-        $enqueue = $args['enqueue'] ?? $this->get_mock_enqueue();
         $source  = $args['source']  ?? $this->get_mock_mtg_data_source();
-        return new Mtgtools_Symbols( $db_ops, $enqueue, $source );
+        return new Mtgtools_Symbols( $db_ops, $source, $this->get_mock_plugin() );
     }
 
     /**

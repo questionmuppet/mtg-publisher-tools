@@ -9,16 +9,18 @@ namespace Mtgtools;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Notices\Admin_Notice;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-final class Mtgtools_Plugin
+class Mtgtools_Plugin
 {
 	/**
 	 * Submodules
 	 */
 	private $symbols;
+	private $dashboard;
 	private $enqueue;
 
 	/**
@@ -44,7 +46,13 @@ final class Mtgtools_Plugin
 	{
 		$this->symbols()->add_hooks();
 		$this->dashboard()->add_hooks();
-    }
+	}
+	
+	/**
+	 * -----------------
+	 *   M O D U L E S
+	 * -----------------
+	 */
     
 	/**
 	 * Get mana symbols module
@@ -55,7 +63,7 @@ final class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->enqueue(), $this->get_mtg_data_source() );
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this );
 		}
 		return $this->symbols;
 	}
@@ -67,7 +75,7 @@ final class Mtgtools_Plugin
 	{
 		if ( !isset( $this->dashboard ) )
 		{
-			$this->dashboard = new Mtgtools_Dashboard( $this->enqueue() );
+			$this->dashboard = new Mtgtools_Dashboard( $this );
 		}
 		return $this->dashboard;
 	}
@@ -82,6 +90,21 @@ final class Mtgtools_Plugin
 			$this->enqueue = new Mtgtools_Enqueue();
 		}
 		return $this->enqueue;
+	}
+
+	/**
+	 * -------------------------------
+	 *   M O D U L E   H E L P E R S
+	 * -------------------------------
+	 */
+
+	/**
+	 * Output a WordPress admin notice
+	 */
+	public function add_admin_notice( array $params ) : void
+	{
+		$notice = new Admin_Notice( $params );
+		$notice->print();
 	}
 
 	/**

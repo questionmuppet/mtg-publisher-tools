@@ -1,17 +1,11 @@
 <?php
 declare(strict_types=1);
 
-use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Dashboard\Dashboard_Tab;
 
-class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
+class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
 {
-    /**
-     * Include markup assertions
-     */
-    use MarkupAssertionsTrait;
-
     /**
      * Dashboard module
      */
@@ -23,7 +17,7 @@ class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
     public function setUp() : void
     {
         parent::setUp();
-        $this->dashboard = new Mtgtools_Dashboard( $this->get_mock_enqueue() );
+        $this->dashboard = new Mtgtools_Dashboard( $this->get_mock_plugin() );
     }
     
     /**
