@@ -1,11 +1,18 @@
 <?php
 declare(strict_types=1);
+
+use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
 use Mtgtools\Mtgtools_Enqueue;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
 
 abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
 {
+    /**
+     * Include markup assertions
+     */
+    use MarkupAssertionsTrait;
+
     /**
      * -----------------------
      *   A S S E R T I O N S
