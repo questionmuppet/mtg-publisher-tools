@@ -98,19 +98,20 @@ class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Cannot add duplicate symbol
+     * Can update extant symbol
      * 
      * @depends testCanAddValidSymbol
      */
-    public function testAddingDuplicateSymbolThrowsDbException() : void
+    public function testCanUpdateExtantSymbol() : void
     {
         $symbol = $this->get_mock_symbol();
         $this->db_ops->create_table();
         $this->db_ops->add_symbol( $symbol );
 
-        $this->expectException( Exceptions\DbException::class );
+        $symbol_2 = $this->get_mock_symbol([ 'english_phrase' => 'A nice, new phrase.' ]);
+        $result = $this->db_ops->add_symbol( $symbol_2 );
 
-        $this->db_ops->add_symbol( $symbol );
+        $this->assertTrue( $result );
     }
     
     /**

@@ -48,7 +48,6 @@ class Symbol_Db_Ops extends Data
         return $this->get_mana_symbols()[ $key ];
     }
 
-
     /**
      * Get all mana symbols from database
      * 
@@ -77,22 +76,45 @@ class Symbol_Db_Ops extends Data
         {
             throw new Exceptions\DbException( get_called_class() . " tried to add an invalid mana symbol with key '{$symbol->get_plaintext()}' to the database." );
         }
-        if ( $this->symbol_exists( $symbol->get_plaintext() ) )
-        {
-            throw new Exceptions\DbException( get_called_class() . " tried to add a duplicate mana symbol to the database. An entry already exists for key '{$symbol->get_plaintext()}'." );
-        }
-        return (bool) $this->db->insert(
-            $this->get_table(),
-            [
-                'plaintext'      => $symbol->get_plaintext(),
-                'english_phrase' => $symbol->get_english_phrase(),
-                'svg_uri'        => $symbol->get_svg_uri(),
-            ],
-            '%s'
+        $values = [
+            'plaintext'      => $symbol->get_plaintext(),
+            'english_phrase' => $symbol->get_english_phrase(),
+            'svg_uri'        => $symbol->get_svg_uri(),
+        ];
+        return boolval(
+            $this->symbol_exists( $symbol->get_plaintext() )
+            ? $this->update_symbol( $values )
+            : $this->insert_symbol( $values )
         );
+    }
+    
+    /**
+     * Insert new row into symbols table
+     * 
+     * @return int|false Rows inserted, false on error
+     */
+    private function insert_symbol( array $values )
+    {
+        return $this->db->insert( $this->get_table(), $values, '%s' );
     }
 
     /**
+     * Update an extant row in symbols table
+     * 
+     * @return int|false Rows updated, false on error
+     */
+    private function update_symbol( array $values )
+    {
+        return $this->db->update(
+            $this->get_table(),
+            $values,
+            array( 'plaintext' => $values['plaintext'] ),   // Where clause
+            '%s',                                           // Values format
+            '%s'                                            // Where format
+        );
+    }
+
+     /**
      * Delete a mana symbol from the database
      */
     public function delete_symbol( string $key ) : bool
