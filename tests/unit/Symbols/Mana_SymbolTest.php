@@ -9,7 +9,7 @@ class Mana_SymbolTest extends Mtgtools_UnitTestCase
      */
     public function testSymbolWithEmptyPlaintextIsInvalid() : void
     {
-        $symbol = new Mana_Symbol([
+        $symbol = $this->create_symbol([
             'plaintext'      => '',
             'english_phrase' => '',
             'svg_uri'        => '',
@@ -23,7 +23,7 @@ class Mana_SymbolTest extends Mtgtools_UnitTestCase
      */
     public function testCanGetPublicProperties() : void
     {
-        $symbol = $this->get_default_symbol();
+        $symbol = $this->create_symbol();
 
         $this->assertIsString( $symbol->get_plaintext(), "Failed to get public property 'plaintext'." );
         $this->assertIsString( $symbol->get_css_class(), "Failed to get public property 'css_class'." );
@@ -36,7 +36,7 @@ class Mana_SymbolTest extends Mtgtools_UnitTestCase
      */
     public function testGetPatternReturnsValidRegex() : void
     {
-        $symbol = $this->get_default_symbol();
+        $symbol = $this->create_symbol();
 
         $result = $symbol->get_pattern();
 
@@ -44,15 +44,31 @@ class Mana_SymbolTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Get default test symbol
+     * TEST: get_pattern returns valid regex using '/' character
+     * 
+     * @depends testGetPatternReturnsValidRegex
      */
-    private function get_default_symbol() : Mana_Symbol
+    public function testGetPatternWorksWithSlashChar() : void
     {
-        return new Mana_Symbol([
+        $symbol = $this->create_symbol([ 'plaintext' => '{W/P}' ]);
+
+        $pattern = $symbol->get_pattern();
+        $match = boolval( preg_match( $pattern, '{W/P}' ) );
+
+        $this->assertTrue( $match );
+    }
+
+    /**
+     * Create mana symbol
+     */
+    private function create_symbol( array $args = [] ) : Mana_Symbol
+    {
+        $args = array_merge([
             'plaintext'      => '{T}',
             'english_phrase' => 'Tap this permanent',
             'svg_uri'        => 'https://img.scryfall.com/symbology/T.svg',
-        ]);
+        ], $args );
+        return new Mana_Symbol( $args );
     }
 
 }   // End of class

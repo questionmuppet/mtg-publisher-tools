@@ -37,7 +37,7 @@ class Mana_Symbol extends Data
     {
         return sprintf(
             "/%s/",
-            preg_quote( $this->get_plaintext() )
+            preg_quote( $this->get_plaintext(), '/' )
         );
     }
 
