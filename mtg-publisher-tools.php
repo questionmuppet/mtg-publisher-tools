@@ -2,7 +2,7 @@
 /*
 Plugin Name: MTG Publisher Tools
 Plugin URI: https://github.com/questionmuppet/mtg-publisher-tools
-Description: Creates shortcodes for use in Magic: The Gathering articles and blog posts, including mana symbols and card images.
+Description: Enables insertion of Magic: The Gathering content directly into your article or theme. Add mana symbols and card images the easy way.
 Version: 0.1.0
 Author: Jason Schousboe
 Author URI: https://github.com/questionmuppet
