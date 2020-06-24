@@ -3,7 +3,7 @@ declare(strict_types=1);
 use Mtgtools\Scryfall\Requests\Scryfall_Request;
 use Mtgtools\Exceptions\Api as Exceptions;
 
-class Scryfall_RequestTest extends Mtgtools_UnitTestCase
+class Scryfall_Request_HttpTest extends Mtgtools_UnitTestCase
 {
     /**
      * TEST: Can fetch API data using full url

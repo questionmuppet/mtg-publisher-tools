@@ -3,7 +3,7 @@ declare(strict_types=1);
 use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
 
-class Scryfall_Data_SourceTest extends Mtgtools_UnitTestCase
+class Scryfall_Data_Source_HttpTest extends Mtgtools_UnitTestCase
 {
     /**
      * Data source object

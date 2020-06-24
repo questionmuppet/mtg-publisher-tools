@@ -4,7 +4,7 @@ use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Symbols\Mana_Symbol;
 use Mtgtools\Exceptions\Db as Exceptions;
 
-class Symbol_Db_OpsTest extends Mtgtools_UnitTestCase
+class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 {
     /**
      * Dummy table name

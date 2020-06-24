@@ -2,7 +2,7 @@
 declare(strict_types=1);
 use Mtgtools\Scryfall\Requests\Scryfall_List_Paginator;
 
-class Scryfall_List_PaginatorTest extends Mtgtools_UnitTestCase
+class Scryfall_List_Paginator_HttpTest extends Mtgtools_UnitTestCase
 {
     /**
      * TEST: Can check for more pages

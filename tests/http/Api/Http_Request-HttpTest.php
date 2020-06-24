@@ -3,7 +3,7 @@ declare(strict_types=1);
 use Mtgtools\Api\Http_Request;
 use Mtgtools\Exceptions\Http\HttpConnectionException;
 
-class Http_RequestTest extends WP_UnitTestCase
+class Http_Request_HttpTest extends WP_UnitTestCase
 {
     /**
      * TEST: Can get sanitized url
