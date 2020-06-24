@@ -83,7 +83,7 @@ class Mtgtools_Symbols extends Module
     {
         ob_start();
         $this->mtgtools()->load_template(
-            "symbols/mana-symbol.php",
+            "components/mana-symbol.php",
             [
                 'symbol' => $symbol
             ]
