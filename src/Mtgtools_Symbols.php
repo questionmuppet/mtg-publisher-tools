@@ -51,7 +51,7 @@ class Mtgtools_Symbols extends Module
      */
     public function enqueue_assets() : void
     {
-        $this->mtgtools()->enqueue()->add_style([
+        $this->mtgtools()->add_style([
             'key'  => 'mtgtools-symbols',
             'path' => 'mtgtools-symbols.css',
         ]);
@@ -82,7 +82,7 @@ class Mtgtools_Symbols extends Module
     private function get_markup( Mana_Symbol $symbol ) : string
     {
         ob_start();
-        load_mtgtools_template(
+        $this->mtgtools()->load_template(
             "symbols/mana-symbol.php",
             [
                 'symbol' => $symbol

@@ -44,15 +44,6 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
     }
 
     /**
-     * Get mock Enqueue module
-     */
-    protected function get_mock_enqueue() : Mtgtools_Enqueue
-    {
-        $enqueue = $this->createMock( Mtgtools_Enqueue::class );
-        return $enqueue;
-    }
-
-    /**
      * Get mock Mtg_Data_Source
      */
     protected function get_mock_mtg_data_source() : Mtg_Data_Source

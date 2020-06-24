@@ -58,7 +58,7 @@ class Mtgtools_Dashboard extends Module
     {
         if ( 'settings_page_' . MTGTOOLS__ADMIN_SLUG === $hook_suffix )
         {
-            $this->get_active_tab()->enqueue_assets( $this->mtgtools()->enqueue() );
+            $this->get_active_tab()->enqueue_assets( $this->mtgtools() );
         }
     }
 

@@ -25,7 +25,10 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
     {
         $db_ops = $this->get_mock_db_ops();
         $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
-        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
+        $symbols = $this->create_symbols_module([
+            'db_ops' => $db_ops,
+            'plugin' => Mtgtools\Mtgtools_Plugin::get_instance(),
+        ]);
         
         $result = $symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
 
@@ -99,9 +102,10 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
      */
     private function create_symbols_module( array $args = [] ) : Mtgtools_Symbols
     {
-        $db_ops  = $args['db_ops']  ?? $this->get_mock_db_ops();
-        $source  = $args['source']  ?? $this->get_mock_mtg_data_source();
-        return new Mtgtools_Symbols( $db_ops, $source, $this->get_mock_plugin() );
+        $db_ops  = $args['db_ops'] ?? $this->get_mock_db_ops();
+        $source  = $args['source'] ?? $this->get_mock_mtg_data_source();
+        $plugin  = $args['plugin'] ?? $this->get_mock_plugin();
+        return new Mtgtools_Symbols( $db_ops, $source, $plugin );
     }
 
     /**

@@ -1,17 +1,11 @@
 <?php
 declare(strict_types=1);
 
-use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
 use Mtgtools\Dashboard\Dashboard_Tab;
 use Mtgtools\Mtgtools_Enqueue;
 
 class Dashboard_TabTest extends Mtgtools_UnitTestCase
 {
-    /**
-     * Include markup assertions
-     */
-    use MarkupAssertionsTrait;
-
     /**
      * Dashboard tab object
      */
@@ -56,9 +50,9 @@ class Dashboard_TabTest extends Mtgtools_UnitTestCase
      */
     public function testCanEnqueueAssets() : void
     {
-        $enqueue = $this->get_mock_enqueue();
+        $plugin = $this->get_mock_plugin();
 
-        $result = $this->tab->enqueue_assets( $enqueue );
+        $result = $this->tab->enqueue_assets( $plugin );
 
         $this->assertNull( $result );
     }

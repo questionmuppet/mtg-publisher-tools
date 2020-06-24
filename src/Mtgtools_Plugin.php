@@ -6,9 +6,14 @@
  */
 
 namespace Mtgtools;
+
+// Module dependencies
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
+
+// Helper classes
+use Mtgtools\Enqueue;
 use Mtgtools\Notices\Admin_Notice;
 
 // Exit if accessed directly
@@ -21,7 +26,6 @@ class Mtgtools_Plugin
 	 */
 	private $symbols;
 	private $dashboard;
-	private $enqueue;
 
 	/**
 	 * Plugin instance
@@ -79,24 +83,30 @@ class Mtgtools_Plugin
 		}
 		return $this->dashboard;
 	}
-	
-	/**
-	 * Get enqueue module
-	 */
-	public function enqueue() : Mtgtools_Enqueue
-	{
-		if ( !isset( $this->enqueue ) )
-		{
-			$this->enqueue = new Mtgtools_Enqueue();
-		}
-		return $this->enqueue;
-	}
 
 	/**
 	 * -------------------------------
-	 *   M O D U L E   H E L P E R S
+	 *   H E L P E R   M E T H O D S
 	 * -------------------------------
 	 */
+
+	/**
+	 * Enqueue a CSS asset
+	 */
+	public function add_style( array $args ) : void
+	{
+		$asset = new Enqueue\Css_Asset( $args );
+		$asset->enqueue();
+	}
+
+	/**
+	 * Enqueue a JS asset
+	 */
+	public function add_script( array $args ) : void
+	{
+		$asset = new Enqueue\Js_Asset( $args );
+		$asset->enqueue();
+	}
 
 	/**
 	 * Output a WordPress admin notice
@@ -105,6 +115,42 @@ class Mtgtools_Plugin
 	{
 		$notice = new Admin_Notice( $params );
 		$notice->print();
+	}
+
+	/**
+	 * Load template file, allowing for themes to override
+	 * 
+	 * @param string $path      File path relative to 'templates' folder
+	 * @param array  $params    Optional parameters to pass to the template
+	 */
+	public function load_template( string $path, array $params = [] ) : void
+	{
+		$this->set_query_vars( $params );
+
+		$template = locate_template( $path );
+		load_template(
+			strlen( $template ) ? $template : MTGTOOLS__TEMPLATE_PATH . $path,
+			false
+		);
+
+		$this->set_query_vars( $params, true );
+	}
+
+	/**
+	 * Set query vars for a template
+	 * 
+	 * @param array $params		Key value pairs to extract as variables
+	 * @param bool  $remove		Set to true to unset query vars
+	 */
+	private function set_query_vars( array $params, bool $remove = false ) : void
+	{
+		foreach ( $params as $key => $value )
+		{
+			set_query_var(
+				$key,
+				$remove ? null : $value
+			);
+		}
 	}
 
 	/**

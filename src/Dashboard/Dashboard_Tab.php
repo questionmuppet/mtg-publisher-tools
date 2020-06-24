@@ -7,7 +7,7 @@
 
 namespace Mtgtools\Dashboard;
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Mtgtools_Enqueue;
+use Mtgtools\Mtgtools_Plugin;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -31,15 +31,15 @@ class Dashboard_Tab extends Data
     /**
      * Enqueue JS and CSS assets
      */
-    public function enqueue_assets( Mtgtools_Enqueue $enqueue ) : void
+    public function enqueue_assets( Mtgtools_Plugin $plugin ) : void
     {
         foreach ( $this->get_script_defs() as $params )
         {
-            $enqueue->add_script( $params );
+            $plugin->add_script( $params );
         }
         foreach ( $this->get_style_defs() as $params )
         {
-            $enqueue->add_style( $params );
+            $plugin->add_style( $params );
         }
     }
 

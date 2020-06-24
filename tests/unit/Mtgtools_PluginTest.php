@@ -17,11 +17,11 @@ class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can get symbol module
+     * TEST: Can get symbols module
      * 
      * @depends testCanGetInstance
      */
-    public function testCanGetSymbolModule( Mtgtools_Plugin $instance ) : void
+    public function testCanGetSymbolsModule( Mtgtools_Plugin $instance ) : void
     {
         $module = $instance->symbols();
 
@@ -38,19 +38,6 @@ class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
         $module = $instance->dashboard();
 
         $this->assertInstanceOf( Mtgtools\Mtgtools_Dashboard::class, $module );
-    }
-
-
-    /**
-     * TEST: Can get enqueue module
-     * 
-     * @depends testCanGetInstance
-     */
-    public function testCanGetEnqueueModule( Mtgtools_Plugin $instance ) : void
-    {
-        $module = $instance->enqueue();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Enqueue::class, $module );
     }
 
 }   // End of class
