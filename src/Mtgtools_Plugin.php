@@ -15,6 +15,7 @@ use Mtgtools\Scryfall\Scryfall_Data_Source;
 // Helper classes
 use Mtgtools\Enqueue;
 use Mtgtools\Notices\Admin_Notice;
+use Mtgtools\Templates\Template;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -118,39 +119,12 @@ class Mtgtools_Plugin
 	}
 
 	/**
-	 * Load template file, allowing for themes to override
-	 * 
-	 * @param string $path      File path relative to 'templates' folder
-	 * @param array  $params    Optional parameters to pass to the template
+	 * Load template file
 	 */
-	public function load_template( string $path, array $params = [] ) : void
+	public function load_template( array $params ) : void
 	{
-		$this->set_query_vars( $params );
-
-		$template = locate_template( $path );
-		load_template(
-			strlen( $template ) ? $template : MTGTOOLS__TEMPLATE_PATH . $path,
-			false
-		);
-
-		$this->set_query_vars( $params, true );
-	}
-
-	/**
-	 * Set query vars for a template
-	 * 
-	 * @param array $params		Key value pairs to extract as variables
-	 * @param bool  $remove		Set to true to unset query vars
-	 */
-	private function set_query_vars( array $params, bool $remove = false ) : void
-	{
-		foreach ( $params as $key => $value )
-		{
-			set_query_var(
-				$key,
-				$remove ? null : $value
-			);
-		}
+		$template = new Template( $params );
+		$template->include();
 	}
 
 	/**

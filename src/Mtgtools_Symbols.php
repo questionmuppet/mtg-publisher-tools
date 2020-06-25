@@ -82,12 +82,10 @@ class Mtgtools_Symbols extends Module
     private function get_markup( Mana_Symbol $symbol ) : string
     {
         ob_start();
-        $this->mtgtools()->load_template(
-            "components/mana-symbol.php",
-            [
-                'symbol' => $symbol
-            ]
-        );
+        $this->mtgtools()->load_template([
+            'path' => 'components/mana-symbol.php',
+            'vars' => array( 'symbol' => $symbol )
+        ]);
         return ob_get_clean();
     }
 
