@@ -4,7 +4,7 @@ declare(strict_types=1);
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 
-class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
+class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 {
     /**
      * TEST: Can enqueue assets
@@ -16,6 +16,34 @@ class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
         $result = $symbols->enqueue_assets();
 
         $this->assertNull( $result );
+    }
+
+    /**
+     * TEST: Can add dash tab
+     */
+    public function testCanAddDashTab() : void
+    {
+        $symbols = $this->create_symbols_module();
+        $defs = [];
+
+        $defs = $symbols->add_dash_tab( $defs );
+
+        $this->assertCount( 1, $defs );
+    }
+
+    /**
+     * TEST: Can get table rows
+     */
+    public function testCanGetTableRows() : void
+    {
+        $db_ops = $this->get_mock_db_ops();
+        $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
+        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
+
+        $rows = $symbols->get_table_rows();
+
+        $this->assertCount( 2, $rows );
+        $this->assertContainsOnly( 'array', $rows );
     }
 
     /**

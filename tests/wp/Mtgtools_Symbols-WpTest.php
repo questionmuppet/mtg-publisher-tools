@@ -4,7 +4,7 @@ declare(strict_types=1);
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 
-class Mtgtools_SymbolsTest extends Mtgtools_UnitTestCase
+class Mtgtools_Symbols_WPTest extends Mtgtools_UnitTestCase
 {
     /**
      * TEST: Shortcode parser returns string

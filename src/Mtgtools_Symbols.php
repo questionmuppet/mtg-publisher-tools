@@ -58,6 +58,12 @@ class Mtgtools_Symbols extends Module
     }
 
     /**
+     * ---------------------
+     *   S H O R T C O D E
+     * ---------------------
+     */
+
+    /**
      * Parse mana symbols
      * 
      * @return string Content with plaintext mana symbols replaced by <img> markup
@@ -90,16 +96,47 @@ class Mtgtools_Symbols extends Module
     }
 
     /**
+     * -----------------------------
+     *   D A S H B O A R D   T A B
+     * -----------------------------
+     */
+
+    /**
      * Add dashboard tab
      */
     public function add_dash_tab( array $defs ) : array
     {
         $defs = array_merge([
             'symbols' => [
-                'title' => 'Mana Symbols',
+                'title'              => 'Mana Symbols',
+                'table_row_callback' => array( $this, 'get_table_rows' ),
+                'table_fields'       => [
+                    'plaintext' => [],
+                    'symbol'    => [],
+                    'english'   => [
+                        'title' => 'English Phrase'
+                    ],
+                ],
             ],
         ], $defs );
         return $defs;
+    }
+
+    /**
+     * Get symbol row data
+     */
+    public function get_table_rows() : array
+    {
+        $rows = [];
+        foreach ( $this->db_ops->get_mana_symbols() as $symbol )
+        {
+            $rows[] = array(
+                'plaintext' => $symbol->get_plaintext(),
+                'symbol'    => $this->get_markup( $symbol ),
+                'english'   => $symbol->get_english_phrase(),
+            );
+        }
+        return $rows;
     }
 
     /**
