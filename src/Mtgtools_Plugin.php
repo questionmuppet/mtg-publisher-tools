@@ -119,15 +119,6 @@ class Mtgtools_Plugin
 	}
 
 	/**
-	 * Load template file
-	 */
-	public function load_template( array $params ) : void
-	{
-		$template = new Template( $params );
-		$template->include();
-	}
-
-	/**
 	 * ---------------------------
 	 *   D A T A   S O U R C E S
 	 * ---------------------------
