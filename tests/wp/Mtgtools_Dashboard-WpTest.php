@@ -42,6 +42,8 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
     public function testCanDisplayDashboard() : string
     {
         wp_get_current_user()->add_cap( 'manage_options' );
+        $_GET['tab'] = 'settings';
+
         ob_start();
         $this->dashboard->display_dashboard();
         $html = ob_get_clean();
@@ -49,6 +51,21 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
         $this->assertIsString( $html );
 
         return $html;
+    }
+
+    /**
+     * TEST: Can display symbols tab
+     */
+    public function testCanDisplaySymbolsTab() : void
+    {
+        wp_get_current_user()->add_cap( 'manage_options' );
+        $_GET['tab'] = 'symbols';
+
+        ob_start();
+        $this->dashboard->display_dashboard();
+        $html = ob_get_clean();
+
+        $this->assertIsString( $html );
     }
 
     /**

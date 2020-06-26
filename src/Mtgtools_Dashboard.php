@@ -78,6 +78,19 @@ class Mtgtools_Dashboard extends Module
      */
 
     /**
+     * Include data table template
+     */
+    public function include_data_table() : void
+    {
+        $this->mtgtools()->load_template([
+            'path' => 'dashboard/table.php',
+            'vars' => [
+                'table_data' => $this->get_active_tab()->get_table_data()
+            ],
+        ]);
+    }
+
+    /**
      * Get tab url
      */
     public function get_tab_url( string $key ) : string
