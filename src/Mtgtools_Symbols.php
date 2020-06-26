@@ -48,6 +48,7 @@ class Mtgtools_Symbols extends Module
     public function add_hooks() : void
     {
         add_action( 'wp_enqueue_scripts',                 array( $this, 'enqueue_assets' ) );
+        add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_assets' ) );
         add_shortcode( 'mana_symbols',                    array( $this, 'parse_mana_symbols' ) );
         add_filter( 'mtgtools_dashboard_tab_definitions', array( $this, 'add_dash_tab' ), 10 );
     }
@@ -98,10 +99,16 @@ class Mtgtools_Symbols extends Module
                 'title'              => 'Mana Symbols',
                 'table_row_callback' => array( $this, 'get_table_rows' ),
                 'table_fields'       => [
-                    'plaintext' => [],
-                    'symbol'    => [],
+                    'plaintext' => [
+                        'title' => 'Text',
+                        'width' => 70,
+                    ],
+                    'symbol'    => [
+                        'width' => 70,
+                    ],
                     'english'   => [
-                        'title' => 'English Phrase'
+                        'title' => 'English Phrase',
+                        'width' => 245,
                     ],
                 ],
             ],
