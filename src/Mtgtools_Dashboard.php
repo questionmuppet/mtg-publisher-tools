@@ -59,6 +59,10 @@ class Mtgtools_Dashboard extends Module
     {
         if ( 'settings_page_' . MTGTOOLS__ADMIN_SLUG === $hook_suffix )
         {
+            $this->mtgtools()->add_style([
+                'key'  => 'mtgtools-dashboard',
+                'path' => 'dashboard.css',
+            ]);
             $this->get_active_tab()->enqueue_assets( $this->mtgtools() );
         }
     }

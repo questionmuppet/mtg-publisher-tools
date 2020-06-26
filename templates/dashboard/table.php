@@ -11,32 +11,46 @@ current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
 
 ?>
 
-<table class="mtgtools-admin-table">
+<div class="mtgtools-table-wrapper">
 
-    <thead class="mtgtools-admin-table head">
+    <form class="mtgtools-table-controls">
 
-        <tr>
-            <?php foreach ( $table_data->get_fields() as $field )
-            {
-                $field->print_header_cell();
-            } ?>
-        </tr>
+        <label>Filter <input type="text" /></label>
 
-    </thead>
+    </form>
 
-    <tbody class="mtgtools-admin-table body">
-        
-        <?php foreach ( $table_data->get_rows() as $row ) : ?>
+    <div class="mtgtools-table-scroll-wrapper">
 
-            <tr>
-                <?php foreach( $table_data->get_fields() as $field )
-                {
-                    $field->print_body_cell( $row );
-                } ?>
-            </tr>
+        <table class="mtgtools-table">
 
-        <?php endforeach; ?>
+            <thead class="mtgtools-table-head">
 
-    </tbody>
+                <tr>
+                    <?php foreach ( $table_data->get_fields() as $field )
+                    {
+                        $field->print_header_cell();
+                    } ?>
+                </tr>
 
-</table>
+            </thead>
+
+            <tbody class="mtgtools-table-body">
+                
+                <?php foreach ( $table_data->get_rows() as $row ) : ?>
+
+                    <tr>
+                        <?php foreach( $table_data->get_fields() as $field )
+                        {
+                            $field->print_body_cell( $row );
+                        } ?>
+                    </tr>
+
+                <?php endforeach; ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
