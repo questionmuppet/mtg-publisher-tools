@@ -74,6 +74,7 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
             'css_class'      => 'mtg-symbol',
             'english_phrase' => 'Tap this permanent',
             'svg_uri'        => 'https://img.scryfall.com/symbology/T.svg',
+            'markup'         => '',
         ], $args );
 
         $symbol = $this->createMock( Mana_Symbol::class );
@@ -84,6 +85,7 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
         $symbol->method('get_css_class')->willReturn( $args['css_class'] );
         $symbol->method('get_english_phrase')->willReturn( $args['english_phrase'] );
         $symbol->method('get_svg_uri')->willReturn( $args['svg_uri'] );
+        $symbol->method('get_markup')->willReturn( $args['markup'] );
 
         return $symbol;
     }

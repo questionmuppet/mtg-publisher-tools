@@ -7,6 +7,7 @@
 
 namespace Mtgtools\Symbols;
 use Mtgtools\Abstracts\Data;
+use Mtgtools\Templates\Template;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -42,11 +43,17 @@ class Mana_Symbol extends Data
     }
 
     /**
-     * Get plaintext key
+     * Get HTML markup
      */
-    public function get_plaintext() : string
+    public function get_markup() : string
     {
-        return $this->get_string_prop( 'plaintext' );
+        ob_start();
+        $template = new Template([
+            'path' => 'components/mana-symbol.php',
+            'vars' => array( 'symbol' => $this )
+        ]);
+        $template->include();
+        return ob_get_clean();
     }
 
     /**
@@ -55,6 +62,14 @@ class Mana_Symbol extends Data
     public function get_css_class() : string
     {
         return 'mtg-symbol';
+    }
+
+    /**
+     * Get plaintext key
+     */
+    public function get_plaintext() : string
+    {
+        return $this->get_string_prop( 'plaintext' );
     }
 
     /**
