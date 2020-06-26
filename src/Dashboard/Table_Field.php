@@ -23,6 +23,7 @@ class Table_Field extends Data
      */
     protected $defaults = array(
         'title' => null,
+        'width' => 'auto',
     );
 
     /**
@@ -31,8 +32,9 @@ class Table_Field extends Data
     public function print_header_cell() : void
     {
         printf(
-            '<th class="%s">%s</th>',
+            '<th class="%s" width="%s">%s</th>',
             esc_attr( $this->get_css_class() ),
+            esc_attr( $this->get_cell_width() ),
             esc_html( $this->get_title() )
         );
     }
@@ -43,8 +45,9 @@ class Table_Field extends Data
     public function print_body_cell( array $row ) : void
     {
         printf(
-            '<td class="%s">%s</td>',
+            '<td class="%s" width="%s">%s</td>',
             esc_attr( $this->get_css_class() ),
+            esc_attr( $this->get_cell_width() ),
             wp_kses_post( $this->find_content( $row ) )
         );
     }
@@ -67,6 +70,14 @@ class Table_Field extends Data
     private function get_title() : string
     {
         return $this->get_prop( 'title' ) ?? ucfirst( $this->get_key() );
+    }
+
+    /**
+     * Get cell width
+     */
+    private function get_cell_width() : string
+    {
+        return strval( $this->get_prop( 'width' ) );
     }
 
     /**
