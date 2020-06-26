@@ -8,6 +8,7 @@
 namespace Mtgtools;
 use Mtgtools\Abstracts\Module;
 use Mtgtools\Dashboard\Dashboard_Tab;
+use Mtgtools\Templates\Template;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -67,8 +68,13 @@ class Mtgtools_Dashboard extends Module
      */
     public function display_dashboard() : void
     {
-        set_query_var( 'Mtgtools_Dashboard', $this );
-        require_once MTGTOOLS__TEMPLATE_PATH . 'dashboard/dashboard.php';
+        $template = new Template([
+            'path' => 'dashboard/dashboard.php',
+            'vars' => [
+                'Mtgtools_Dashboard' => $this
+            ],
+        ]);
+        $template->include();
     }
 
     /**
@@ -82,12 +88,13 @@ class Mtgtools_Dashboard extends Module
      */
     public function include_data_table() : void
     {
-        $this->mtgtools()->load_template([
+        $template = new Template([
             'path' => 'dashboard/table.php',
             'vars' => [
                 'table_data' => $this->get_active_tab()->get_table_data()
             ],
         ]);
+        $template->include();
     }
 
     /**

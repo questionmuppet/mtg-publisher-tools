@@ -18,6 +18,8 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
     {
         parent::setUp();
         $this->dashboard = new Mtgtools_Dashboard( $this->get_mock_plugin() );
+        remove_all_filters( 'mtgtools_dashboard_tab_definitions' );
+        $_GET['tab'] = 'settings';
     }
     
     /**
@@ -42,7 +44,6 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
     public function testCanDisplayDashboard() : string
     {
         wp_get_current_user()->add_cap( 'manage_options' );
-        $_GET['tab'] = 'settings';
 
         ob_start();
         $this->dashboard->display_dashboard();
@@ -54,21 +55,6 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can display symbols tab
-     */
-    public function testCanDisplaySymbolsTab() : void
-    {
-        wp_get_current_user()->add_cap( 'manage_options' );
-        $_GET['tab'] = 'symbols';
-
-        ob_start();
-        $this->dashboard->display_dashboard();
-        $html = ob_get_clean();
-
-        $this->assertIsString( $html );
-    }
-
-    /**
      * TEST: Dashboard output contains correct markup
      * 
      * @depends testCanDisplayDashboard
@@ -76,6 +62,20 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
     public function testDashboardOutputContainsCorrectMarkup( string $html ) : void
     {
         $this->assertContainsSelector( 'div.wrap', $html );
+    }
+
+    /**
+     * TEST: Can include data table
+     * 
+     * @depends testCanDisplayDashboard
+     */
+    public function testCanIncludeDataTable() : void
+    {
+        ob_start();
+        $this->dashboard->include_data_table();
+        $html = ob_get_clean();
+
+        $this->assertIsString( $html );
     }
     
     /**
