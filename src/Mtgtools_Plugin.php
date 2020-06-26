@@ -15,7 +15,6 @@ use Mtgtools\Scryfall\Scryfall_Data_Source;
 // Helper classes
 use Mtgtools\Enqueue;
 use Mtgtools\Notices\Admin_Notice;
-use Mtgtools\Templates\Template;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
