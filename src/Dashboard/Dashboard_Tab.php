@@ -23,9 +23,12 @@ class Dashboard_Tab extends Data
      * Default properties
      */
     protected $defaults = array(
-        'title'   => null,
-        'scripts' => [],
-        'styles'  => [],
+        'title'              => null,
+        'scripts'            => [],
+        'styles'             => [],
+        'table_fields'       => [],
+        'table_row_data'     => [],
+        'table_row_callback' => null,
     );
 
     /**
@@ -42,6 +45,23 @@ class Dashboard_Tab extends Data
             $plugin->add_style( $params );
         }
     }
+    
+    /**
+     * Get table data
+     */
+    public function get_table_data() : Table_Data
+    {
+        return new Table_Data([
+            'fields'   => $this->get_field_defs(),
+            'row_data' => $this->get_table_rows(),
+        ]);
+    }
+
+    /**
+     * -------------------------
+     *   H T M L   O U T P U T
+     * -------------------------
+     */
 
     /**
      * Output navigation tab HTML
@@ -83,6 +103,12 @@ class Dashboard_Tab extends Data
     }
 
     /**
+     * -----------------------
+     *   P R O P E R T I E S
+     * -----------------------
+     */
+
+    /**
      * Get title
      */
     protected function get_title() : string
@@ -104,6 +130,31 @@ class Dashboard_Tab extends Data
     private function get_style_defs() : array
     {
         return $this->get_prop( 'styles' );
+    }
+
+    /**
+     * Get table field definitions
+     */
+    private function get_field_defs() : array
+    {
+        return $this->get_prop( 'table_fields' );
+    }
+    
+    /**
+     * Get table row data, from callback or constructor args
+     */
+    private function get_table_rows() : array
+    {
+        $callback = $this->get_prop( 'table_row_callback' );
+        return is_callable( $callback ) ? call_user_func( $callback ) : $this->get_table_row_data();
+    }
+
+    /**
+     * Get table row data passed in constructor
+     */
+    private function get_table_row_data() : array
+    {
+        return $this->get_prop( 'table_row_data' );
     }
 
     /**
