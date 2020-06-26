@@ -19,6 +19,23 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can parse shortcode
+     */
+    public function testCanParseShortcode() : void
+    {
+        $symbol = $this->get_mock_symbol([
+            'markup' => '<p class="fake-content">A useless paragraph</p>'
+        ]);
+        $db_ops = $this->get_mock_db_ops();
+        $db_ops->method('get_mana_symbols')->willReturn( array( $symbol ) );
+        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops, ]);
+        
+        $html = $symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
+
+        $this->assertContainsSelector( 'p.fake-content', $html, 'Could not find replacement string in shortcode output.' );
+    }
+
+    /**
      * TEST: Can add dash tab
      */
     public function testCanAddDashTab() : void

@@ -37,6 +37,12 @@ class Mtgtools_Symbols extends Module
     }
 
     /**
+     * ---------------------------------
+     *   W O R D P R E S S   H O O K S
+     * ---------------------------------
+     */
+
+    /**
      * Add WordPress hooks
      */
     public function add_hooks() : void
@@ -58,12 +64,6 @@ class Mtgtools_Symbols extends Module
     }
 
     /**
-     * ---------------------
-     *   S H O R T C O D E
-     * ---------------------
-     */
-
-    /**
      * Parse mana symbols
      * 
      * @return string Content with plaintext mana symbols replaced by <img> markup
@@ -75,24 +75,11 @@ class Mtgtools_Symbols extends Module
         {
             if ( $symbol->is_valid() )
             {
-                $patterns[] = $symbol->get_pattern();
-                $replacements[] = $this->get_markup( $symbol );
+                $patterns[]     = $symbol->get_pattern();
+                $replacements[] = $symbol->get_markup();
             }
         }
         return preg_replace( $patterns, $replacements, $content );
-    }
-
-    /**
-     * Get mana symbol HTML
-     */
-    private function get_markup( Mana_Symbol $symbol ) : string
-    {
-        ob_start();
-        $this->mtgtools()->load_template([
-            'path' => 'components/mana-symbol.php',
-            'vars' => array( 'symbol' => $symbol )
-        ]);
-        return ob_get_clean();
     }
 
     /**
@@ -132,7 +119,7 @@ class Mtgtools_Symbols extends Module
         {
             $rows[] = array(
                 'plaintext' => $symbol->get_plaintext(),
-                'symbol'    => $this->get_markup( $symbol ),
+                'symbol'    => $symbol->get_markup(),
                 'english'   => $symbol->get_english_phrase(),
             );
         }
