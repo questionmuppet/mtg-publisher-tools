@@ -17,29 +17,20 @@ class Table_Data extends Data
      * Required properties
      */
     protected $required = array(
+        'id',
         'fields',
-        'row_data',
+        'row_callback',
     );
-
-    /**
-     * Constructor
-     */
-    public function __construct( array $props )
-    {
-        parent::__construct( $props );
-        foreach ( $this->get_rows() as $row )
-        {
-            if ( !is_array( $row ) )
-            {
-                throw new \InvalidArgumentException( get_called_class() . " was passed invalid row data in the constructor. Row data must consist of an array of associative arrays, each keyed by field id." );
-            }
-        }
-    }
 
     /**
      * Table field objects
      */
     private $fields;
+
+    /**
+     * Filter to apply to row data
+     */
+    private $filter = '';
 
     /**
      * Get table fields
@@ -51,10 +42,10 @@ class Table_Data extends Data
         if ( !isset( $this->fields ) )
         {
             $fields = [];
-            foreach ( $this->get_prop( 'fields' ) as $key => $field_defs )
+            foreach ( $this->get_field_defs() as $key => $params )
             {
-                $field_defs['id'] = $key;
-                $fields[ $key ] = new Table_Field( $field_defs );
+                $params['id'] = $key;
+                $fields[ $key ] = new Table_Field( $params );
             }
             $this->fields = $fields;
         }
@@ -66,7 +57,45 @@ class Table_Data extends Data
      */
     public function get_rows() : array
     {
-        return $this->get_prop( 'row_data' );
+        return call_user_func( $this->get_row_callback(), $this->filter );
+    }
+
+    /**
+     * Set data filter
+     */
+    public function set_filter( string $filter ) : void
+    {
+        $this->filter = $filter;
+    }
+
+    /**
+     * -------------
+     *   P R O P S
+     * -------------
+     */
+
+    /**
+     * Get unique table identifier
+     */
+    public function get_key() : string
+    {
+        return $this->get_prop( 'id' );
+    }
+
+    /**
+     * Get field definitions
+     */
+    private function get_field_defs() : array
+    {
+        return $this->get_prop( 'fields' );
+    }
+
+    /**
+     * Get row data callback
+     */
+    private function get_row_callback() : callable
+    {
+        return $this->get_prop( 'row_callback' );
     }
 
 }   // End of class

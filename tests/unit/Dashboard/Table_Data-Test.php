@@ -7,18 +7,33 @@ use Mtgtools\Dashboard\Table_Field;
 class Table_DataTest extends Mtgtools_UnitTestCase
 {
     /**
-     * TEST: Non array row data in constructor throws InvalidArgumentException
+     * Table data object
      */
-    public function testNonArrayRowDataThrowsInvalidArgumentException() : void
-    {
-        $rows = [
-            array( 'foo' => 'An array, properly formed' ),
-            "An errant string",
-        ];
-        
-        $this->expectException( \InvalidArgumentException::class );
+    private $data;
 
-        $this->create_data([ 'row_data' => $rows ]);
+    /**
+     * Setup
+     */
+    public function setUp() : void
+    {
+        parent::setUp();
+        $this->data = $this->create_data();
+    }
+
+    /**
+     * -------------
+     *   T E S T S
+     * -------------
+     */
+
+    /**
+     * TEST: Can get identifier key
+     */
+    public function testCanGetKey() : void
+    {
+        $key = $this->data->get_key();
+
+        $this->assertEquals( 'fake_table', $key );
     }
 
     /**
@@ -26,9 +41,7 @@ class Table_DataTest extends Mtgtools_UnitTestCase
      */
     public function testCanGetTableFields() : void
     {
-        $data = $this->create_data();
-
-        $fields = $data->get_fields();
+        $fields = $this->data->get_fields();
 
         $this->assertContainsOnlyInstancesOf( Table_Field::class, $fields );
     }
@@ -38,12 +51,31 @@ class Table_DataTest extends Mtgtools_UnitTestCase
      */
     public function testCanGetDataRows() : void
     {
-        $data = $this->create_data();
-
-        $rows = $data->get_rows();
+        $rows = $this->data->get_rows();
 
         $this->assertIsArray( $rows );
+        $this->assertCount( 1, $rows );
     }
+
+    /**
+     * TEST: Can pass filter to callback
+     * 
+     * @depends testCanGetDataRows
+     */
+    public function testCanPassFilterToCallback() : void
+    {
+        $this->data->set_filter( 'alternate' );
+
+        $rows = $this->data->get_rows();
+
+        $this->assertCount( 2, $rows );
+    }
+
+    /**
+     * ---------------------
+     *   P R O D U C E R S
+     * ---------------------
+     */
 
     /**
      * Create Table_Data object
@@ -51,22 +83,26 @@ class Table_DataTest extends Mtgtools_UnitTestCase
     private function create_data( array $params = [] ) : Table_Data
     {
         $params = array_merge([
-            'fields'   => [
+            'id'           => 'fake_table',
+            'fields'       => [
                 'foo' => array(),
                 'bar' => array(),
             ],
-            'row_data' => [
-                array(
-                    'foo' => 'Test row 1',
-                    'bar' => 'Isn\'t it nifty',
-                ),
-                array(
-                    'foo' => 'Test row 2',
-                    'bar' => 'I like this one too',
-                ),
-            ]
+            'row_callback' => $this->get_callback(),
         ], $params );
         return new Table_Data( $params );
+    }
+
+    /**
+     * Get row callback
+     */
+    private function get_callback() : callable
+    {
+        return function( string $filter = '' ) {
+            return 'alternate' === $filter
+                ? [ 'Element one', 'Element two' ]
+                : [ 'A single member' ];
+        };
     }
 
 }   // End of class
