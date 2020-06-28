@@ -7,7 +7,8 @@
 
 namespace Mtgtools\Dashboard;
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Mtgtools_Plugin;
+use Mtgtools\Enqueue\Asset;
+use Mtgtools\Dashboard\Table_Data;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -23,38 +24,54 @@ class Dashboard_Tab extends Data
      * Default properties
      */
     protected $defaults = array(
-        'title'              => null,
-        'scripts'            => [],
-        'styles'             => [],
-        'table_fields'       => [],
-        'table_row_data'     => [],
-        'table_row_callback' => null,
+        'title'  => null,
+        'assets' => [],
+        'tables' => [],
     );
+
+    /**
+     * Constructor
+     */
+    public function __construct( array $props = [] )
+    {
+        parent::__construct( $props );
+        foreach ( $this->get_assets() as $asset )
+        {
+            if ( !$asset instanceof Asset )
+            {
+                throw new \InvalidArgumentException( "Tried to instantiate a " . get_called_class() . " using invalid asset data. Asset parameters passed to dash tabs must be instances of Enqueue\Asset." );
+            }
+        }
+        foreach ( $this->get_tables() as $table )
+        {
+            if ( !$table instanceof Table_Data )
+            {
+                throw new \InvalidArgumentException( "Tried to instantiate a " . get_called_class() . " using invalid table data. Table parameters passed to dash tabs must be instances of Dashboard\Table_Data" );
+            }
+        }
+    }
 
     /**
      * Enqueue JS and CSS assets
      */
-    public function enqueue_assets( Mtgtools_Plugin $plugin ) : void
+    public function enqueue_assets() : void
     {
-        foreach ( $this->get_script_defs() as $params )
+        foreach ( $this->get_assets() as $asset )
         {
-            $plugin->add_script( $params );
-        }
-        foreach ( $this->get_style_defs() as $params )
-        {
-            $plugin->add_style( $params );
+            $asset->enqueue();
         }
     }
     
     /**
-     * Get table data
+     * Get table data by key
      */
-    public function get_table_data() : Table_Data
+    public function get_table_data( string $key ) : Table_Data
     {
-        return new Table_Data([
-            'fields'   => $this->get_field_defs(),
-            'row_data' => $this->get_table_rows(),
-        ]);
+        if ( !$this->table_exists( $key ) )
+        {
+            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined Table_Data object with key '{$key}'." );
+        }
+        return $this->get_tables()[ $key ];
     }
 
     /**
@@ -93,7 +110,7 @@ class Dashboard_Tab extends Data
     /**
      * Get CSS class string
      */
-    protected function get_css_class( bool $is_active ) : string
+    private function get_css_class( bool $is_active ) : string
     {
         $classes = array_filter([
             'nav-tab',
@@ -111,50 +128,35 @@ class Dashboard_Tab extends Data
     /**
      * Get title
      */
-    protected function get_title() : string
+    private function get_title() : string
     {
         return $this->get_prop( 'title' ) ?? ucfirst( $this->get_id() );
     }
 
     /**
-     * Get parameters for JS assets
+     * Get JS and CSS assets
+     * 
+     * @return Asset[]
      */
-    private function get_script_defs() : array
+    private function get_assets() : array
     {
-        return $this->get_prop( 'scripts' );
+        return $this->get_prop( 'assets' );
     }
 
     /**
-     * Get parameters for CSS assets
+     * Check if table is defined
      */
-    private function get_style_defs() : array
+    private function table_exists( string $key ) : bool
     {
-        return $this->get_prop( 'styles' );
+        return array_key_exists( $key, $this->get_tables() );
     }
 
     /**
-     * Get table field definitions
+     * Get defined data tables
      */
-    private function get_field_defs() : array
+    private function get_tables() : array
     {
-        return $this->get_prop( 'table_fields' );
-    }
-    
-    /**
-     * Get table row data, from callback or constructor args
-     */
-    private function get_table_rows() : array
-    {
-        $callback = $this->get_prop( 'table_row_callback' );
-        return is_callable( $callback ) ? call_user_func( $callback ) : $this->get_table_row_data();
-    }
-
-    /**
-     * Get table row data passed in constructor
-     */
-    private function get_table_row_data() : array
-    {
-        return $this->get_prop( 'table_row_data' );
+        return $this->get_prop( 'tables' );
     }
 
     /**

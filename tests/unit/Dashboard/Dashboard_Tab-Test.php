@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Dashboard\Dashboard_Tab;
-use Mtgtools\Mtgtools_Enqueue;
+use Mtgtools\Enqueue\Asset;
 use Mtgtools\Dashboard\Table_Data;
 
 class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
@@ -20,16 +20,54 @@ class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * ---------------
+     *   A S S E T S
+     * ---------------
+     */
+
+    /**
+     * TEST: Cannot be constructed with invalid assets
+     */
+    public function testCannotBeConstructedWithInvalidAssets() : void
+    {
+        $this->expectException( \InvalidArgumentException::class );
+
+        $tab = $this->create_tab([
+            'assets' => [ 'I am not an Asset object' ]
+        ]);
+    }
+
+    /**
      * TEST: Can enqueue assets
      */
     public function testCanEnqueueAssets() : void
     {
-        $tab = $this->create_tab();
-        $plugin = $this->get_mock_plugin();
+        $asset = $this->createMock( Asset::class );
+        $tab = $this->create_tab([
+            'assets' => [ $asset ]
+        ]);
 
-        $result = $tab->enqueue_assets( $plugin );
+        $result = $tab->enqueue_assets();
 
         $this->assertNull( $result );
+    }
+
+    /**
+     * ---------------
+     *   T A B L E S
+     * ---------------
+     */
+
+    /**
+     * TEST: Cannot be constructed with invalid table data
+     */
+    public function testCannotBeConstructedWithInvalidTableData() : void
+    {
+        $this->expectException( \InvalidArgumentException::class );
+
+        $tab = $this->create_tab([
+            'tables' => [ 'I am not a Table_Data object' ]
+        ]);
     }
 
     /**
@@ -37,40 +75,42 @@ class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
      */
     public function testCanGetTableData() : void
     {
-        $rows = [
-            array(),
-            array(),
-        ];
-        $tab = $this->create_tab([ 'row_data' => $rows ]);
-        
-        $data = $tab->get_table_data();
+        $table = $this->createMock( Table_Data::class );
+        $tab = $this->create_tab([
+            'tables' => [
+                'baz' => $table
+            ]
+        ]);
 
-        $this->assertInstanceOf( Table_Data::class, $data );
+        $result = $tab->get_table_data( 'baz' );
+
+        $this->assertInstanceOf( Table_Data::class, $result );
     }
 
     /**
-     * TEST: Can get table data via callback
+     * TEST: Invalid table data request throws OutOfRangeException
      * 
      * @depends testCanGetTableData
      */
-    public function testCanGetTableDataViaCallback() : void
+    public function testInvalidTableDataRequestThrowsOutOfRangeException() : void
     {
-        $tab = $this->create_tab([ 'row_data_callback' => function() {
-            return [
-                array(),
-                array(),
-            ];
-        }]);
+        $tab = $this->create_tab();
 
-        $data = $tab->get_table_data();
+        $this->expectException( \OutOfRangeException::class );
 
-        $this->assertInstanceOf( Table_Data::class, $data );
+        $result = $tab->get_table_data( 'invalid_table' );
     }
+
+    /**
+     * -------------------------
+     *   H T M L   O U T P U T
+     * -------------------------
+     */
 
     /**
      * TEST: Can get href attribute
      */
-    public function testCanGetHref() : string
+    public function testCanGetHref() : void
     {
         $tab = $this->create_tab();
         
@@ -78,8 +118,6 @@ class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
         
         $pattern = sprintf( '/page=%s&tab=foo_bar$/', MTGTOOLS__ADMIN_SLUG );
         $this->assertRegExp( $pattern, $href );
-        
-        return $href;
     }
 
     /**
@@ -125,18 +163,6 @@ class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
         $args = array_merge([
             'id'      => 'foo_bar',
             'title'   => 'Foo Bar',
-            'scripts' => [
-                [
-                    'key'  => 'fake_script',
-                    'path' => 'path/to/fake/script.js',
-                ],
-            ],
-            'styles'  => [
-                [
-                    'key'  => 'fake_style',
-                    'path' => 'path/to/fake/style.css',
-                ],
-            ],
         ], $args );
         return new Dashboard_Tab( $args );
     }
