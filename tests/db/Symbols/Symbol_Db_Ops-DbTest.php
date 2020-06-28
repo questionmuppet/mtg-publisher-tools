@@ -144,10 +144,10 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
             $this->db_ops->add_symbol( $symbol );
         }
 
-        $result = $this->db_ops->get_symbol_rows();
+        $result = $this->db_ops->get_mana_symbols();
 
         $this->assertCount( 3, $result );
-        $this->assertContainsOnly( 'array', $result );
+        $this->assertContainsOnlyInstancesOf( Mana_Symbol::class, $result );
     }
 
     /**
@@ -163,7 +163,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
             $this->db_ops->add_symbol( $symbol );
         }
 
-        $result = $this->db_ops->get_symbol_rows([ 'plaintext' => 'U' ]);
+        $result = $this->db_ops->get_mana_symbols([ 'plaintext' => 'U' ]);
 
         $this->assertCount( 3, $result );
     }
@@ -179,7 +179,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 
         $this->expectException( Exceptions\DbException::class );
         
-        $this->db_ops->get_symbol_rows([ 'invalid_param' => 'Uh, oh! Better put the kibbosh on it!' ]);
+        $this->db_ops->get_mana_symbols([ 'invalid_param' => 'Uh, oh! Better put the kibbosh on it!' ]);
     }
 
 }   // End of class

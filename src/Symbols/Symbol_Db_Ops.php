@@ -31,6 +31,11 @@ class Symbol_Db_Ops extends Data
     );
 
     /**
+     * Mana_Symbol cache
+     */
+    private $symbols = [];
+
+    /**
      * Database class
      */
     private $db;
@@ -49,14 +54,30 @@ class Symbol_Db_Ops extends Data
      *   Q U E R Y
      * -------------
      */
+    
+    /**
+     * Get mana symbols with optional filters
+     * 
+     * @param array $filters    Associative array of "column" => "value" pairs to filter results
+     * @return Mana_Symbol[]
+     */
+    public function get_mana_symbols( array $filters = [] ) : array
+    {
+        $symbols = [];
+        foreach ( $this->get_symbol_rows( $filters ) as $data )
+        {
+            $key = $data['plaintext'];
+            $symbols[] = $this->symbol_cached( $key )
+                ? $this->get_cached_symbol( $key )
+                : $this->create_symbol( $data );
+        }
+        return $symbols;
+    }
 
     /**
-     * Get one or more rows from database
-     * 
-     * @param array $filters    Associative array of "column" => "value" pairs to use in WHERE
-     * @return array            Rows found, each an associative array keyed by column
+     * Get rows from database matching filters
      */
-    public function get_symbol_rows( array $filters = [] ) : array
+    private function get_symbol_rows( array $filters = [] ) : array
     {
         $WHERE = count( $filters )
             ? $this->generate_where_clause( $filters )
@@ -96,11 +117,43 @@ class Symbol_Db_Ops extends Data
             '%' . $this->db->esc_like( $value ) . '%'
         );
     }
+    
+    /**
+     * -------------
+     *   C A C H E
+     * -------------
+     */
+    
+    /**
+     * Check if symbol is cached
+     */
+    private function symbol_cached( string $key ) : bool
+    {
+        return array_key_exists( $key, $this->symbols );
+    }
 
     /**
-     * -------------------------
-     *   S Y M B O L   C R U D
-     * -------------------------
+     * Get symbol from cache
+     */
+    private function get_cached_symbol( string $key ) : Mana_Symbol
+    {
+        return $this->symbols[ $key ];
+    }
+
+    /**
+     * Create symbol and add to cache
+     */
+    private function create_symbol( array $args ) : Mana_Symbol
+    {
+        $symbol = new Mana_Symbol( $args );
+        $this->symbols[ $symbol->get_plaintext() ] = $symbol;
+        return $symbol;
+    }
+
+    /**
+     * ---------------------------------
+     *   S Y M B O L   C R E A T I O N
+     * ---------------------------------
      */
     
     /**
