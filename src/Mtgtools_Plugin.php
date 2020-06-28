@@ -26,6 +26,7 @@ class Mtgtools_Plugin
 	 */
 	private $symbols;
 	private $dashboard;
+	private $admin_posts;
 
 	/**
 	 * Plugin instance
@@ -82,6 +83,18 @@ class Mtgtools_Plugin
 			$this->dashboard = new Mtgtools_Dashboard( $this );
 		}
 		return $this->dashboard;
+	}
+
+	/**
+	 * Get admin post module
+	 */
+	public function admin_posts() : Mtgtools_Admin_Posts
+	{
+		if ( !isset( $this->admin_posts ) )
+		{
+			$this->admin_posts = new Mtgtools_Admin_Posts( $this );
+		}
+		return $this->admin_posts;
 	}
 
 	/**

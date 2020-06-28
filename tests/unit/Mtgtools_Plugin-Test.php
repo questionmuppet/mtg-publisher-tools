@@ -40,4 +40,16 @@ class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
         $this->assertInstanceOf( Mtgtools\Mtgtools_Dashboard::class, $module );
     }
 
+    /**
+     * TEST: Can get admin-posts module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetAdminPostsModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->admin_posts();
+
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Admin_Posts::class, $module );
+    }
+
 }   // End of class
