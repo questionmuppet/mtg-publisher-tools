@@ -8,7 +8,7 @@ class Mana_Symbol_WPTest extends Mtgtools_UnitTestCase
     /**
      * TEST: Can get correct HTML markup
      */
-    public function testCanGetMarkup() : void
+    public function testCanGetCorrectMarkup() : void
     {
         $symbol = $this->create_symbol();
 

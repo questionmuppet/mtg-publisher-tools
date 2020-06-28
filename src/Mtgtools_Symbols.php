@@ -37,9 +37,9 @@ class Mtgtools_Symbols extends Module
     }
 
     /**
-     * ---------------------------------
-     *   W O R D P R E S S   H O O K S
-     * ---------------------------------
+     * -------------------
+     *   W P   H O O K S
+     * -------------------
      */
 
     /**
@@ -97,6 +97,15 @@ class Mtgtools_Symbols extends Module
         $defs = array_merge([
             'symbols' => [
                 'title'              => 'Mana Symbols',
+                'scripts'            => [
+                    [
+                        'key'  => 'mtgtools-data-table',
+                        'path' => 'data-tables.js',
+                        'data' => [
+                            'mtgtoolsDataTable' => [ 'nonce' => wp_create_nonce('mtgtools_update_table') ]
+                        ]
+                    ]
+                ],
                 'table_row_callback' => array( $this, 'get_table_rows' ),
                 'table_fields'       => [
                     'plaintext' => [
@@ -119,10 +128,11 @@ class Mtgtools_Symbols extends Module
     /**
      * Get symbol row data
      */
-    public function get_table_rows() : array
+    public function get_table_rows( string $filter = '' ) : array
     {
+        $filters = array_filter([ 'plaintext' => $filter ]);
         $rows = [];
-        foreach ( $this->db_ops->get_mana_symbols() as $symbol )
+        foreach ( $this->db_ops->get_mana_symbols( $filters ) as $symbol )
         {
             $rows[] = array(
                 'plaintext' => $symbol->get_plaintext(),
@@ -135,7 +145,7 @@ class Mtgtools_Symbols extends Module
 
     /**
      * ---------------------------
-     *   S Y M B O L   C A C H E
+     *   I N S T A L L A T I O N
      * ---------------------------
      */
 
@@ -149,12 +159,6 @@ class Mtgtools_Symbols extends Module
             $this->db_ops->add_symbol( $symbol );
         }
     }
-
-    /**
-     * ---------------------
-     *   D B   T A B L E S
-     * ---------------------
-     */
 
     /**
      * Install database tables

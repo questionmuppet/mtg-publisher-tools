@@ -7,6 +7,12 @@ use Mtgtools\Symbols\Symbol_Db_Ops;
 class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 {
     /**
+     * -------------------
+     *   W P   H O O K S
+     * -------------------
+     */
+
+    /**
      * TEST: Can enqueue assets
      */
     public function testCanEnqueueAssets() : void
@@ -36,6 +42,12 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * -----------------------------
+     *   D A S H B O A R D   T A B
+     * -----------------------------
+     */
+
+    /**
      * TEST: Can add dash tab
      */
     public function testCanAddDashTab() : void
@@ -54,7 +66,7 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
     public function testCanGetTableRows() : void
     {
         $db_ops = $this->get_mock_db_ops();
-        $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
+        $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
         $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
 
         $rows = $symbols->get_table_rows();
@@ -64,12 +76,35 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: get_table_rows() can pass filter to Db_Ops
+     * 
+     * @depends testCanGetTableRows
+     */
+    public function testGetTableRowsCanPassFilter() : void
+    {
+        $db_ops = $this->get_mock_db_ops();
+        $db_ops->expects( $this->once() )
+            ->method( 'get_mana_symbols' )
+            ->with( $this->arrayHasKey( 'plaintext' ) );
+
+        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
+
+        $symbols->get_table_rows( 'A nice filter' );
+    }
+
+    /**
+     * ---------------------------
+     *   I N S T A L L A T I O N
+     * ---------------------------
+     */
+
+    /**
      * TEST: Can import symbols
      */
     public function testCanImportSymbols() : void
     {
         $source = $this->get_mock_mtg_data_source();
-        $source->method('get_mana_symbols')->willReturn( $this->get_mock_mana_symbols() );
+        $source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
         $symbols = $this->create_symbols_module([ 'source' => $source ]);
 
         $result = $symbols->import_symbols();
