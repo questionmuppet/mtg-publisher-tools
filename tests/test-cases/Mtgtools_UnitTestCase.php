@@ -52,17 +52,6 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
     }
 
     /**
-     * Get several mock Mana_Symbol objects
-     */
-    protected function get_mock_mana_symbols() : array
-    {
-        return [
-            $this->get_mock_symbol(),
-            $this->get_mock_symbol([ 'plaintext' => '{Q}', 'pattern' => '/\{Q\}/' ]),
-        ];
-    }
-
-    /**
      * Get specified number of mock symbols
      */
     protected function get_mock_symbols( int $count ) : array
