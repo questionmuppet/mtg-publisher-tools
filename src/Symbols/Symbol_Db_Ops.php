@@ -2,7 +2,7 @@
 /**
  * Symbol_Db_Ops
  * 
- * Handles database CRUD for mana symbols
+ * Handles database operations for mana symbols
  */
 
 namespace Mtgtools\Symbols;
@@ -23,6 +23,14 @@ class Symbol_Db_Ops extends Data
     );
 
     /**
+     * Valid filter arguments for query
+     */
+    private $valid_filters = array(
+        'plaintext',
+        'english_phrase',
+    );
+
+    /**
      * Database class
      */
     private $db;
@@ -35,35 +43,65 @@ class Symbol_Db_Ops extends Data
         $this->db = $db;
         parent::__construct( $props );
     }
-    
+
     /**
-     * Get a mana symbol by its plaintext string
+     * -------------
+     *   Q U E R Y
+     * -------------
      */
-    public function get_symbol( string $key ) : Mana_Symbol
+
+    /**
+     * Get one or more rows from database
+     * 
+     * @param array $filters    Associative array of "column" => "value" pairs to use in WHERE
+     * @return array            Rows found, each an associative array keyed by column
+     */
+    public function get_symbol_rows( array $filters = [] ) : array
     {
-        if ( !$this->symbol_exists( $key ) )
-        {
-            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined mana symbol. No record found in the database for symbol with key '{$key}'." );
-        }
-        return $this->get_mana_symbols()[ $key ];
+        $WHERE = count( $filters )
+            ? $this->generate_where_clause( $filters )
+            : '';
+        
+        return $this->db->get_results(
+            "SELECT * FROM {$this->get_table()} {$WHERE};",
+            ARRAY_A
+        );
     }
 
     /**
-     * Get all mana symbols from database
-     * 
-     * @return Mana_Symbol[]
+     * Generate WHERE clause from filters
      */
-    public function get_mana_symbols() : array
+    private function generate_where_clause( array $filters ) : string
     {
-        $symbols = [];
-        $rows = $this->db->get_results( "SELECT * FROM {$this->get_table()}", ARRAY_A );
-        foreach ( $rows as $data )
+        $conditions = [];
+        foreach ( $filters as $key => $value )
         {
-            $new = new Mana_Symbol( $data );
-            $symbols[ $new->get_plaintext() ] = $new;
+            if ( !$this->is_valid_filter( $key ) )
+            {
+                throw new Exceptions\DbException( get_called_class() . " tried to retrieve database rows using an unknown filter key '{$key}'." );
+            }
+            $conditions[] = $this->generate_where_condition( $key, $value );
         }
-        return $symbols;
+        return 'WHERE ' . implode( ' && ', $conditions );
     }
+    
+    /**
+     * Generate WHERE condition
+     */
+    private function generate_where_condition( string $key, string $value ) : string
+    {
+        $column = sanitize_key( $key );
+        return $this->db->prepare(
+            "{$column} LIKE %s",
+            '%' . $this->db->esc_like( $value ) . '%'
+        );
+    }
+
+    /**
+     * -------------------------
+     *   S Y M B O L   C R U D
+     * -------------------------
+     */
     
     /**
      * Add a new mana symbol to the database
@@ -87,16 +125,6 @@ class Symbol_Db_Ops extends Data
             : $this->insert_symbol( $values )
         );
     }
-    
-    /**
-     * Insert new row into symbols table
-     * 
-     * @return int|false Rows inserted, false on error
-     */
-    private function insert_symbol( array $values )
-    {
-        return $this->db->insert( $this->get_table(), $values, '%s' );
-    }
 
     /**
      * Update an extant row in symbols table
@@ -112,6 +140,16 @@ class Symbol_Db_Ops extends Data
             '%s',                                           // Values format
             '%s'                                            // Where format
         );
+    }
+    
+    /**
+     * Insert new row into symbols table
+     * 
+     * @return int|false Rows inserted, false on error
+     */
+    private function insert_symbol( array $values )
+    {
+        return $this->db->insert( $this->get_table(), $values, '%s' );
     }
 
      /**
@@ -144,6 +182,12 @@ class Symbol_Db_Ops extends Data
     }
 
     /**
+     * -------------------------------
+     *   T A B L E   C R E A T I O N
+     * -------------------------------
+     */
+
+    /**
      * Create symbols table in db
      * 
      * @return bool True if successful, false on error
@@ -169,6 +213,20 @@ class Symbol_Db_Ops extends Data
     public function drop_table() : bool
     {
         return $this->db->query( "DROP TABLE IF EXISTS {$this->get_table()};" );
+    }
+
+    /**
+     * -----------------------
+     *   P R O P E R T I E S
+     * -----------------------
+     */
+
+    /**
+     * Check if a query filter is valid
+     */
+    private function is_valid_filter( string $key ) : bool
+    {
+        return in_array( $key, $this->valid_filters );
     }
 
     /**

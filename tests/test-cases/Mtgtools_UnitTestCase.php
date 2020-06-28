@@ -63,6 +63,20 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
     }
 
     /**
+     * Get specified number of mock symbols
+     */
+    protected function get_mock_symbols( int $count ) : array
+    {
+        $plaintexts = [ '{T}', '{Q}', '{X}', '{1}', '{15}', '{U}', '{W}', '{W/U}', '{2/U}', '{W/P}' ];
+        $symbols = [];
+        foreach ( array_slice( $plaintexts, 0, $count ) as $text )
+        {
+            $symbols[] = $this->get_mock_symbol([ 'plaintext' => $text ]);
+        }
+        return $symbols;
+    }
+
+    /**
      * Get mock Mana_Symbol object
      */
     protected function get_mock_symbol( array $args = [] ) : Mana_Symbol

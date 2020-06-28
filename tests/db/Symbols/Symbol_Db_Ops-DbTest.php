@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Symbols\Mana_Symbol;
 use Mtgtools\Exceptions\Db as Exceptions;
@@ -50,7 +51,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      */
 
     /**
-     * Can create table
+     * TEST: Can create table
      */
     public function testCanCreateTable() : void
     {
@@ -59,7 +60,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Can drop table
+     * TEST: Can drop table
      */
     public function testCanDropTable() : void
     {
@@ -68,7 +69,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Can add valid symbol
+     * TEST: Can add valid symbol
      * 
      * @depends testCanCreateTable
      */
@@ -83,7 +84,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Cannnot add invalid symbol
+     * TEST: Cannnot add invalid symbol
      * 
      * @depends testCanAddValidSymbol
      */
@@ -98,7 +99,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Can update extant symbol
+     * TEST: Can update extant symbol
      * 
      * @depends testCanAddValidSymbol
      */
@@ -115,7 +116,7 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
     
     /**
-     * Can delete symbol
+     * TEST: Can delete symbol
      * 
      * @depends testCanAddValidSymbol
      */
@@ -131,54 +132,54 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Can get all mana symbols
+     * TEST: Can get all mana symbols
      * 
      * @depends testCanAddValidSymbol
      */
     public function testCanGetAllManaSymbols() : void
     {
         $this->db_ops->create_table();
-        $symbol1 = $this->get_mock_symbol([ 'plaintext' => '{T}' ]);
-        $symbol2 = $this->get_mock_symbol([ 'plaintext' => '{Q}' ]);
-        $this->db_ops->add_symbol( $symbol1 );
-        $this->db_ops->add_symbol( $symbol2 );
+        foreach ( $this->get_mock_symbols(3) as $symbol )
+        {
+            $this->db_ops->add_symbol( $symbol );
+        }
 
-        $result = $this->db_ops->get_mana_symbols();
+        $result = $this->db_ops->get_symbol_rows();
 
-        $this->assertCount( 2, $result );
-        $this->assertContainsOnlyInstancesOf( Mana_Symbol::class, $result );
+        $this->assertCount( 3, $result );
+        $this->assertContainsOnly( 'array', $result );
     }
 
     /**
-     * Can get a mana symbol by key
+     * TEST: Can get mana symbols with filter
      * 
-     * @depends testCanAddValidSymbol
+     * @depends testCanGetAllManaSymbols
      */
-    public function testCanGetManaSymbolByKey() : void
+    public function testCanGetManaSymbolsWithFilter() : void
     {
         $this->db_ops->create_table();
-        $symbol = $this->get_mock_symbol();
-        $this->db_ops->add_symbol( $symbol );
+        foreach ( $this->get_mock_symbols(10) as $symbol )
+        {
+            $this->db_ops->add_symbol( $symbol );
+        }
 
-        $result = $this->db_ops->get_symbol( $symbol->get_plaintext() );
+        $result = $this->db_ops->get_symbol_rows([ 'plaintext' => 'U' ]);
 
-        $this->assertInstanceOf( Mana_Symbol::class, $result );
+        $this->assertCount( 3, $result );
     }
 
     /**
-     * Cannot get nonexistent mana symbol
+     * TEST: Invalid query filter throws DbException
      * 
-     * @depends testCanAddValidSymbol
+     * @depends testCanGetManaSymbolsWithFilter
      */
-    public function testGettingNonexistentSymbolThrowsOutOfRangeException() : void
+    public function testInvalidQueryFilterThrowsDbException() : void
     {
         $this->db_ops->create_table();
-        $symbol = $this->get_mock_symbol([ 'plaintext' => '{T}' ]);
-        $this->db_ops->add_symbol( $symbol );
 
-        $this->expectException( \OutOfRangeException::class );
-
-        $this->db_ops->get_symbol( '{FAKE}' );
+        $this->expectException( Exceptions\DbException::class );
+        
+        $this->db_ops->get_symbol_rows([ 'invalid_param' => 'Uh, oh! Better put the kibbosh on it!' ]);
     }
 
 }   // End of class
