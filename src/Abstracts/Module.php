@@ -20,11 +20,29 @@ abstract class Module
     private $plugin;
 
     /**
+     * Admin-post handlers
+     */
+    private $handlers = [];
+
+    /**
      * Constructor
      */
     public function __construct( Mtgtools_Plugin $plugin )
     {
         $this->plugin = $plugin;
+    }
+
+    /**
+     * Register admin-post handlers
+     */
+    protected function register_post_handlers( array $defs ) : void
+    {
+        foreach ( $defs as $params )
+        {
+            $handler = $this->tasks()->create_post_handler( $params );
+            $handler->add_hooks();
+            $this->handlers[ $handler->get_action() ] = $handler;
+        }
     }
 
     /**
