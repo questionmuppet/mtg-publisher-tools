@@ -30,7 +30,7 @@ abstract class Module
     /**
      * Get task library
      */
-    protected function tasks() : Task_Library
+    final protected function tasks() : Task_Library
     {
         return $this->mtgtools()->task_library();
     }
@@ -38,7 +38,7 @@ abstract class Module
     /**
      * Get plugin instance
      */
-    protected function mtgtools() : Mtgtools_Plugin
+    final protected function mtgtools() : Mtgtools_Plugin
     {
         return $this->plugin;
     }
