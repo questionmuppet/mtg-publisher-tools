@@ -11,12 +11,19 @@ use Mtgtools\Tasks\Enqueue;
 use Mtgtools\Tasks\Templates\Template;
 use Mtgtools\Tasks\Tables\Table_Data;
 use Mtgtools\Tasks\Notices\Admin_Notice;
+use Mtgtools\Tasks\Admin_Post\Post_Handler_Factory;
+use Mtgtools\Tasks\Admin_Post\Admin_Post_Handler;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
 class Task_Library
 {
+    /**
+     * Factory instances
+     */
+    private $factories = [];
+
     /**
      * Create a CSS asset
      */
@@ -55,6 +62,26 @@ class Task_Library
     public function create_admin_notice( array $params ) : Admin_Notice
     {
         return new Admin_Notice( $params );
+    }
+
+    /**
+     * Create an admin-post handler
+     */
+    public function create_post_handler( array $params ) : Admin_Post_Handler
+    {
+        return $this->post_handler_factory()->create_handler( $params );
+    }
+
+    /**
+     * Get post handler factory
+     */
+    private function post_handler_factory() : Post_Handler_Factory
+    {
+        if ( !isset( $this->factories['post_handler'] ) )
+        {
+            $this->factories['post_handler'] = new Post_Handler_Factory();
+        }
+        return $this->factories['post_handler'];
     }
 
 }   // End of class
