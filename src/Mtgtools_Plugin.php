@@ -29,6 +29,11 @@ class Mtgtools_Plugin
 	private $admin_posts;
 
 	/**
+	 * Module task library
+	 */
+	private $task_library;
+
+	/**
 	 * Plugin instance
 	 */
 	private static $instance;
@@ -102,6 +107,18 @@ class Mtgtools_Plugin
 	 *   H E L P E R   M E T H O D S
 	 * -------------------------------
 	 */
+
+	/**
+	 * Get task library
+	 */
+	public function task_library() : Task_Library
+	{
+		if ( !isset( $this->task_library ) )
+		{
+			$this->task_library = new Task_Library();
+		}
+		return $this->task_library;
+	}
 
 	/**
 	 * Enqueue a CSS asset

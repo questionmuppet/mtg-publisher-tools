@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
+
 use Mtgtools\Mtgtools_Plugin;
 
-class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
+class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
 {
     /**
      * TEST: Can get instance
@@ -50,6 +51,18 @@ class Mtgtools_PluginTest extends Mtgtools_UnitTestCase
         $module = $instance->admin_posts();
 
         $this->assertInstanceOf( Mtgtools\Mtgtools_Admin_Posts::class, $module );
+    }
+
+    /**
+     * TEST: Can get task library
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetTaskLibrary( Mtgtools_Plugin $instance ) : void
+    {
+        $library = $instance->task_library();
+
+        $this->assertInstanceOf( Mtgtools\Task_Library::class, $library );
     }
 
 }   // End of class

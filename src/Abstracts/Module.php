@@ -7,6 +7,7 @@
 
 namespace Mtgtools\Abstracts;
 use Mtgtools\Mtgtools_Plugin;
+use Mtgtools\Task_Library;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -24,6 +25,14 @@ abstract class Module
     public function __construct( Mtgtools_Plugin $plugin )
     {
         $this->plugin = $plugin;
+    }
+
+    /**
+     * Get task library
+     */
+    protected function tasks() : Task_Library
+    {
+        return $this->mtgtools()->task_library();
     }
 
     /**
