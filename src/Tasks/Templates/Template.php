@@ -27,22 +27,47 @@ class Template extends Data
         'base_dir'     => MTGTOOLS__TEMPLATE_PATH,
         'vars'         => [],
         'require_once' => false,
+        'themeable'    => true,
     );
 
     /**
-     * -----------------
-     *   I N C L U D E
-     * -----------------
+     * ---------------
+     *   O U T P U T
+     * ---------------
      */
     
+    /**
+     * Return template markup as string
+     */
+    public function get_markup() : string
+    {
+        ob_start();
+        $this->include();
+        return ob_get_clean();
+    }
+
     /**
      * Echo template file as output
      */
     public function include() : void
     {
         $this->set_query_vars();
-        load_template( $this->locate_template(), $this->require_once() );
+        load_template( $this->get_full_path(), $this->require_once() );
         $this->remove_query_vars();
+    }
+
+    /**
+     * ---------------
+     *   L O C A T E
+     * ---------------
+     */
+    
+    /**
+     * Get full path to template file
+     */
+    private function get_full_path() : string
+    {
+        return $this->is_themeable() ? $this->locate_template() : $this->get_default_path();
     }
 
     /**
@@ -50,7 +75,7 @@ class Template extends Data
      */
     private function locate_template() : string
     {
-        $template = locate_template( $this->get_path() );
+        $template = locate_template( MTGTOOLS__ADMIN_SLUG . '/' . $this->get_path() );
         return strlen( $template )
             ? $template
             : $this->get_default_path();
@@ -128,6 +153,14 @@ class Template extends Data
     private function require_once() : bool
     {
         return boolval( $this->get_prop( 'require_once' ) );
+    }
+
+    /**
+     * Check whether themes can override this template
+     */
+    private function is_themeable() : bool
+    {
+        return boolval( $this->get_prop( 'themeable' ) );
     }
 
 }   // End of class
