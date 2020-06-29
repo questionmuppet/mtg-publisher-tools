@@ -5,9 +5,9 @@
  * Registers an action to handle POST requests to the WordPress admin
  */
 
-namespace Mtgtools\Admin_Post;
+namespace Mtgtools\Tasks\Admin_Post;
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Admin_Post\Interfaces\Admin_Post_Responder;
+use Mtgtools\Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
 use Mtgtools\Exceptions\Admin_Post as Exceptions;
 
 // Exit if accessed directly

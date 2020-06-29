@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Admin_Post\Post_Handler_Factory;
-use Mtgtools\Admin_Post\Admin_Post_Handler;
+use Mtgtools\Tasks\Admin_Post\Post_Handler_Factory;
+use Mtgtools\Tasks\Admin_Post\Admin_Post_Handler;
 
 class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
 {

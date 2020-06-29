@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Mtgtools\Admin_Post
+namespace Mtgtools\Tasks\Admin_Post
 {
     /**
      * WordPress mock functions

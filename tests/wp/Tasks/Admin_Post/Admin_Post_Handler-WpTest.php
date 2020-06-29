@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Admin_Post\Admin_Post_Handler;
-use Mtgtools\Admin_Post\Interfaces\Admin_Post_Responder;
+use Mtgtools\Tasks\Admin_Post\Admin_Post_Handler;
+use Mtgtools\Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
 use Mtgtools\Exceptions\Admin_Post as Exceptions;
 
 class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
@@ -184,14 +184,14 @@ class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Bad callback return value throws UnexpectedValueException
+     * TEST: Bad return value from callback throws UnexpectedValueException
      * 
      * @depends testCanProcessAuthorizedAction
      */
     public function testBadCallbackThrowsUnexpectedValueException() : void
     {
         $callback = function( array $args ) {
-            return 'A malfored string response';
+            return 'An invalid string response';
         };
         $handler = $this->create_handler([ 'callback' => $callback ]);
 
@@ -273,7 +273,7 @@ class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * Get action hook
+     * Get WordPress action hook
      */
     private function get_action_hook( string $interfix = '' ) : string
     {

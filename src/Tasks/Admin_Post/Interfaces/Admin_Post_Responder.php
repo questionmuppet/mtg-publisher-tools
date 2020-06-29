@@ -2,11 +2,10 @@
 /**
  * Admin_Post_Responder
  * 
- * Interface that sends admin-post responses to user
+ * Processes the response from an admin-post event
  */
 
-namespace Mtgtools\Admin_Post\Interfaces;
-use \Exception;
+namespace Mtgtools\Tasks\Admin_Post\Interfaces;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -21,7 +20,7 @@ interface Admin_Post_Responder
     /**
      * Handle error state of admin-post request
      */
-    public function handle_error( Exception $e ) : void;
+    public function handle_error( \Exception $e ) : void;
 
     /**
      * Get wp prefix for hook action

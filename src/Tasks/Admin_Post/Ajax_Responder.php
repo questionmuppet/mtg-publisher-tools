@@ -2,11 +2,11 @@
 /**
  * Ajax_Responder
  * 
- * Sends the result of an admin post event via AJAX
+ * Sends the result of an admin-post event via AJAX
  */
 
-namespace Mtgtools\Admin_Post;
-use \Mtgtools\Admin_Post\Interfaces\Admin_Post_Responder;
+namespace Mtgtools\Tasks\Admin_Post;
+use Mtgtools\Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
