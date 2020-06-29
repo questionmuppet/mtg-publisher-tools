@@ -13,24 +13,14 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 abstract class Factory
 {
     /**
-     * Type-to-class map
+     * Object definition
+     * 
+     * @extended by children
      */
-    protected $type_map = [];
-
-    /**
-     * Default type
-     */
-    protected $default_type = '';
-
-    /**
-     * Base class for generated objects
-     */
-    protected $base_class = '';
-
-    /**
-     * Namespace path
-     */
-    protected $namespace = '';
+    protected $type_map;
+    protected $default_type;
+    protected $base_class;
+    protected $namespace;
 
     /**
      * Create a new object
@@ -45,6 +35,12 @@ abstract class Factory
         $class = $this->get_class( $params['type'] );
         return new $class( $params, ...$deps );
     }
+
+    /**
+     * ---------------------
+     *   C L A S S N A M E
+     * ---------------------
+     */
 
     /**
      * Get object class by type
@@ -62,7 +58,7 @@ abstract class Factory
                 )
             );
         }
-        return "\\" . $this->get_namespace() . "\\" . $this->type_map[ $type ];
+        return $this->get_namespace() . "\\" . $this->get_type_map()[ $type ];
     }
     
     /**
@@ -70,7 +66,21 @@ abstract class Factory
      */
     private function type_exists( string $type ) : bool
     {
-        return array_key_exists( $type, $this->type_map );
+        return array_key_exists( $type, $this->get_type_map() );
+    }
+
+    /**
+     * -------------------------------------
+     *   O B J E C T   D E F I N I T I O N
+     * -------------------------------------
+     */
+
+    /**
+     * Get type-to-class map
+     */
+    private function get_type_map() : array
+    {
+        return $this->type_map;
     }
 
     /**
@@ -82,7 +92,7 @@ abstract class Factory
     }
 
     /**
-     * Get base classname
+     * Get base class for generated objects
      */
     private function get_base_class() : string
     {
