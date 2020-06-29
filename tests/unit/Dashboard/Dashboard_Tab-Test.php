@@ -38,18 +38,18 @@ class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can enqueue assets
+     * TEST: Can get assets
      */
-    public function testCanEnqueueAssets() : void
+    public function testCanGetAssets() : void
     {
         $asset = $this->createMock( Asset::class );
         $tab = $this->create_tab([
             'assets' => [ $asset ]
         ]);
 
-        $result = $tab->enqueue_assets();
+        $assets = $tab->get_assets();
 
-        $this->assertNull( $result );
+        $this->assertContainsOnlyInstancesOf( Asset::class, $assets );
     }
 
     /**

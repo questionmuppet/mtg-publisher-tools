@@ -53,29 +53,6 @@ class Dashboard_Tab extends Data
     }
 
     /**
-     * Enqueue JS and CSS assets
-     */
-    public function enqueue_assets() : void
-    {
-        foreach ( $this->get_assets() as $asset )
-        {
-            $asset->enqueue();
-        }
-    }
-    
-    /**
-     * Get table data by key
-     */
-    public function get_table_data( string $key ) : Table_Data
-    {
-        if ( !$this->table_exists( $key ) )
-        {
-            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined Table_Data object with key '{$key}'." );
-        }
-        return $this->get_tables()[ $key ];
-    }
-
-    /**
      * -------------------------
      *   H T M L   O U T P U T
      * -------------------------
@@ -119,6 +96,34 @@ class Dashboard_Tab extends Data
         ]);
         return implode( ' ', $classes );
     }
+    
+    /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+    
+    /**
+     * Get JS and CSS assets
+     * 
+     * @return Asset[]
+     */
+    public function get_assets() : array
+    {
+        return $this->get_prop( 'assets' );
+    }
+
+    /**
+     * Get table data by key
+     */
+    public function get_table_data( string $key ) : Table_Data
+    {
+        if ( !$this->table_exists( $key ) )
+        {
+            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined Table_Data object with key '{$key}'." );
+        }
+        return $this->get_tables()[ $key ];
+    }
 
     /**
      * -----------------------
@@ -132,16 +137,6 @@ class Dashboard_Tab extends Data
     private function get_title() : string
     {
         return $this->get_prop( 'title' ) ?? ucfirst( $this->get_id() );
-    }
-
-    /**
-     * Get JS and CSS assets
-     * 
-     * @return Asset[]
-     */
-    private function get_assets() : array
-    {
-        return $this->get_prop( 'assets' );
     }
 
     /**
