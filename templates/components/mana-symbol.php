@@ -1,6 +1,8 @@
 <?php
 /**
  * Outputs HTML markup for mana symbols
+ * 
+ * @param Mana_Symbol $symbol
  */
 
 // Exit if accessed directly

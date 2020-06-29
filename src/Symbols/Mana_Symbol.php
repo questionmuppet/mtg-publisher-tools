@@ -6,8 +6,9 @@
  */
 
 namespace Mtgtools\Symbols;
+
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Templates\Template;
+use Mtgtools\Task_Library;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -45,10 +46,10 @@ class Mana_Symbol extends Data
     /**
      * Get HTML markup
      */
-    public function get_markup() : string
+    public function get_markup( Task_Library $library ) : string
     {
         ob_start();
-        $template = new Template([
+        $template = $library->create_template([
             'path' => 'components/mana-symbol.php',
             'vars' => array( 'symbol' => $this )
         ]);

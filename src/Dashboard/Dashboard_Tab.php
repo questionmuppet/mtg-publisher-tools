@@ -6,9 +6,10 @@
  */
 
 namespace Mtgtools\Dashboard;
+
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Enqueue\Asset;
-use Mtgtools\Dashboard\Table_Data;
+use Mtgtools\Tasks\Enqueue\Asset;
+use Mtgtools\Tasks\Tables\Table_Data;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

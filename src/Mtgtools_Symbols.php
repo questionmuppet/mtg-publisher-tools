@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools;
+
 use Mtgtools\Abstracts\Module;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
@@ -58,10 +59,11 @@ class Mtgtools_Symbols extends Module
      */
     public function enqueue_assets() : void
     {
-        $this->mtgtools()->add_style([
+        $style = $this->tasks()->create_style([
             'key'  => 'mtgtools-symbols',
             'path' => 'mtgtools-symbols.css',
         ]);
+        $style->enqueue();
     }
 
     /**
@@ -77,7 +79,7 @@ class Mtgtools_Symbols extends Module
             if ( $symbol->is_valid() )
             {
                 $patterns[]     = $symbol->get_pattern();
-                $replacements[] = $symbol->get_markup();
+                $replacements[] = $symbol->get_markup( $this->tasks() );
             }
         }
         return preg_replace( $patterns, $replacements, $content );
@@ -96,18 +98,44 @@ class Mtgtools_Symbols extends Module
     {
         $defs = array_merge([
             'symbols' => [
-                'title'              => 'Mana Symbols',
-                'scripts'            => [
-                    [
-                        'key'  => 'mtgtools-data-table',
-                        'path' => 'data-tables.js',
-                        'data' => [
-                            'mtgtoolsDataTable' => [ 'nonce' => wp_create_nonce('mtgtools_update_table') ]
-                        ]
-                    ]
-                ],
-                'table_row_callback' => array( $this, 'get_table_rows' ),
-                'table_fields'       => [
+                'title'  => 'Mana Symbols',
+                'assets' => $this->get_dashboard_assets(),
+                'tables' => $this->get_dashboard_tables(),
+            ],
+        ], $defs );
+        return $defs;
+    }
+
+    /**
+     * Get dashboard assets
+     * 
+     * @return Asset[]
+     */
+    private function get_dashboard_assets() : array
+    {
+        return array(
+            $this->tasks()->create_script([
+                'key'  => 'mtgtools-data-table',
+                'path' => 'data-tables.js',
+                'data' => [
+                    'mtgtoolsDataTable' => [ 'nonce' => wp_create_nonce('mtgtools_update_table') ]
+                ]
+            ]),
+        );
+    }
+
+    /**
+     * Get dashboard tables
+     * 
+     * @return Table_Data[]
+     */
+    private function get_dashboard_tables() : array
+    {
+        return array(
+            'symbol_list' => $this->tasks()->create_table([
+                'id'           => 'symbol_list',
+                'row_callback' => array( $this, 'get_symbol_list_data' ),
+                'fields'       => [
                     'plaintext' => [
                         'title' => 'Text',
                         'width' => 70,
@@ -117,18 +145,17 @@ class Mtgtools_Symbols extends Module
                     ],
                     'english'   => [
                         'title' => 'English Phrase',
-                        'width' => 245,
+                        'width' => 300,
                     ],
                 ],
-            ],
-        ], $defs );
-        return $defs;
+            ]),
+        );
     }
 
     /**
-     * Get symbol row data
+     * Get symbol list data for tables
      */
-    public function get_table_rows( string $filter = '' ) : array
+    public function get_symbol_list_data( string $filter = '' ) : array
     {
         $filters = array_filter([ 'plaintext' => $filter ]);
         $rows = [];
@@ -136,7 +163,7 @@ class Mtgtools_Symbols extends Module
         {
             $rows[] = array(
                 'plaintext' => $symbol->get_plaintext(),
-                'symbol'    => $symbol->get_markup(),
+                'symbol'    => $symbol->get_markup( $this->tasks() ),
                 'english'   => $symbol->get_english_phrase(),
             );
         }

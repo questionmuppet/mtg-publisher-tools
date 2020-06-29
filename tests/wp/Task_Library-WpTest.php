@@ -59,11 +59,11 @@ class Task_Library_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can create table data
+     * TEST: Can create table
      */
-    public function testCanCreateTableData() : void
+    public function testCanCreateTable() : void
     {
-        $object = $this->library->create_table_data([
+        $object = $this->library->create_table([
             'id'           => 'foo_bar',
             'fields'       => [
                 array(),

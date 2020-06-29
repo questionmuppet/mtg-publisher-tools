@@ -33,7 +33,7 @@ $dashboard = get_query_var( 'Mtgtools_Dashboard' );
     
         <div class="mtgtools-flex-item">
         
-            <?php $dashboard->include_data_table(); ?>
+            <?php $dashboard->include_data_table( 'symbol_list' ); ?>
         
         </div>
 

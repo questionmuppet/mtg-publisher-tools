@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Symbols\Mana_Symbol;
+use Mtgtools\Task_Library;
 
 class Mana_Symbol_WPTest extends Mtgtools_UnitTestCase
 {
@@ -11,8 +12,9 @@ class Mana_Symbol_WPTest extends Mtgtools_UnitTestCase
     public function testCanGetCorrectMarkup() : void
     {
         $symbol = $this->create_symbol();
+        $library = new Task_Library();
 
-        $html = $symbol->get_markup();
+        $html = $symbol->get_markup( $library );
 
         $this->assertHasElementWithAttributes(
             [

@@ -34,7 +34,7 @@ class Task_Library
     }
 
     /**
-     * Create a template
+     * Create a template for outputting HTML
      */
     public function create_template( array $params ) : Template
     {
@@ -42,9 +42,9 @@ class Task_Library
     }
 
     /**
-     * Create table data
+     * Create table for display on dashboard
      */
-    public function create_table_data( array $params ) : Table_Data
+    public function create_table( array $params ) : Table_Data
     {
         return new Table_Data( $params );
     }

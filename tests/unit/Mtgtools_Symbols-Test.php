@@ -61,26 +61,26 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can get table rows
+     * TEST: Can get symbol list data for tables
      */
-    public function testCanGetTableRows() : void
+    public function testCanGetSymbolListData() : void
     {
         $db_ops = $this->get_mock_db_ops();
         $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
         $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
 
-        $rows = $symbols->get_table_rows();
+        $rows = $symbols->get_symbol_list_data();
 
         $this->assertCount( 2, $rows );
         $this->assertContainsOnly( 'array', $rows );
     }
 
     /**
-     * TEST: get_table_rows() can pass filter to Db_Ops
+     * TEST: Can pass filter to Db_Ops for list data
      * 
-     * @depends testCanGetTableRows
+     * @depends testCanGetSymbolListData
      */
-    public function testGetTableRowsCanPassFilter() : void
+    public function testGetSymbolListDataCanPassFilter() : void
     {
         $db_ops = $this->get_mock_db_ops();
         $db_ops->expects( $this->once() )
@@ -89,7 +89,7 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 
         $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
 
-        $symbols->get_table_rows( 'A nice filter' );
+        $symbols->get_symbol_list_data( 'A nice filter' );
     }
 
     /**
