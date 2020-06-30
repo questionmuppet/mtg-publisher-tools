@@ -1,6 +1,8 @@
 <?php
 /**
  * Mana symbols dashboard tab
+ * 
+ * @param Mtgtools_Dashboard $dashboard
  */
 
 // Exit if accessed directly
@@ -8,9 +10,6 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
 // Check permissions
 current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
-
-// Dashboard module
-$dashboard = get_query_var( 'Mtgtools_Dashboard' );
 
 /* Mtgtools\Mtgtools_Plugin::get_instance()->add_admin_notice([
     'message' => '<strong>MTG Publisher Tools</strong> has new mana symbols available for download. Click "Update now" to sync your database to the latest changes.</p><p><a>Update now</a> | <a>Turn off notices</a>',
@@ -33,7 +32,7 @@ $dashboard = get_query_var( 'Mtgtools_Dashboard' );
     
         <div class="mtgtools-flex-item">
         
-            <?php $dashboard->include_data_table( 'symbol_list' ); ?>
+            <?php $dashboard->display_table( 'symbol_list' ); ?>
         
         </div>
 

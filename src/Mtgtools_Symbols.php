@@ -51,7 +51,7 @@ class Mtgtools_Symbols extends Module
         add_action( 'wp_enqueue_scripts',                 array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_assets' ) );
         add_shortcode( 'mana_symbols',                    array( $this, 'parse_mana_symbols' ) );
-        add_filter( 'mtgtools_dashboard_tab_definitions', array( $this, 'add_dash_tab' ), 10 );
+        add_action( 'mtgtools_dashboard_tabs',            array( $this, 'add_dash_tab' ), 10, 1 );
     }
 
     /**
@@ -93,35 +93,16 @@ class Mtgtools_Symbols extends Module
 
     /**
      * Add dashboard tab
-     */
-    public function add_dash_tab( array $defs ) : array
-    {
-        $defs = array_merge([
-            'symbols' => [
-                'title'  => 'Mana Symbols',
-                'assets' => $this->get_dashboard_assets(),
-                'tables' => $this->get_dashboard_tables(),
-            ],
-        ], $defs );
-        return $defs;
-    }
-
-    /**
-     * Get dashboard assets
      * 
-     * @return Asset[]
+     * @hooked mtgtools_dashboard_tabs
      */
-    private function get_dashboard_assets() : array
+    public function add_dash_tab( Mtgtools_Dashboard $dashboard ) : void
     {
-        return array(
-            $this->tasks()->create_script([
-                'key'  => 'mtgtools-data-table',
-                'path' => 'data-tables.js',
-                'data' => [
-                    'mtgtoolsDataTable' => [ 'nonce' => wp_create_nonce('mtgtools_update_table') ]
-                ]
-            ]),
-        );
+        $dashboard->add_tab([
+            'id'     => 'symbols',
+            'title'  => 'Mana Symbols',
+            'tables' => $this->get_dashboard_tables(),
+        ]);
     }
 
     /**

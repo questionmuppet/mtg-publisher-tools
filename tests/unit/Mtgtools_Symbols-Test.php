@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Mtgtools_Dashboard;
 
 class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 {
@@ -11,6 +12,18 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      *   W P   H O O K S
      * -------------------
      */
+
+    /**
+     * TEST: Can add hooks
+     */
+    public function testCanAddHooks() : void
+    {
+        $symbols = $this->create_symbols_module();
+
+        $result = $symbols->add_hooks();
+
+        $this->assertNull( $result );
+    }
 
     /**
      * TEST: Can enqueue assets
@@ -53,11 +66,11 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
     public function testCanAddDashTab() : void
     {
         $symbols = $this->create_symbols_module();
-        $defs = [];
+        $dashboard = $this->createMock( Mtgtools_Dashboard::class );
 
-        $defs = $symbols->add_dash_tab( $defs );
+        $result = $symbols->add_dash_tab( $dashboard );
 
-        $this->assertCount( 1, $defs );
+        $this->assertNull( $result );
     }
 
     /**
