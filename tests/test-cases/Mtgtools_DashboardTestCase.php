@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
+use Mtgtools\Dashboard\Tabs\Dashboard_Tab;
 
 abstract class Mtgtools_DashboardTestCase extends Mtgtools_UnitTestCase
 {
@@ -30,7 +31,20 @@ abstract class Mtgtools_DashboardTestCase extends Mtgtools_UnitTestCase
      */
     protected function get_mock_tab_factory() : Dashboard_Tab_Factory
     {
-        return $this->createMock( Dashboard_Tab_Factory::class );
+        $factory = $this->createMock( Dashboard_Tab_Factory::class );
+        $factory->method('create_tab')
+            ->will( $this->returnCallback( [$this, 'get_mock_dashtab_with_id'] ) );
+        return $factory;
+    }
+
+    /**
+     * Get mock tab with id
+     */
+    public function get_mock_dashtab_with_id( array $params ) : Dashboard_Tab
+    {
+        $tab = $this->createMock( Dashboard_Tab::class );
+        $tab->method('get_id')->willReturn( $params['id'] );
+        return $tab;
     }
 
 }   // End of class

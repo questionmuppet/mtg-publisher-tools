@@ -11,6 +11,7 @@ namespace Mtgtools;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 
 // Helper classes
 use Mtgtools\Enqueue;
@@ -85,7 +86,8 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->dashboard ) )
 		{
-			$this->dashboard = new Mtgtools_Dashboard( $this );
+			$factory = new Dashboard_Tab_Factory();
+			$this->dashboard = new Mtgtools_Dashboard( $factory, $this );
 		}
 		return $this->dashboard;
 	}

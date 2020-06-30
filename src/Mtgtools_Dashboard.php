@@ -6,9 +6,13 @@
  */
 
 namespace Mtgtools;
+
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Dashboard\Dashboard_Tab;
-use Mtgtools\Templates\Template;
+use Mtgtools\Dashboard\Tabs\Dashboard_Tab;
+use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
+use Mtgtools\Exceptions\Admin_Post\ParameterException;
+use Mtgtools\Tasks\Tables\Table_Data;
+use Mtgtools\Tasks\Templates\Template;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -21,25 +25,97 @@ class Mtgtools_Dashboard extends Module
     private $tabs;
 
     /**
+     * Tab definitions
+     */
+    private $tab_defs = [
+        [
+            'id' => 'settings',
+        ],
+    ];
+
+    /**
      * Active tab
      */
     private $active;
 
     /**
-     * ---------------------------------
-     *   W O R D P R E S S   H O O K S
-     * ---------------------------------
+     * Tab factory;
      */
+    private $tab_factory;
+
+    /**
+     * Constructor
+     */
+    public function __construct( Dashboard_Tab_Factory $tab_factory, $plugin )
+    {
+        $this->tab_factory = $tab_factory;
+        parent::__construct( $plugin );
+    }
 
     /**
      * Add WP hooks
      */
     public function add_hooks() : void
     {
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_menu',            array( $this, 'create_dashboard' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+
+        $this->register_post_handlers([
+            [
+                'type'      => 'ajax',
+                'action'    => 'mtgtools_update_table',
+                'callback'  => array( $this, 'update_data_table' ),
+                'user_args' => [ 'tab', 'table', 'filter' ],
+            ],
+        ]);
     }
 
+    /**
+     * -----------------
+     *   E N Q U E U E
+     * -----------------
+     */
+
+    /**
+     * Enqueue scripts and styles
+     * 
+     * @hooked admin_enqueue_scripts
+     */
+    public function enqueue_assets( $hook_suffix ) : void
+    {
+        if ( 'settings_page_' . MTGTOOLS__ADMIN_SLUG === $hook_suffix )
+        {
+            foreach ( $this->get_assets() as $asset )
+            {
+                $asset->enqueue();
+            }
+        }
+    }
+    
+    /**
+     * Get dashboard assets
+     * 
+     * @return Asset[]
+     */
+    private function get_assets() : array
+    {
+        return array_merge(
+            [
+                $this->tasks()->create_style([
+                    'key'  => 'mtgtools-dashboard',
+                    'path' => 'dashboard.css',
+                ]),
+            ],
+            $this->get_active_tab()->get_assets()
+        );
+    }
+
+    /**
+     * ---------------------
+     *   D A S H B O A R D
+     * ---------------------
+     */
+    
     /**
      * Create dashboard page and menu item
      * 
@@ -51,34 +127,93 @@ class Mtgtools_Dashboard extends Module
     }
 
     /**
-     * Enqueue scripts and styles
-     * 
-     * @hooked admin_enqueue_scripts
+     * Display main dashboard template
      */
-    public function enqueue_assets( $hook_suffix ) : void
+    public function display_dashboard() : void
     {
-        if ( 'settings_page_' . MTGTOOLS__ADMIN_SLUG === $hook_suffix )
+        $this->display_template([
+            'path'      => 'dashboard/dashboard.php',
+            'themeable' => false,
+            'vars'      => [
+                'dashboard'  => $this,
+            ],
+        ]);
+    }
+
+    /**
+     * Display data table
+     */
+    public function display_table( string $key ) : void
+    {
+        $tab = $this->get_active_tab();
+        
+        $this->display_template([
+            'path' => 'dashboard/data-table/table.php',
+            'vars' => [
+                'active_tab' => $tab,
+                'table_data' => $tab->get_table_data( $key )
+            ],
+        ]);
+    }
+
+    /**
+     * Display a dashboard template
+     */
+    private function display_template( array $params ) : void
+    {
+        $template = $this->tasks()->create_template( $params );
+        $template->include();
+    }
+
+    /**
+     * -----------------------
+     *   D A T A   T A B L E
+     * -----------------------
+     */
+
+    /**
+     * Update data table for AJAX call
+     * 
+     * @throws PostHandlerException
+     */
+    public function update_data_table( array $args = [] ) : array
+    {
+        $data = $this->find_table_data( $args['tab'], $args['table'] );
+        $data->set_filter( $args['filter'] );
+        
+        $template = $this->get_table_body_template( $data );
+
+        return [
+            'transients' => [ 'tableBody' => $template->get_markup() ]
+        ];
+    }
+
+    /**
+     * Get table data by tab and key
+     */
+    private function find_table_data( string $tab, string $key ) : Table_Data
+    {
+        try
         {
-            $this->mtgtools()->add_style([
-                'key'  => 'mtgtools-dashboard',
-                'path' => 'dashboard.css',
-            ]);
-            $this->get_active_tab()->enqueue_assets( $this->mtgtools() );
+            return $this->get_tab( $tab )->get_table_data( $key );
+        }
+        catch ( \OutOfRangeException $e )
+        {
+            throw new ParameterException( "Requested an update for an undefined data table. Could not find table '{$key}' for tab '{$tab}'." );
         }
     }
 
     /**
-     * Display settings page template
+     * Get table body template
      */
-    public function display_dashboard() : void
+    private function get_table_body_template( Table_Data $data ) : Template
     {
-        $template = new Template([
-            'path' => 'dashboard/dashboard.php',
+        return $this->tasks()->create_template([
+            'path' => 'dashboard/data-table/table-body.php',
             'vars' => [
-                'Mtgtools_Dashboard' => $this
-            ],
+                'table_data' => $data
+            ]
         ]);
-        $template->include();
     }
 
     /**
@@ -86,20 +221,6 @@ class Mtgtools_Dashboard extends Module
      *   D A S H   T A B S
      * ---------------------
      */
-
-    /**
-     * Include data table template
-     */
-    public function include_data_table() : void
-    {
-        $template = new Template([
-            'path' => 'dashboard/table.php',
-            'vars' => [
-                'table_data' => $this->get_active_tab()->get_table_data()
-            ],
-        ]);
-        $template->include();
-    }
 
     /**
      * Get tab url
@@ -158,27 +279,62 @@ class Mtgtools_Dashboard extends Module
      */
     public function get_tabs() : array
     {
-        if ( !isset( $this->tabs ) )
+        if ( !$this->tabs_created() )
         {
-            $tabs = [];
-            foreach ( $this->get_tab_defs() as $id => $params )
-            {
-                $params['id'] = $id;
-                $tabs[ $id ] = new Dashboard_Tab( $params );
-            }
-            $this->tabs = $tabs;
+            /**
+             * Allow modules and third-parties to add dashboard tabs
+             * 
+             * @param Mtgtools_Dashboard $dashboard     Dashboard module; callbacks should use add_tab() method to create their tab.
+             * @param array $tab_defs                   Currently defined tabs. Tab order can be controlled using the priority parameter on add_action().
+             */
+            do_action( 'mtgtools_dashboard_tabs', $this, $this->tab_defs );
+            
+            $this->tabs = $this->create_tabs();
         }
         return $this->tabs;
     }
 
     /**
-     * Get tab definitions
+     * Add dashboard tab definition
      */
-    private function get_tab_defs() : array
+    public function add_tab( array $params ) : void
     {
-        return apply_filters( 'mtgtools_dashboard_tab_definitions', [
-            'settings' => [],
-        ]);
+        if ( $this->tabs_created() )
+        {
+            throw new \RuntimeException( "Tried to add a dashboard tab at the wrong time. Custom dashboard tabs should be created using the 'mtgtools_dashboard_tabs' action hook." );
+        }
+        array_unshift( $this->tab_defs, $params );
+    }
+
+    /**
+     * Create dashboard tab objects
+     */
+    private function create_tabs() : array
+    {
+        $tabs = [];
+        foreach ( $this->tab_defs as $params )
+        {
+            $tab = $this->tab_factory()->create_tab( $params );
+            $tabs[ $tab->get_id() ] = $tab;
+        }
+        unset( $this->tab_defs );
+        return $tabs;
+    }
+
+    /**
+     * Check if tabs have been created
+     */
+    private function tabs_created() : bool
+    {
+        return isset( $this->tabs );
+    }
+
+    /**
+     * Get dashtab factory
+     */
+    private function tab_factory() : Dashboard_Tab_Factory
+    {
+        return $this->tab_factory;
     }
 
 }   // End of class

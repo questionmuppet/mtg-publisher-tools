@@ -1,21 +1,26 @@
 <?php
 /**
  * Data table for display on admin
+ * 
+ * @param Dashboard_Tab $active_tab
+ * @param Table_Data $table_data
  */
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-// Check permissions
-current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
-
 ?>
 
-<div class="mtgtools-table-wrapper">
-
+<div class="mtgtools-table-wrapper" >
+    
     <form class="mtgtools-table-controls">
-
-        <label>Filter <input type="text" /></label>
+        
+        <label>Filter <input
+            class="mtgtools-table-filter-input"
+            type="text"
+            data-dashboard_tab="<?php echo esc_attr( $active_tab->get_id() ); ?>"
+            data-table_key="<?php echo esc_attr( $table_data->get_key() ); ?>"
+        /></label>
 
     </form>
 
@@ -35,17 +40,8 @@ current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
             </thead>
 
             <tbody class="mtgtools-table-body">
-                
-                <?php foreach ( $table_data->get_rows() as $row ) : ?>
 
-                    <tr>
-                        <?php foreach( $table_data->get_fields() as $field )
-                        {
-                            $field->print_body_cell( $row );
-                        } ?>
-                    </tr>
-
-                <?php endforeach; ?>
+                <?php load_template( dirname( __FILE__ ) . '/table-body.php', false ); ?>
 
             </tbody>
 
