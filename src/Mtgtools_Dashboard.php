@@ -111,6 +111,21 @@ class Mtgtools_Dashboard extends Module
     }
 
     /**
+     * Enqueue assets for data tables
+     */
+    private function enqueue_table_assets() : void
+    {
+        $script = $this->tasks()->create_script([
+            'key'  => 'mtgtools-data-table',
+            'path' => 'data-tables.js',
+            'data' => [
+                'mtgtoolsDataTable' => [ 'nonce' => wp_create_nonce('mtgtools_update_table') ]
+            ]
+        ]);
+        $script->enqueue();
+    }
+
+    /**
      * ---------------------
      *   D A S H B O A R D
      * ---------------------
@@ -146,6 +161,7 @@ class Mtgtools_Dashboard extends Module
     public function display_table( string $key ) : void
     {
         $tab = $this->get_active_tab();
+        $this->enqueue_table_assets();
         
         $this->display_template([
             'path' => 'dashboard/data-table/table.php',
