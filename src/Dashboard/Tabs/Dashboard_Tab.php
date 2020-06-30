@@ -5,7 +5,7 @@
  * Tabbed section of the admin dashboard
  */
 
-namespace Mtgtools\Dashboard;
+namespace Mtgtools\Dashboard\Tabs;
 
 use Mtgtools\Abstracts\Data;
 use Mtgtools\Tasks\Enqueue\Asset;

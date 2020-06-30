@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Dashboard\Dashboard_Tab;
+use Mtgtools\Dashboard\Tabs\Dashboard_Tab;
 use Mtgtools\Tasks\Enqueue\Asset;
 use Mtgtools\Tasks\Tables\Table_Data;
 
