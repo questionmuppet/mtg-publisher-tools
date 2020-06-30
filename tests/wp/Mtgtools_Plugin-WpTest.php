@@ -42,18 +42,6 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can get admin-posts module
-     * 
-     * @depends testCanGetInstance
-     */
-    public function testCanGetAdminPostsModule( Mtgtools_Plugin $instance ) : void
-    {
-        $module = $instance->admin_posts();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Admin_Posts::class, $module );
-    }
-
-    /**
      * TEST: Can get task library
      * 
      * @depends testCanGetInstance

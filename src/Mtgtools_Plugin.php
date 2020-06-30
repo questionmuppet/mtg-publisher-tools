@@ -7,15 +7,10 @@
 
 namespace Mtgtools;
 
-// Module dependencies
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
-
-// Helper classes
-use Mtgtools\Enqueue;
-use Mtgtools\Notices\Admin_Notice;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -27,7 +22,6 @@ class Mtgtools_Plugin
 	 */
 	private $symbols;
 	private $dashboard;
-	private $admin_posts;
 
 	/**
 	 * Module task library
@@ -93,21 +87,9 @@ class Mtgtools_Plugin
 	}
 
 	/**
-	 * Get admin post module
-	 */
-	public function admin_posts() : Mtgtools_Admin_Posts
-	{
-		if ( !isset( $this->admin_posts ) )
-		{
-			$this->admin_posts = new Mtgtools_Admin_Posts( $this );
-		}
-		return $this->admin_posts;
-	}
-
-	/**
-	 * -------------------------------
-	 *   H E L P E R   M E T H O D S
-	 * -------------------------------
+	 * ---------------------------------
+	 *   W P   T A S K   L I B R A R Y
+	 * ---------------------------------
 	 */
 
 	/**
@@ -120,33 +102,6 @@ class Mtgtools_Plugin
 			$this->task_library = new Task_Library();
 		}
 		return $this->task_library;
-	}
-
-	/**
-	 * Enqueue a CSS asset
-	 */
-	public function add_style( array $args ) : void
-	{
-		$asset = new Enqueue\Css_Asset( $args );
-		$asset->enqueue();
-	}
-
-	/**
-	 * Enqueue a JS asset
-	 */
-	public function add_script( array $args ) : void
-	{
-		$asset = new Enqueue\Js_Asset( $args );
-		$asset->enqueue();
-	}
-
-	/**
-	 * Output a WordPress admin notice
-	 */
-	public function add_admin_notice( array $params ) : void
-	{
-		$notice = new Admin_Notice( $params );
-		$notice->print();
 	}
 
 	/**
