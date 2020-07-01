@@ -41,12 +41,13 @@ abstract class Data
         {
             if ( !isset( $props[ $key ] ) )
             {
-                throw new \DomainException( get_called_class() . " could not be created without required property {$key}." );
+                throw new \DomainException( "Instance of " . get_called_class() . " can not be created without required property '{$key}'." );
             }
         }
-        $this->props = wp_parse_args(
-            $props,
-            array_merge( $this->abstract_defaults, $this->defaults )
+        $this->props = array_replace(
+            $this->abstract_defaults,
+            $this->defaults,
+            $props
         );
     }
     
