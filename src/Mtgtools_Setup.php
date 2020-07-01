@@ -1,6 +1,6 @@
 <?php
 /**
- * Mtgtools_Installation
+ * Mtgtools_Setup
  * 
  * Handles plugin installation and activation
  */
@@ -10,7 +10,7 @@ namespace Mtgtools;
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Mtgtools_Installation
+class Mtgtools_Setup
 {
     /**
      * Plugin instance

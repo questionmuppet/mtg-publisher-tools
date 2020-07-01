@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Mtgtools_Installation;
+use Mtgtools\Mtgtools_Setup;
 use Mtgtools\Mtgtools_Plugin;
 
-class Mtgtools_Installation_Test extends Mtgtools_UnitTestCase
+class Mtgtools_Setup_Test extends Mtgtools_UnitTestCase
 {
     /**
-     * Installation instance
+     * Setup instance
      */
-    private $installation;
+    private $setup;
 
     /**
      * Mock dependencies
@@ -23,7 +23,7 @@ class Mtgtools_Installation_Test extends Mtgtools_UnitTestCase
     {
         parent::setUp();
         $this->plugin = $this->createMock( Mtgtools_Plugin::class );
-        $this->installation = new Mtgtools_Installation( $this->plugin );
+        $this->setup = new Mtgtools_Setup( $this->plugin );
     }
 
     /**
@@ -31,7 +31,7 @@ class Mtgtools_Installation_Test extends Mtgtools_UnitTestCase
      */
     public function testCanActivatePlugin() : void
     {
-        $result = $this->installation->activate();
+        $result = $this->setup->activate();
 
         $this->assertNull( $result );
     }
@@ -41,7 +41,7 @@ class Mtgtools_Installation_Test extends Mtgtools_UnitTestCase
      */
     public function testCanDeactivatePlugin() : void
     {
-        $result = $this->installation->deactivate();
+        $result = $this->setup->deactivate();
 
         $this->assertNull( $result );
     }
@@ -51,7 +51,7 @@ class Mtgtools_Installation_Test extends Mtgtools_UnitTestCase
      */
     public function testCanUninstallPlugin() : void
     {
-        $result = $this->installation->uninstall();
+        $result = $this->setup->uninstall();
 
         $this->assertNull( $result );
     }

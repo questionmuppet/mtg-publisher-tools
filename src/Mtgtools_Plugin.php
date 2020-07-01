@@ -126,4 +126,46 @@ class Mtgtools_Plugin
 		return new Scryfall_Data_Source();
 	}
 
+	/**
+	 * ---------------------------
+	 *   I N S T A L L A T I O N
+	 * ---------------------------
+	 */
+
+	/**
+	 * Activate plugin
+	 * 
+	 * @hooked activate_mtg-publisher-tools/mtg-publisher-tools.php
+	 */
+	public function activate() : void
+	{
+		$this->setup()->activate();
+	}
+
+	/**
+	 * Deactivate plugin
+	 * 
+	 * @hooked deactivate_mtg-publisher-tools/mtg-publisher-tools.php
+	 */
+	public function deactivate() : void
+	{
+		$this->setup()->deactivate();
+	}
+
+	/**
+	 * Uninstall plugin
+	 */
+	public function uninstall() : void
+	{
+		$this->setup()->uninstall();
+	}
+
+	/**
+	 * Get setup module
+	 */
+	private function setup() : Mtgtools_Setup
+	{
+		return new Mtgtools_Setup( $this );
+	}
+
 }   // End of class

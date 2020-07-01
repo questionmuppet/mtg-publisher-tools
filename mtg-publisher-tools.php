@@ -21,12 +21,12 @@ require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
 // Enable autoloading
 require_once( MTGTOOLS__PATH . 'vendor/autoload.php' );
 
-// Activation hooks
-register_activation_hook( __FILE__, function() {
-    $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
-    $installation = new Mtgtools\Mtgtools_Installation( $plugin );
-    $installation->activate();
-});
+// Plugin instance
+$plugin = Mtgtools\Mtgtools_Plugin::get_instance();
 
-// Initialize plugin
-add_action( 'init', array( Mtgtools\Mtgtools_Plugin::get_instance(), 'init' ) );
+// Activation hooks
+register_activation_hook( __FILE__, array( $plugin, 'activate' ) );
+register_deactivation_hook( __FILE__, array( $plugin, 'deactivate' ) );
+
+// Initialize
+add_action( 'init', array( $plugin, 'init' ) );
