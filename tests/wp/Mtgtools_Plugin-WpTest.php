@@ -42,6 +42,18 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can get updates module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetUpdatesModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->updates();
+
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Updates::class, $module );
+    }
+
+    /**
      * TEST: Can get task library
      * 
      * @depends testCanGetInstance
