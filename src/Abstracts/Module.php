@@ -55,16 +55,26 @@ abstract class Module
      */
     protected function print_admin_notice( array $params ) : void
     {
-        $asset = $this->wp_tasks()->create_admin_notice( $params );
-        $asset->print();
+        $notice = $this->wp_tasks()->create_admin_notice( $params );
+        $notice->print();
     }
 
     /**
-     * Get a themeable template
+     * Get markup from a themeable template
      */
-    protected function get_template( array $params ) : Template
+    protected function get_template_markup( array $params ) : string
     {
-        return $this->wp_tasks()->create_template( $params );
+        $template = $this->wp_tasks()->create_template( $params );
+        return $template->get_markup();
+    }
+
+    /**
+     * Print a themeable template
+     */
+    protected function print_template( array $params ) : void
+    {
+        $template = $this->wp_tasks()->create_template( $params );
+        $template->include();
     }
 
     /**
