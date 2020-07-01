@@ -11,11 +11,6 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 // Check permissions
 current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
 
-/* Mtgtools\Mtgtools_Plugin::get_instance()->add_admin_notice([
-    'message' => '<strong>MTG Publisher Tools</strong> has new mana symbols available for download. Click "Update now" to sync your database to the latest changes.</p><p><a>Update now</a> | <a>Turn off notices</a>',
-    'type'    => 'info',
-]); */
-
 ?>
 
 <section>
