@@ -22,8 +22,8 @@ abstract class Mtgtools_DashboardTestCase extends Mtgtools_UnitTestCase
     protected function create_dashboard( array $params = [] ) : Mtgtools_Dashboard
     {
         $tab_factory = $params['tab_factory'] ?? $this->get_mock_tab_factory();
-        $plugin      = $params['plugin'] ?? $this->get_mock_plugin();
-        return new Mtgtools_Dashboard( $tab_factory, $plugin );
+        $wp_tasks    = $params['wp_tasks'] ?? $this->get_mock_tasks_library();
+        return new Mtgtools_Dashboard( $tab_factory, $wp_tasks );
     }
     
     /**

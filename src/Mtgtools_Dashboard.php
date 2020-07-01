@@ -11,8 +11,8 @@ use Mtgtools\Abstracts\Module;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Exceptions\Admin_Post\ParameterException;
-use Mtgtools\Tasks\Tables\Table_Data;
-use Mtgtools\Tasks\Templates\Template;
+use Mtgtools\Wp_Tasks\Tables\Table_Data;
+use Mtgtools\Wp_Tasks\Templates\Template;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -46,10 +46,10 @@ class Mtgtools_Dashboard extends Module
     /**
      * Constructor
      */
-    public function __construct( Dashboard_Tab_Factory $tab_factory, $plugin )
+    public function __construct( Dashboard_Tab_Factory $tab_factory, $wp_tasks )
     {
         $this->tab_factory = $tab_factory;
-        parent::__construct( $plugin );
+        parent::__construct( $wp_tasks );
     }
 
     /**
@@ -101,7 +101,7 @@ class Mtgtools_Dashboard extends Module
     {
         return array_merge(
             [
-                $this->tasks()->create_style([
+                $this->wp_tasks()->create_style([
                     'key'  => 'mtgtools-dashboard',
                     'path' => 'dashboard.css',
                 ]),
@@ -115,7 +115,7 @@ class Mtgtools_Dashboard extends Module
      */
     private function enqueue_table_assets() : void
     {
-        $script = $this->tasks()->create_script([
+        $script = $this->wp_tasks()->create_script([
             'key'  => 'mtgtools-data-table',
             'path' => 'data-tables.js',
             'data' => [
@@ -177,7 +177,7 @@ class Mtgtools_Dashboard extends Module
      */
     private function display_template( array $params ) : void
     {
-        $template = $this->tasks()->create_template( $params );
+        $template = $this->wp_tasks()->create_template( $params );
         $template->include();
     }
 
@@ -224,7 +224,7 @@ class Mtgtools_Dashboard extends Module
      */
     private function get_table_body_template( Table_Data $data ) : Template
     {
-        return $this->tasks()->create_template([
+        return $this->wp_tasks()->create_template([
             'path' => 'dashboard/data-table/table-body.php',
             'vars' => [
                 'table_data' => $data

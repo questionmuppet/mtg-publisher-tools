@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
-use Mtgtools\Tasks\Tables\Table_Data;
+use Mtgtools\Wp_Tasks\Tables\Table_Data;
 use Mtgtools\Exceptions\Admin_Post\ParameterException;
+use Mtgtools\Wp_Task_Library;
 
 class Mtgtools_Dashboard_WPTest extends Mtgtools_DashboardTestCase
 {
@@ -149,8 +150,8 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_DashboardTestCase
     private function create_live_dashboard() : Mtgtools_Dashboard
     {
         $factory = new Dashboard_Tab_Factory();
-        $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
-        return new Mtgtools_Dashboard( $factory, $plugin );
+        $wp_tasks = new Wp_Task_Library();
+        return new Mtgtools_Dashboard( $factory, $wp_tasks );
     }
 
     /**

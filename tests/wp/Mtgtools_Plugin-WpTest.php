@@ -48,9 +48,9 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
      */
     public function testCanGetTaskLibrary( Mtgtools_Plugin $instance ) : void
     {
-        $library = $instance->task_library();
+        $library = $instance->wp_tasks();
 
-        $this->assertInstanceOf( Mtgtools\Task_Library::class, $library );
+        $this->assertInstanceOf( Mtgtools\Wp_Task_Library::class, $library );
     }
 
 }   // End of class

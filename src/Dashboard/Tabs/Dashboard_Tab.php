@@ -8,8 +8,8 @@
 namespace Mtgtools\Dashboard\Tabs;
 
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Tasks\Enqueue\Asset;
-use Mtgtools\Tasks\Tables\Table_Data;
+use Mtgtools\Wp_Tasks\Enqueue\Asset;
+use Mtgtools\Wp_Tasks\Tables\Table_Data;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

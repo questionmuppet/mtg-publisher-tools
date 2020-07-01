@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab;
-use Mtgtools\Tasks\Enqueue\Asset;
-use Mtgtools\Tasks\Tables\Table_Data;
+use Mtgtools\Wp_Tasks\Enqueue\Asset;
+use Mtgtools\Wp_Tasks\Tables\Table_Data;
 
 class Dashboard_Tab_Test extends Mtgtools_UnitTestCase
 {

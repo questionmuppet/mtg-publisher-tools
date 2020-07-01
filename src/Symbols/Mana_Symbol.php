@@ -8,7 +8,7 @@
 namespace Mtgtools\Symbols;
 
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Task_Library;
+use Mtgtools\Wp_Task_Library;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -46,15 +46,13 @@ class Mana_Symbol extends Data
     /**
      * Get HTML markup
      */
-    public function get_markup( Task_Library $library ) : string
+    public function get_markup( Wp_Task_Library $wp_tasks ) : string
     {
-        ob_start();
-        $template = $library->create_template([
+        $template = $wp_tasks->create_template([
             'path' => 'components/mana-symbol.php',
             'vars' => array( 'symbol' => $this )
         ]);
-        $template->include();
-        return ob_get_clean();
+        return $template->get_markup();
     }
 
     /**

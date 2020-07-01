@@ -68,7 +68,7 @@ class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this );
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
 		}
 		return $this->symbols;
 	}
@@ -81,7 +81,7 @@ class Mtgtools_Plugin
 		if ( !isset( $this->dashboard ) )
 		{
 			$factory = new Dashboard_Tab_Factory();
-			$this->dashboard = new Mtgtools_Dashboard( $factory, $this );
+			$this->dashboard = new Mtgtools_Dashboard( $factory, $this->wp_tasks() );
 		}
 		return $this->dashboard;
 	}
@@ -93,15 +93,15 @@ class Mtgtools_Plugin
 	 */
 
 	/**
-	 * Get task library
+	 * Get Wp Task library
 	 */
-	public function task_library() : Task_Library
+	public function wp_tasks() : Wp_Task_Library
 	{
-		if ( !isset( $this->task_library ) )
+		if ( !isset( $this->wp_tasks ) )
 		{
-			$this->task_library = new Task_Library();
+			$this->wp_tasks = new Wp_Task_Library();
 		}
-		return $this->task_library;
+		return $this->wp_tasks;
 	}
 
 	/**

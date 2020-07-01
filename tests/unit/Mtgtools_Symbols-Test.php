@@ -160,10 +160,10 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     private function create_symbols_module( array $args = [] ) : Mtgtools_Symbols
     {
-        $db_ops  = $args['db_ops'] ?? $this->get_mock_db_ops();
-        $source  = $args['source'] ?? $this->get_mock_mtg_data_source();
-        $plugin  = $args['plugin'] ?? $this->get_mock_plugin();
-        return new Mtgtools_Symbols( $db_ops, $source, $plugin );
+        $db_ops   = $args['db_ops'] ?? $this->get_mock_db_ops();
+        $source   = $args['source'] ?? $this->get_mock_mtg_data_source();
+        $wp_tasks = $args['wp_tasks'] ?? $this->get_mock_tasks_library();
+        return new Mtgtools_Symbols( $db_ops, $source, $wp_tasks );
     }
 
     /**

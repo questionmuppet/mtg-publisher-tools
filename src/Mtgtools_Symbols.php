@@ -30,11 +30,11 @@ class Mtgtools_Symbols extends Module
     /**
      * Constructor
      */
-    public function __construct( Symbol_Db_Ops $db_ops, Mtg_Data_Source $source, $plugin )
+    public function __construct( Symbol_Db_Ops $db_ops, Mtg_Data_Source $source, $wp_tasks )
     {
         $this->db_ops = $db_ops;
         $this->source = $source;
-        parent::__construct( $plugin );
+        parent::__construct( $wp_tasks );
     }
 
     /**
@@ -59,7 +59,7 @@ class Mtgtools_Symbols extends Module
      */
     public function enqueue_assets() : void
     {
-        $style = $this->tasks()->create_style([
+        $style = $this->wp_tasks()->create_style([
             'key'  => 'mtgtools-symbols',
             'path' => 'mtgtools-symbols.css',
         ]);
@@ -79,7 +79,7 @@ class Mtgtools_Symbols extends Module
             if ( $symbol->is_valid() )
             {
                 $patterns[]     = $symbol->get_pattern();
-                $replacements[] = $symbol->get_markup( $this->tasks() );
+                $replacements[] = $symbol->get_markup( $this->wp_tasks() );
             }
         }
         return preg_replace( $patterns, $replacements, $content );
@@ -113,7 +113,7 @@ class Mtgtools_Symbols extends Module
     private function get_dashboard_tables() : array
     {
         return array(
-            'symbol_list' => $this->tasks()->create_table([
+            'symbol_list' => $this->wp_tasks()->create_table([
                 'id'           => 'symbol_list',
                 'row_callback' => array( $this, 'get_symbol_list_data' ),
                 'fields'       => [
@@ -144,7 +144,7 @@ class Mtgtools_Symbols extends Module
         {
             $rows[] = array(
                 'plaintext' => $symbol->get_plaintext(),
-                'symbol'    => $symbol->get_markup( $this->tasks() ),
+                'symbol'    => $symbol->get_markup( $this->wp_tasks() ),
                 'english'   => $symbol->get_english_phrase(),
             );
         }
