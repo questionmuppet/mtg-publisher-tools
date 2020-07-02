@@ -2,7 +2,7 @@
 /**
  * AuthorizationException
  * 
- * Exception thrown when a permission or security check fails
+ * Exception thrown when an admin-post permission or security check fails
  */
 
 namespace Mtgtools\Exceptions\Admin_Post;

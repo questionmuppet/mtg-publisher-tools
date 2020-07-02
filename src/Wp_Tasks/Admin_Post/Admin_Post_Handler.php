@@ -2,12 +2,11 @@
 /**
  * Admin_Post_Handler
  * 
- * Registers an action to handle POST requests to the WordPress admin
+ * Registers and handles WordPress admin requests through admin-post.php
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Wp_Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
 use Mtgtools\Exceptions\Admin_Post as Exceptions;
 
 // Exit if accessed directly
@@ -22,33 +21,39 @@ class Admin_Post_Handler extends Data
         'action',
         'callback',
     );
-
+    
     /**
      * Default properties
      */
-    protected $defaults = array(
+    protected $abstract_defaults = array(
         'capability' => 'manage_options',
         'user_args'  => [],
         'nopriv'     => false,
     );
 
     /**
-     * Responder object
+     * Request processor
+     */
+    private $processor;
+
+    /**
+     * Request responder
      */
     private $responder;
 
     /**
      * Constructor
      */
-    public function __construct( array $params, Admin_Post_Responder $responder )
+    public function __construct( Admin_Request_Processor $processor, Admin_Request_Responder $responder, array $props = [] )
     {
+        $this->processor = $processor;
         $this->responder = $responder;
-        parent::__construct( $params );
+        parent::__construct( $props );
     }
 
     /**
      * -----------------
-     *   P R O C E S S
+     *   H A N D L E R
      * -----------------
      */
 
@@ -70,8 +75,12 @@ class Admin_Post_Handler extends Data
     {
         try
         {
-            $this->authorize();
-            $result = $this->execute();
+            $result = $this->processor->process_request([
+                'nonce_context' => $this->get_action(),
+                'capability'    => $this->get_capability(),
+                'callback'      => $this->get_callback(),
+                'user_args'     => $this->get_user_args(),
+            ]);
             $this->responder->handle_success( $result );
         }
         catch ( Exceptions\PostHandlerException $e )
@@ -79,97 +88,11 @@ class Admin_Post_Handler extends Data
             $this->responder->handle_error( $e );
         }
     }
-
-    /**
-     * ---------------------
-     *   A U T H O R I Z E
-     * ---------------------
-     */
     
     /**
-     * Authorize action
-     * 
-     * @throws PostHandlerException
-     */
-    private function authorize() : void
-    {
-        if ( !$this->is_permitted() )
-        {
-            throw new Exceptions\AuthorizationException( "You do not have permission for the requested action." );
-        }
-        if ( !$this->verify_nonce() )
-        {
-            throw new Exceptions\AuthorizationException( "The specified nonce for the requested action is invalid or expired." );
-        }
-    }
-    
-    /**
-     * Check user permissions
-     */
-    private function is_permitted() : bool
-    {
-        return current_user_can( $this->get_prop('capability') );
-    }
-
-    /**
-     * Verify nonce
-     */
-    private function verify_nonce() : bool
-    {
-        return wp_verify_nonce( $_POST['_wpnonce'] ?? '', $this->get_action() );
-    }
-
-    /**
-     * -----------------
-     *   E X E C U T E
-     * -----------------
-     */
-
-    /**
-     * Execute action and return result
-     * 
-     * @return array Result of the action callback function
-     */
-    private function execute() : array
-    {
-        $result = call_user_func( $this->get_callback(), $this->get_user_args() );
-        if ( !is_array( $result ) )
-        {
-            throw new \UnexpectedValueException(
-                sprintf(
-                    "A user-provided callback function to %s returned an invalid type. Your post-handler callback must return an array.",
-                    get_called_class()
-                )
-            );
-        }
-        return $result;
-    }
-    
-    /**
-     * Get callback function
-     */
-    private function get_callback() : callable
-    {
-        return $this->get_prop( 'callback' );
-    }
-
-    /**
-     * Get user arguments for the callback action
-     */
-    private function get_user_args() : array
-    {
-        $args = [];
-        foreach ( $this->get_prop( 'user_args' ) as $key )
-        {
-            $args[ $key ] = sanitize_text_field( $_POST[ $key ] ?? '' );
-        }
-        return $args;
-    }
-    
-    /**
-     * ---------------
-     *   A C T I O N
-     * ---------------
+     * -------------------------
+     *   A C T I O N   H O O K
+     * -------------------------
      */
 
     /**
@@ -191,7 +114,7 @@ class Admin_Post_Handler extends Data
     private function get_hook_key( string $interfix = '' ) : string
     {
         $parts = array_filter([
-            $this->responder->get_wp_prefix(),
+            $this->get_wp_prefix(),
             $interfix,
             $this->get_action(),
         ]);
@@ -212,6 +135,44 @@ class Admin_Post_Handler extends Data
     public function get_action() : string
     {
         return $this->get_prop( 'action' );
+    }
+
+    /**
+     * Get WP prefix for hook action
+     */
+    private function get_wp_prefix() : string
+    {
+        return $this->responder->is_ajax() ? 'wp_ajax' : 'admin_post';
+    }
+
+    /**
+     * -----------------------------
+     *   R E Q U E S T   P R O P S
+     * -----------------------------
+     */
+
+    /**
+     * Get capability required to execute action
+     */
+    private function get_capability() : string
+    {
+        return $this->get_prop( 'capability' );
+    }
+
+    /**
+     * Get callback function to process request
+     */
+    private function get_callback() : callable
+    {
+        return $this->get_prop( 'callback' );
+    }
+
+    /**
+     * Get user args for callback function
+     */
+    private function get_user_args() : array
+    {
+        return $this->get_prop( 'user_args' );
     }
 
 }   // End of class

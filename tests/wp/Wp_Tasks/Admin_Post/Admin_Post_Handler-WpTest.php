@@ -1,36 +1,24 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Wp_Tasks\Admin_Post\Admin_Post_Handler;
-use Mtgtools\Wp_Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
-use Mtgtools\Exceptions\Admin_Post as Exceptions;
+use Mtgtools\Wp_Tasks\Admin_Post\Admin_Request_Responder;
 
-class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
+class Admin_Post_Handler_WPTest extends Admin_Post_HandlerTestCase
 {
     /**
-     * Responder object
+     * Constants
      */
-    private $responder;
-
-    /**
-     * Prefix for action hooks
-     */
-    private $wp_hook_prefix = 'testAction';
-
-    /**
-     * Admin-post action
-     */
-    private $action = 'request_fake_data';
-
+    const POST_ACTION_HOOK   = 'admin_post_' . self::ACTION;
+    const NOPRIV_ACTION_HOOK = 'admin_post_nopriv_' . self::ACTION;
+    const AJAX_ACTION_HOOK   = 'wp_ajax_' . self::ACTION;
+    
     /**
      * Setup
      */
     public function setUp() : void
     {
         parent::setUp();
-        $this->responder = $this->create_mock_responder();
-        wp_get_current_user()->add_cap( 'manage_options' );
-        $_POST['_wpnonce'] = wp_create_nonce( $this->action );
+        $this->responder->method('is_ajax')->willReturn( false );
     }
 
     /**
@@ -38,18 +26,10 @@ class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
      */
     public function tearDown() : void
     {
-        remove_all_actions( $this->get_action_hook() );
-        remove_all_actions( $this->get_action_hook('nopriv') );
+        remove_all_actions( self::POST_ACTION_HOOK );
+        remove_all_actions( self::NOPRIV_ACTION_HOOK );
+        remove_all_actions( self::AJAX_ACTION_HOOK );
         parent::tearDown();
-    }
-
-    /**
-     * Teardown after class
-     */
-    static public function tearDownAfterClass() : void
-    {
-        unset( $_POST['_wpnonce'] );
-        parent::tearDownAfterClass();
     }
 
     /**
@@ -82,11 +62,11 @@ class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
         $handler->add_hooks();
 
         $this->assertTrue(
-            has_action( $this->get_action_hook() ),
+            has_action( self::POST_ACTION_HOOK ),
             'Failed to assert that hook action was registered.'
         );
         $this->assertFalse(
-            has_action( $this->get_action_hook('nopriv') ),
+            has_action( self::NOPRIV_ACTION_HOOK ),
             'Failed to assert that "nopriv" hook action was omitted by default.'
         );
     }
@@ -103,187 +83,27 @@ class Admin_Post_Handler_WPTest extends Mtgtools_UnitTestCase
         $handler->add_hooks();
 
         $this->assertTrue(
-            has_action( $this->get_action_hook('nopriv') ),
+            has_action( self::NOPRIV_ACTION_HOOK ),
             'Failed to assert that allowing public access registers the "nopriv" hook action.'
         );
     }
 
     /**
-     * -----------------------------
-     *   A U T H O R I Z A T I O N
-     * -----------------------------
-     */
-    
-    /**
-     * TEST: Insufficient permissions triggers error
-     */
-    public function testInsufficientPermissionsTriggersError() : void
-    {
-        $this->responder->expects( $this->once() )
-            ->method( 'handle_error' )
-            ->with( $this->isInstanceOf( Exceptions\PostHandlerException::class ) );
-
-        $handler = $this->create_handler([ 'capability' => 'fake_cap_too_high' ]);
-
-        $handler->process_action();
-    }
-
-    /**
-     * TEST: Invalid nonce triggers error
+     * TEST: Ajax response type registers ajax action
      * 
-     * @depends testInsufficientPermissionsTriggersError
+     * testRegistersCorrectHooks
      */
-    public function testInvalidNonceTriggersError() : void
+    public function testAjaxResponseTypeRegistersAjaxAction() : void
     {
-        $_POST['_wpnonce'] = 'Invalid_Nonce';
-        $this->responder->expects( $this->once() )
-            ->method( 'handle_error' )
-            ->with( $this->isInstanceOf( Exceptions\PostHandlerException::class ) );
-        
+        $this->responder = $this->createMock( Admin_Request_Responder::class );
+        $this->responder->method('is_ajax')->willReturn( true );
         $handler = $this->create_handler();
 
-        $handler->process_action();
-    }
+        $handler->add_hooks();
 
-    /**
-     * TEST: Can process an authorized action
-     * 
-     * @depends testInvalidNonceTriggersError
-     */
-    public function testCanProcessAuthorizedAction() : void
-    {
-        $this->responder->expects( $this->once() )
-            ->method( 'handle_success' )
-            ->with( $this->isType('array') );
-        
-        $handler = $this->create_handler();
-
-        $handler->process_action();
-    }
-
-    /**
-     * -------------------
-     *   C A L L B A C K
-     * -------------------
-     */
-
-    /**
-     * TEST: Successful call sends result to responder
-     * 
-     * @depends testCanProcessAuthorizedAction
-     */
-    public function testSuccessfulCallSendsResultToResponder() : void
-    {
-        $this->responder->expects( $this->once() )
-            ->method( 'handle_success' )
-            ->with( $this->equalTo( $this->get_expected_result() ) );
-            
-        $handler = $this->create_handler();
-
-        $handler->process_action();
-    }
-
-    /**
-     * TEST: Bad return value from callback throws UnexpectedValueException
-     * 
-     * @depends testCanProcessAuthorizedAction
-     */
-    public function testBadCallbackThrowsUnexpectedValueException() : void
-    {
-        $callback = function( array $args ) {
-            return 'An invalid string response';
-        };
-        $handler = $this->create_handler([ 'callback' => $callback ]);
-
-        $this->expectException( \UnexpectedValueException::class );
-
-        $handler->process_action();
-    }
-
-    /**
-     * TEST: User args are passed to callback
-     * 
-     * @depends testCanProcessAuthorizedAction
-     */
-    public function testUserArgsPassedToCallback() : void
-    {
-        $_POST['return_different'] = 1;
-        $this->responder->expects( $this->once() )
-            ->method( 'handle_success' )
-            ->with( $this->equalTo( [ 'An alternate result' ] ) );
-        
-        $handler = $this->create_handler([
-            'user_args' => array( 'return_different' ),
-        ]);
-
-        $handler->process_action();
-    }
-
-    /**
-     * ---------------------
-     *   P R O D U C E R S
-     * ---------------------
-     */
-
-    /**
-     * Create handler
-     */
-    private function create_handler( array $args = [] ) : Admin_Post_Handler
-    {
-        $args = array_merge([
-            'action'   => $this->action,
-            'callback' => $this->get_dummy_callback(),
-        ], $args );
-        return new Admin_Post_Handler( $args, $this->responder );
-    }
-
-    /**
-     * Create mock responder object
-     */
-    private function create_mock_responder() : Admin_Post_Responder
-    {
-        $responder = $this->getMockBuilder( Admin_Post_Responder::class )
-            ->setMethods(['handle_success', 'handle_error', 'get_wp_prefix'])
-            ->getMock();
-        
-        $responder->method('get_wp_prefix')->willReturn( $this->wp_hook_prefix );
-        return $responder;
-    }
-
-    /**
-     * Get expected result from callback
-     */
-    private function get_expected_result() : array
-    {
-        $callback = $this->get_dummy_callback();
-        return call_user_func( $callback, [] );
-    }
-    
-    /**
-     * Get dummy callback function
-     */
-    private function get_dummy_callback() : callable
-    {
-        return function( array $args ) {
-            $alternate = boolval( $args['return_different'] ?? '' );
-            return $alternate
-                ? [ 'An alternate result' ]
-                : [ 'Some nice, fake result data' ];
-        };
-    }
-
-    /**
-     * Get WordPress action hook
-     */
-    private function get_action_hook( string $interfix = '' ) : string
-    {
-        return implode(
-            '_',
-            array_filter([
-                $this->wp_hook_prefix,
-                $interfix,
-                $this->action
-            ])
+        $this->assertTrue(
+            has_action( self::AJAX_ACTION_HOOK ),
+            'Failed to assert that an Ajax response type caused an Ajax hook action to be registered.'
         );
     }
 

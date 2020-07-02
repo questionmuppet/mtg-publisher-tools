@@ -2,72 +2,74 @@
 /**
  * Post_Handler_Factory
  * 
- * Creates Admin_Post_Handler objects
+ * Creates Wp_Tasks for handling user admin requests
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
-use Mtgtools\Wp_Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
+use Mtgtools\Abstracts\Factory;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Post_Handler_Factory
+class Post_Handler_Factory extends Factory
 {
     /**
-     * Responder type-to-class map
+     * Responder object definition
      */
-    protected $responder_type_map = [
+    protected $type_map = [
         'ajax' => 'Ajax_Responder',
     ];
-    
-    /**
-     * Default response type
-     */
     protected $default_type = 'ajax';
+    protected $base_class = 'Admin_Request_Responder';
+    protected $namespace = __NAMESPACE__;
 
     /**
-     * Create new handler
+     * -----------------
+     *   O B J E C T S
+     * -----------------
+     */
+
+    /**
+     * Create admin-post handler
      */
     public function create_handler( array $params ) : Admin_Post_Handler
     {
-        $params['type'] = $params['type'] ?? $this->get_default_type();
-        $responder = $this->create_responder( $params['type'] );
-        return new Admin_Post_Handler( $params, $responder );
+        $type = $this->pop_type( $params );
+        $processor = $this->create_processor();
+        $responder = $this->create_responder( $type );
+        return new Admin_Post_Handler( $processor, $responder, $params );
     }
 
     /**
-     * Create new responder
+     * Create admin-request processor
      */
-    private function create_responder( string $type ) : Admin_Post_Responder
+    public function create_processor( array $params = [] ) : Admin_Request_Processor
     {
-        $class = $this->get_responder_class( $type );
-        return new $class();
+        return new Admin_Request_Processor( $params );
     }
+
+    /**
+     * Create admin-request responder
+     */
+    public function create_responder( string $type ) : Admin_Request_Responder
+    {
+        return $this->create_object([ 'type' => $type ]);
+    }
+
+    /**
+     * -------------
+     *   P R O P S
+     * -------------
+     */
     
     /**
-     * Get responder class by type
+     * Pop type off of params array and return value
      */
-    private function get_responder_class( string $type ) : string
+    private function pop_type( array &$params ) : string
     {
-        if ( !array_key_exists( $type, $this->responder_type_map ) )
-        {
-            throw new \OutOfRangeException(
-                sprintf(
-                    "%s tried to instantiate an Admin_Post_Responder of invalid type '%s'.",
-                    get_called_class(),
-                    $type
-                )
-            );
-        }
-        return __NAMESPACE__ . '\\'. $this->responder_type_map[ $type ];
-    }
-
-    /**
-     * Get default type
-     */
-    private function get_default_type() : string
-    {
-        return $this->default_type;
+        $type = $params['type'] ?? '';
+        unset( $params['type'] );
+        return $type;
     }
 
 }   // End of class

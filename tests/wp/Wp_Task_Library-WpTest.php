@@ -93,6 +93,7 @@ class Wp_Task_Library_WPTest extends Mtgtools_UnitTestCase
     public function testCanCreatePostHandler() : void
     {
         $object = $this->library->create_post_handler([
+            'type'     => 'ajax',
             'action'   => 'foo_bar',
             'callback' => function( $args ) { return []; },
         ]);

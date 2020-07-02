@@ -1,11 +1,15 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Wp_Tasks\Admin_Post\Post_Handler_Factory;
-use Mtgtools\Wp_Tasks\Admin_Post\Admin_Post_Handler;
+use Mtgtools\Wp_Tasks\Admin_Post as Base;
 
 class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
 {
+    /**
+     * Constants
+     */
+    const DEFAULT_TYPE = 'ajax';
+
     /**
      * Factory object
      */
@@ -17,35 +21,74 @@ class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
     public function setUp() : void
     {
         parent::setUp();
-        $this->factory = new Post_Handler_Factory();
+        $this->factory = new Base\Post_Handler_Factory();
     }
 
     /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+
+    /**
+     * TEST: Can create Admin_Request_Processor
+     */
+    public function testCanCreateProcessor() : void
+    {
+        $processor = $this->factory->create_processor();
+
+        $this->assertInstanceOf( Base\Admin_Request_Processor::class, $processor );
+    }
+
+    /**
+     * TEST: Can create Admin_Request_Responder
+     */
+    public function testCanCreateResponder() : void
+    {
+        $responder = $this->factory->create_responder( self::DEFAULT_TYPE );
+
+        $this->assertInstanceOf( Base\Admin_Request_Responder::class, $responder );
+    }
+
+    /**
+     * -----------------
+     *   H A N D L E R
+     * -----------------
+     */
+
+    /**
      * TEST: Can create Ajax handler
+     * 
+     * @depends testCanCreateProcessor
+     * @depends testCanCreateResponder
      */
     public function testCanCreateAjaxHandler() : void
     {
         $handler = $this->factory->create_handler([
-            'type'     => 'ajax',
-            'action'   => 'fake_action',
+            'type' => 'ajax',
+            'action' => 'fake_action',
             'callback' => function() {},
         ]);
 
-        $this->assertInstanceOf( Admin_Post_Handler::class, $handler );
+        $this->assertInstanceOf( Base\Admin_Post_Handler::class, $handler );
     }
 
     /**
-     * TEST: Invalid type throws OutOfRangeException
+     * TEST: Can create Redirect handler
+     * 
+     * @depends testCanCreateProcessor
+     * @depends testCanCreateResponder
      */
-    public function testInvalidTypeThrowsOutOfRangeException() : void
+    public function testCanCreateRedirectHandler() : void
     {
-        $this->expectException( \OutOfRangeException::class );
-
         $handler = $this->factory->create_handler([
-            'type'     => 'invalid_response_type',
-            'action'   => 'fake_action',
+            'type' => 'redirect',
+            'action' => 'fake_action',
             'callback' => function() {},
+            'redirect_url' => '',
         ]);
+
+        $this->assertInstanceOf( Base\Admin_Post_Handler::class, $handler );
     }
 
 }   // End of class

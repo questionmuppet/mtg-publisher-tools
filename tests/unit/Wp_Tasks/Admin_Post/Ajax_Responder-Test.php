@@ -6,10 +6,14 @@ namespace Mtgtools\Wp_Tasks\Admin_Post
     /**
      * WordPress mock functions
      */
-    function wp_send_json_success() {
+    function wp_send_json_success( array $result )
+    {
+        Ajax_Responder_Test::augment_call_count('success');
         return 'We succeeded and died.';
     }
-    function wp_send_json_error() {
+    function wp_send_json_error( array $result )
+    {
+        Ajax_Responder_Test::augment_call_count('error');
         return 'We failed and died.';
     }
 
@@ -18,6 +22,11 @@ namespace Mtgtools\Wp_Tasks\Admin_Post
      */
     class Ajax_Responder_Test extends \Mtgtools_UnitTestCase
     {
+        /**
+         * Call counter
+         */
+        use \FunctionCallCounterTrait;
+
         /**
          * Responder object
          */
@@ -30,7 +39,17 @@ namespace Mtgtools\Wp_Tasks\Admin_Post
         {
             parent::setUp();
             $this->responder = new Ajax_Responder();
+            self::reset_call_counters([
+                'success',
+                'error',
+            ]);
         }
+
+        /**
+         * -------------
+         *   T E S T S
+         * -------------
+         */
 
         /**
          * TEST: Can handle success state
@@ -39,9 +58,9 @@ namespace Mtgtools\Wp_Tasks\Admin_Post
         {
             $data = [ 'Here is some data' ];
 
-            $result = $this->responder->handle_success( $data );
+            $this->responder->handle_success( $data );
 
-            $this->assertNull( $result );
+            $this->assertEquals( 1, self::get_call_count('success') );
         }
 
         /**
@@ -51,19 +70,19 @@ namespace Mtgtools\Wp_Tasks\Admin_Post
         {
             $error = new \RuntimeException( "An error message" );
 
-            $result = $this->responder->handle_error( $error );
+            $this->responder->handle_error( $error );
 
-            $this->assertNull( $result );
+            $this->assertEquals( 1, self::get_call_count('error') );
         }
 
         /**
-         * TEST: Can get wp_prefix
+         * TEST: is_ajax() returns true
          */
-        public function testCanGetWpPrefix() : void
+        public function testIsAjaxReturnsTrue() : void
         {
-            $prefix = $this->responder->get_wp_prefix();
+            $is_ajax = $this->responder->is_ajax();
 
-            $this->assertEquals( 'wp_ajax', $prefix );
+            $this->assertTrue( $is_ajax );
         }
 
     }   // End of class

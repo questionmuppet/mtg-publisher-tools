@@ -6,12 +6,11 @@
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
-use Mtgtools\Wp_Tasks\Admin_Post\Interfaces\Admin_Post_Responder;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Ajax_Responder implements Admin_Post_Responder
+class Ajax_Responder implements Admin_Request_Responder
 {
     /**
      * Handle success state
@@ -32,11 +31,11 @@ class Ajax_Responder implements Admin_Post_Responder
     }
 
     /**
-     * Get WP prefix for hook action
+     * Check response method
      */
-    public function get_wp_prefix() : string
+    public function is_ajax() : bool
     {
-        return 'wp_ajax';
+        return true;
     }
 
 }   // End of class
