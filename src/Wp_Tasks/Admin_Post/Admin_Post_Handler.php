@@ -2,7 +2,7 @@
 /**
  * Admin_Post_Handler
  * 
- * Registers and handles WordPress admin requests through admin-post.php
+ * Abstract class for handling WordPress admin requests through admin-post.php
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
@@ -12,7 +12,7 @@ use Mtgtools\Exceptions\Admin_Post as Exceptions;
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Admin_Post_Handler extends Data
+abstract class Admin_Post_Handler extends Data
 {
     /**
      * Required properties
@@ -29,6 +29,7 @@ class Admin_Post_Handler extends Data
         'capability' => 'manage_options',
         'user_args'  => [],
         'nopriv'     => false,
+        'is_ajax'    => false,
     );
 
     /**
@@ -37,17 +38,11 @@ class Admin_Post_Handler extends Data
     private $processor;
 
     /**
-     * Request responder
-     */
-    private $responder;
-
-    /**
      * Constructor
      */
-    public function __construct( Admin_Request_Processor $processor, Admin_Request_Responder $responder, array $props = [] )
+    public function __construct( array $props = [], Admin_Request_Processor $processor )
     {
         $this->processor = $processor;
-        $this->responder = $responder;
         parent::__construct( $props );
     }
 
@@ -81,14 +76,24 @@ class Admin_Post_Handler extends Data
                 'callback'      => $this->get_callback(),
                 'user_args'     => $this->get_user_args(),
             ]);
-            $this->responder->handle_success( $result );
+            $this->handle_success( $result );
         }
         catch ( Exceptions\PostHandlerException $e )
         {
-            $this->responder->handle_error( $e );
+            $this->handle_error( $e );
         }
     }
     
+    /**
+     * Handle success state
+     */
+    abstract protected function handle_success( array $result ) : void;
+
+    /**
+     * Handle error state
+     */
+    abstract protected function handle_error( \Exception $e ) : void;
+
     /**
      * -------------------------
      *   A C T I O N   H O O K
@@ -142,7 +147,15 @@ class Admin_Post_Handler extends Data
      */
     private function get_wp_prefix() : string
     {
-        return $this->responder->is_ajax() ? 'wp_ajax' : 'admin_post';
+        return $this->is_ajax() ? 'wp_ajax' : 'admin_post';
+    }
+
+    /**
+     * Whether or not request uses Ajax
+     */
+    private function is_ajax() : bool
+    {
+        return boolval( $this->get_prop( 'is_ajax' ) );
     }
 
     /**

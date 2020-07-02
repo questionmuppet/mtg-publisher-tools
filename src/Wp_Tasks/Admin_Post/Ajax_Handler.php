@@ -1,8 +1,8 @@
 <?php
 /**
- * Ajax_Responder
+ * Ajax_Handler
  * 
- * Sends the result of an admin-post event via AJAX
+ * Registers a handler for an admin-post request using Ajax
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
@@ -10,12 +10,19 @@ namespace Mtgtools\Wp_Tasks\Admin_Post;
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Ajax_Responder implements Admin_Request_Responder
+class Ajax_Handler extends Admin_Post_Handler
 {
+    /**
+     * Default properties
+     */
+    protected $defaults = array(
+        'is_ajax' => true,
+    );
+
     /**
      * Handle success state
      */
-    public function handle_success( array $result ) : void
+    protected function handle_success( array $result ) : void
     {
         wp_send_json_success( $result );
     }
@@ -23,19 +30,11 @@ class Ajax_Responder implements Admin_Request_Responder
     /**
      * Handle error state
      */
-    public function handle_error( \Exception $e ) : void
+    protected function handle_error( \Exception $e ) : void
     {
         wp_send_json_error([
             'error' => $e->getMessage()
         ]);
-    }
-
-    /**
-     * Check response method
-     */
-    public function is_ajax() : bool
-    {
-        return true;
     }
 
 }   // End of class

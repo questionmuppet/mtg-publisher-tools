@@ -98,7 +98,7 @@ class Wp_Task_Library_WPTest extends Mtgtools_UnitTestCase
             'callback' => function( $args ) { return []; },
         ]);
 
-        $this->assertInstanceOf( Wp_Tasks\Admin_Post\Admin_Post_Handler:: class, $object );
+        $this->assertInstanceOf( Wp_Tasks\Admin_Post\Admin_Post_Handler::class, $object );
     }
 
 }   // End of class

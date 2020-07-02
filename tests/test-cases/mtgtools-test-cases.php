@@ -7,5 +7,4 @@ $dir = dirname( __FILE__ ) . '/';
 
 require_once $dir . 'Mtgtools_UnitTestCase.php';
 require_once $dir . 'Mtgtools_DashboardTestCase.php';
-require_once $dir . 'Admin_Post_HandlerTestCase.php';
 require_once $dir . 'traits/FunctionCallCounterTrait.php';

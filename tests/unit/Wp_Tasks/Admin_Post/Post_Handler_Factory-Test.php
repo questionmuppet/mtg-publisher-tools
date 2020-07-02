@@ -6,11 +6,6 @@ use Mtgtools\Wp_Tasks\Admin_Post as Base;
 class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
 {
     /**
-     * Constants
-     */
-    const DEFAULT_TYPE = 'ajax';
-
-    /**
      * Factory object
      */
     private $factory;
@@ -41,16 +36,6 @@ class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Can create Admin_Request_Responder
-     */
-    public function testCanCreateResponder() : void
-    {
-        $responder = $this->factory->create_responder( self::DEFAULT_TYPE );
-
-        $this->assertInstanceOf( Base\Admin_Request_Responder::class, $responder );
-    }
-
-    /**
      * -----------------
      *   H A N D L E R
      * -----------------
@@ -60,7 +45,6 @@ class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
      * TEST: Can create Ajax handler
      * 
      * @depends testCanCreateProcessor
-     * @depends testCanCreateResponder
      */
     public function testCanCreateAjaxHandler() : void
     {
@@ -70,14 +54,13 @@ class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
             'callback' => function() {},
         ]);
 
-        $this->assertInstanceOf( Base\Admin_Post_Handler::class, $handler );
+        $this->assertInstanceOf( Base\Ajax_Handler::class, $handler );
     }
 
     /**
      * TEST: Can create Redirect handler
      * 
      * @depends testCanCreateProcessor
-     * @depends testCanCreateResponder
      */
     public function testCanCreateRedirectHandler() : void
     {
@@ -88,7 +71,7 @@ class Post_Handler_Factory_Test extends Mtgtools_UnitTestCase
             'redirect_url' => '',
         ]);
 
-        $this->assertInstanceOf( Base\Admin_Post_Handler::class, $handler );
+        $this->assertInstanceOf( Base\Redirect_Handler::class, $handler );
     }
 
 }   // End of class
