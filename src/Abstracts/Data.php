@@ -71,11 +71,17 @@ abstract class Data
     }
 
     /**
-     * Set property
-     * 
-     * @return mixed
+     * Set multiple properties at once
      */
-    protected function set_prop( string $key, $value )
+    protected function set_props( array $new_props ) : void
+    {
+        $this->props = array_replace( $this->props, $new_props );
+    }
+
+    /**
+     * Set property
+     */
+    protected function set_prop( string $key, $value ) : void
     {
         $this->props[ $key ] = $value;
     }
