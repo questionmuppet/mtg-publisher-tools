@@ -2,7 +2,7 @@
 /**
  * Ajax_Handler
  * 
- * Registers a handler for an admin-post request using Ajax
+ * Registers a handler for an ajax request to the WordPress admin
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;

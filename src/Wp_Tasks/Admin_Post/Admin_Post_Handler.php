@@ -2,7 +2,7 @@
 /**
  * Admin_Post_Handler
  * 
- * Abstract class for handling WordPress admin requests through admin-post.php
+ * Abstract class for handling requests to the WordPress admin
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
