@@ -27,7 +27,18 @@ class Admin_Notice extends Data
         'type'        => 'info',
         'title'       => '',
         'dismissible' => true,
+        'p_wrap'      => true,
     );
+
+    /**
+     * Get notice HTML as string
+     */
+    public function get_markup() : string
+    {
+        ob_start();
+        $this->print();
+        return ob_get_clean();
+    }
 
     /**
      * Echo notice HTML
@@ -35,7 +46,7 @@ class Admin_Notice extends Data
     public function print() : void
     {
         printf(
-            '<div class="%s">%s<p>%s</p></div>',
+            '<div class="%s">%s%s</div>',
             esc_attr( $this->get_class() ),
             $this->get_title_html(),
             wp_kses_post( $this->get_message() )
@@ -71,7 +82,18 @@ class Admin_Notice extends Data
      */
     private function get_message() : string
     {
-        return $this->get_prop( 'message' );
+        $message = $this->get_prop( 'message' );
+        return $this->is_p_wrapped()
+            ? $this->add_p_wrap( $message )
+            : $message;
+    }
+
+    /**
+     * Enclose message in <p> tags
+     */
+    private function add_p_wrap( string $message ) : string
+    {
+        return sprintf( "<p>%s</p>", $message );
     }
 
     /**
@@ -96,6 +118,14 @@ class Admin_Notice extends Data
     private function is_dismissible() : bool
     {
         return boolval( $this->get_prop( 'dismissible' ) );
+    }
+
+    /**
+     * Check whether to wrap the message in <p> tags
+     */
+    private function is_p_wrapped() : bool
+    {
+        return boolval( $this->get_prop( 'p_wrap' ) );
     }
 
 }   // End of class
