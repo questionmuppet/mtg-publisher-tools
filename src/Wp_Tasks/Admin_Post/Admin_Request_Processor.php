@@ -56,13 +56,17 @@ class Admin_Request_Processor extends Data
      */
     private function authorize() : void
     {
-        if ( !$this->is_permitted() )
-        {
-            throw new Exceptions\AuthorizationException( "You do not have permission for the requested action." );
-        }
         if ( !$this->verify_nonce() )
         {
-            throw new Exceptions\AuthorizationException( "The specified nonce for the requested action is invalid or expired." );
+            $e = new Exceptions\AuthorizationException( "The specified nonce for the requested action is invalid or expired." );
+            $e->add_http_status( 401, 'Unauthorized' );
+            throw $e;
+        }
+        if ( !$this->is_permitted() )
+        {
+            $e = new Exceptions\AuthorizationException( "You do not have permission for the requested action." );
+            $e->add_http_status( 403, 'Forbidden' );
+            throw $e;
         }
     }
     

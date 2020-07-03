@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
+use Mtgtools\Exceptions\Admin_Post\PostHandlerException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -63,12 +64,12 @@ class Redirect_Handler extends Admin_Post_Handler
     /**
      * Handle error state
      */
-    protected function handle_error( \Exception $e ) : void
+    protected function handle_error( PostHandlerException $e ) : void
     {
         wp_die(
             $e->getMessage(),
-            $this->get_error_title(),
-            $this->get_error_args()
+            $e->get_http_response_title(),
+            $this->get_error_args( $e->get_http_response_code() )
         );
     }
 
@@ -85,10 +86,10 @@ class Redirect_Handler extends Admin_Post_Handler
      * 
      * @see https://developer.wordpress.org/reference/functions/wp_die/
      */
-    private function get_error_args() : array
+    private function get_error_args( int $http_status_code ) : array
     {
         return array_filter([
-            'response' => $this->get_http_error_code(),
+            'response' => $http_status_code,
             'link_url' => $this->get_error_link_url(),
             'link_text' => $this->get_error_link_text(),
             'back_link' => $this->include_back_link(),
@@ -112,14 +113,6 @@ class Redirect_Handler extends Admin_Post_Handler
             throw new \InvalidArgumentException( "Missing or invalid redirect url provided to " . get_called_class() . ". You must provide a valid url to redirect to upon success." );
         }
         return $url;
-    }
-
-    /**
-     * Get HTTP error code
-     */
-    private function get_http_error_code() : int
-    {
-        return 500;
     }
 
     /**

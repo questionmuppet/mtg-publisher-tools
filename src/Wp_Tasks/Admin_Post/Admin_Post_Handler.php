@@ -92,7 +92,7 @@ abstract class Admin_Post_Handler extends Data
     /**
      * Handle error state
      */
-    abstract protected function handle_error( \Exception $e ) : void;
+    abstract protected function handle_error( Exceptions\PostHandlerException $e ) : void;
 
     /**
      * -------------------------
