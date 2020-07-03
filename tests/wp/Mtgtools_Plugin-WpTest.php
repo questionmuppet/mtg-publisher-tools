@@ -18,6 +18,12 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * -----------------
+     *   M O D U L E S
+     * -----------------
+     */
+
+    /**
      * TEST: Can get symbols module
      * 
      * @depends testCanGetInstance
@@ -39,6 +45,18 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
         $module = $instance->dashboard();
 
         $this->assertInstanceOf( Mtgtools\Mtgtools_Dashboard::class, $module );
+    }
+
+    /**
+     * TEST: Can get updates module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetUpdatesModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->updates();
+
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Updates::class, $module );
     }
 
     /**
