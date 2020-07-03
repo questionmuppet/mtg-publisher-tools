@@ -7,9 +7,10 @@ use Mtgtools\Exceptions\Admin_Post\PostHandlerException;
 class Redirect_Handler_WPTest extends Mtgtools_UnitTestCase
 {
     /**
-     * WP redirect assertions
+     * Wp assertion traits
      */
     use WpRedirectAssertionsTrait;
+    use WpExitAssertionsTrait;
 
     /**
      * Action hooks
@@ -25,6 +26,8 @@ class Redirect_Handler_WPTest extends Mtgtools_UnitTestCase
     const ERROR_MESSAGE = 'Ya done fucked up!';
     const REDIRECT_URL = 'http://example.org/';
     const HTTP_STATUS = 302;
+    const HTTP_ERROR_STATUS = 500;
+    const HTTP_ERROR_TITLE = 'Internal Server Error';
 
     /**
      * Request processor
@@ -39,6 +42,16 @@ class Redirect_Handler_WPTest extends Mtgtools_UnitTestCase
         parent::setUp();
         $this->processor = $this->createMock( Base\Admin_Request_Processor::class );
         $this->register_redirect_handler();
+        $this->register_wp_exit_tracker();
+    }
+
+    /**
+     * Teardown
+     */
+    public function tearDown() : void
+    {
+        $this->remove_wp_exit_tracker();
+        parent::tearDown();
     }
 
     /**
@@ -140,13 +153,34 @@ class Redirect_Handler_WPTest extends Mtgtools_UnitTestCase
      */
     public function testErrorStateCallsWpDie() : void
     {
-        $msg = "An error was encountered during your malformed request, you ne'er-do-well!";
-        $this->processor->method('process_request')->willThrowException( new PostHandlerException( $msg ) );
+        $this->processor->method('process_request')->willThrowException( new PostHandlerException() );
         $handler = $this->create_handler();
 
-        $this->setExpectedException( 'WPDieException', "ne'er-do-well" );
-
+        $this->expectException( WPDieException::class );
+        
         $handler->process_action();
+    }
+
+    /**
+     * TEST: Error state dies with correct parameters
+     * 
+     * @depends testErrorStateCallsWpDie
+     */
+    public function testErrorStateDiesWithCorrectParams() : void
+    {
+        $this->processor->method('process_request')->willThrowException( new PostHandlerException( self::ERROR_MESSAGE ) );
+        $handler = $this->create_handler();
+
+        try {
+            $handler->process_action();
+        }
+        catch ( WpDieException $e ) {
+            // Expected exception
+        }
+
+        $this->assertEquals( self::ERROR_MESSAGE, $this->get_wp_die_params('message'), 'Failed to assert that correct error message was passed to wp_die().' );
+        $this->assertEquals( self::HTTP_ERROR_TITLE, $this->get_wp_die_params('title'), 'Failed to assert that the Http status title was passed to wp_die().' );
+        $this->assertEquals( self::HTTP_ERROR_STATUS, $this->get_wp_die_params('args')['response'], 'Failed to assert that the Http status code was passed to wp_die().' );
     }
 
     /**

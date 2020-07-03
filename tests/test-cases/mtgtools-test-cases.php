@@ -12,6 +12,7 @@ require_once $dir . 'Mtgtools_DashboardTestCase.php';
 // Traits
 require_once $dir . 'Traits/FunctionCallCounterTrait.php';
 require_once $dir . 'Traits/WpRedirectAssertionsTrait.php';
+require_once $dir . 'Traits/WpExitAssertionsTrait.php';
 
 // Exceptions
 require_once $dir . 'Exceptions/WpRedirectAttemptException.php';
