@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools\Wp_Tasks\Admin_Post;
+use Mtgtools\Exceptions\Admin_Post\PostHandlerException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -30,7 +31,7 @@ class Ajax_Handler extends Admin_Post_Handler
     /**
      * Handle error state
      */
-    protected function handle_error( \Exception $e ) : void
+    protected function handle_error( PostHandlerException $e ) : void
     {
         wp_send_json_error([
             'error' => $e->getMessage()
