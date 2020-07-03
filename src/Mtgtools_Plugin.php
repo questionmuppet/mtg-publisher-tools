@@ -22,7 +22,6 @@ class Mtgtools_Plugin
 	 */
 	private $symbols;
 	private $dashboard;
-	private $updates;
 
 	/**
 	 * Module task library
@@ -89,20 +88,6 @@ class Mtgtools_Plugin
 			$this->dashboard = new Mtgtools_Dashboard( $factory, $this->wp_tasks() );
 		}
 		return $this->dashboard;
-	}
-
-	/**
-	 * Get updates module
-	 */
-    public function updates() : Mtgtools_Updates
-    {
-		if ( !isset( $this->updates ) )
-		{
-			global $wpdb;
-			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
-		}
-		return $this->updates;
 	}
 
 	/**
