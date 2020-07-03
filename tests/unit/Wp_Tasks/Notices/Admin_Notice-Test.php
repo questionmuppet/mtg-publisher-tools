@@ -6,86 +6,122 @@ use Mtgtools\Wp_Tasks\Notices\Admin_Notice;
 class Admin_NoticeTest extends Mtgtools_UnitTestCase
 {
     /**
-     * TEST: Can output notice markup
+     * TEST: Can print notice
      */
-    public function testCanOutputNoticeMarkup() : string
+    public function testCanPrintNotice() : void
     {
-        $notice = $this->create_notice([
-            'type'        => 'fake',
-            'dismissible' => true,
-        ]);
+        $notice = $this->create_notice();
 
         ob_start();
         $notice->print();
         $html = ob_get_clean();
 
-        $this->assertContainsSelector( 'div.notice', $html, 'No WP notice element found in the markup.' );
-
-        return $html;    
+        $this->assertIsString( $html );
     }
     
     /**
-     * TEST: Markup contains notice-type class
+     * TEST: Can get notice markup
      * 
-     * @depends testCanOutputNoticeMarkup
+     * @depends testCanPrintNotice
      */
-    public function testMarkupContainsTypeClass( string $html ) : void
+    public function testCanGetNoticeMarkup() : string
     {
-        $this->assertContainsSelector( 'div.notice.notice-fake', $html, 'Notice element is missing the notice-type class.' );
-    }
-    
-    /**
-     * TEST: Markup contains dismissibility class
-     * 
-     * @depends testCanOutputNoticeMarkup
-     */
-    public function testMarkupContainsDismissibilityClass( string $html ) : void
-    {
-        $this->assertContainsSelector( 'div.notice.is-dismissible', $html, 'Notice element is missing the class to enable user dismissal.' );
-    }
-    
-    /**
-     * TEST: Markup contains notice message
-     * 
-     * @depends testCanOutputNoticeMarkup
-     */
-    public function testMarkupContainsNoticeMessage( string $html ) : void
-    {
+        $notice = $this->create_notice();
+        
+        $html = $notice->get_markup();
+        
+        $this->assertContainsSelector( 'div.notice', $html, 'WordPress notice element not found in admin-notice markup.' );
         $this->assertElementContains( 'This is an admin notice', 'div.notice', $html, 'Did not find the notice message in the notice body.' );
+        $this->assertContainsSelector( 'div.notice.notice-fake', $html, 'Notice element missing CSS type class in admin-notice markup.' );
+        
+        return $html;
     }
-
+    
     /**
-     * TEST: Can remove dismissibility in constructor
-     * 
-     * @depends testCanOutputNoticeMarkup
+     * -------------------------
+     *   D I S M I S S I B L E
+     * -------------------------
      */
-    public function testCanRemoveDismissibility() : void
+    
+    /**
+     * TEST: Notice is dismissible
+     * 
+     * @depends testCanGetNoticeMarkup
+     */
+    public function testNoticeIsDismissible( string $html ) : void
+    {
+        $this->assertContainsSelector( 'div.notice.is-dismissible', $html, 'Notice element missing CSS class to enable user-dismissal via "x" button.' );
+    }
+    
+    /**
+     * TEST: Can remove dismissible via constructor
+     * 
+     * @depends testNoticeIsDismissible
+     */
+    public function testCanRemoveDismissible() : void
     {
         $notice = $this->create_notice([ 'dismissible' => false ]);
 
-        ob_start();
-        $notice->print();
-        $html = ob_get_clean();
+        $html = $notice->get_markup();
 
-        $this->assertNotContainsSelector( 'div.notice.is-dismissible', $html, 'Dismissibility class could not be removed via constructor args.' );
+        $this->assertNotContainsSelector( 'div.notice.is-dismissible', $html, 'Could not remove user-dismissal CSS class from notice via constructor args.' );
+    }
+    
+    /**
+     * ---------------
+     *   P - W R A P
+     * ---------------
+     */
+    /**
+     * TEST: Notice contains <p> wrap
+     * 
+     * @depends testCanGetNoticeMarkup
+     */
+    public function testNoticeContainsPWrap( string $html ) : void
+    {
+        $this->assertElementContains( 'This is an admin notice', 'div.notice p', $html, 'Notice element is missing <p> tags.' );
+    }
+    
+    /**
+     * TEST: Can remove <p> wrap via constructor
+     * 
+     * @depends testNoticeContainsPWrap
+     */
+    public function testCanRemovePWrap() : void
+    {
+        $notice = $this->create_notice([ 'p_wrap' => false ]);
+
+        $html = $notice->get_markup();
+
+        $this->assertNotContainsSelector( 'div.notice p', $html, 'Could not remove <p>-tag wrap from notice via constructor args.' );
     }
 
     /**
-     * TEST: Can add title in constructor
+     * -------------
+     *   T I T L E
+     * -------------
+     */
+
+    /**
+     * TEST: Can add title via constructor
      * 
-     * @depends testCanOutputNoticeMarkup
+     * @depends testCanGetNoticeMarkup
      */
     public function testCanAddTitle() : void
     {
         $notice = $this->create_notice([ 'title' => 'A Neat Notice' ]);
 
-        ob_start();
-        $notice->print();
-        $html = ob_get_clean();
+        $html = $notice->get_markup();
 
-        $this->assertContainsSelector( 'div.notice h2', $html, 'Could not add header element to the markup via constructor args.' );
-        $this->assertElementContains( 'A Neat Notice', 'div.notice h2', $html, 'Did not find title string in the header element.' );
+        $this->assertContainsSelector( 'div.notice h2', $html, 'Could not add title element to notice via constructor args.' );
+        $this->assertElementContains( 'A Neat Notice', 'div.notice h2', $html, 'Did not find title string in the admin-notice header element.' );
     }
+
+    /**
+     * ---------------------
+     *   P R O D U C E R S
+     * ---------------------
+     */
     
     /**
      * Create new notice
@@ -93,7 +129,10 @@ class Admin_NoticeTest extends Mtgtools_UnitTestCase
     private function create_notice( array $args = [] ) : Admin_Notice
     {
         $args = array_merge([
-            'message' => 'This is an admin notice',
+            'message'     => 'This is an admin notice',
+            'type'        => 'fake',
+            'dismissible' => true,
+            'p_wrap'      => true,
         ], $args );
         return new Admin_Notice( $args );
     }
