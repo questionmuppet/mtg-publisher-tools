@@ -53,7 +53,7 @@ class Mtgtools_Plugin
 		if ( is_admin() && is_user_logged_in() )
 		{
 			$this->dashboard()->add_hooks();
-			$this->updates()->add_hooks();
+			//$this->updates()->add_hooks();
 		}
 	}
 	
