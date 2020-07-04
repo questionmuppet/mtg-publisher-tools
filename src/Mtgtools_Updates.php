@@ -42,6 +42,18 @@ class Mtgtools_Updates extends Module
     {
         add_action( 'mtgtools_dashboard_tabs', array( $this, 'add_dash_tab' ), 5, 1 );
         add_action( 'admin_notices', array( $this, 'print_notices' ) );
+        $this->register_post_handlers([
+            [
+                'type'         => 'redirect',
+                'action'       => 'mtgtools_update_symbols',
+                'callback'     => array( $this, 'update_symbols' ),
+                'redirect_url' => $this->get_dashboard_url('updates'),
+                'error_link'   => [
+                    'url' => $this->get_dashboard_url('updates'),
+                    'text' => 'Return to updates',
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -63,7 +75,7 @@ class Mtgtools_Updates extends Module
 
     /**
      * -----------------
-     *   U P D A T E S
+     *   N O T I C E S
      * -----------------
      */
 
@@ -76,17 +88,64 @@ class Mtgtools_Updates extends Module
     {
         if ( $this->updates_available() )
         {
-            $message = $this->get_template_markup([
-                'path' => 'dashboard/notices/updates-available.php',
-                'themeable' => false,
-            ]);
             $this->print_admin_notice([
-                'title'   => 'Mana Symbol Updates Available',
+                'title'   => 'Mana symbol updates available',
                 'type'    => 'info',
-                'message' => $message,
-                'p_wrap'  => false,
+                'message' => $this->get_update_message(),
+                'buttons' => [
+                    [
+                        'label' => 'Update now',
+                        'href' => $this->get_update_action_link(),
+                    ],
+                    [
+                        'label' => 'Turn off notices',
+                        'href' => '',
+                    ],
+                ],
             ]);
         }
+    }
+
+    /**
+     * Get updates-available message
+     */
+    private function get_update_message() : string
+    {
+        return 'The MTG mana symbol database used by your posts and themes is out of date. To download the latest update and begin including the newest Magic content, click "Update now".';
+    }
+
+    /**
+     * Get update action link
+     */
+    private function get_update_action_link() : string
+    {
+        return add_query_arg(
+            [
+                'action' => 'mtgtools_update_symbols',
+                '_wpnonce' => wp_create_nonce( 'mtgtools_update_symbols' ),
+            ],
+            admin_url( 'admin-post.php' )
+        );
+    }
+
+    /**
+     * -----------------
+     *   U P D A T E S
+     * -----------------
+     */
+
+    /**
+     * Download and install latest updates
+     * 
+     * @hooked admin_post_mtgtools_update_symbols
+     * @return array query args to append to redirect url
+     */
+    public function update_symbols() : array
+    {
+        $successful = false;
+        return [
+            'action' => $successful ? 'updated' : 'checked_current'
+        ];
     }
 
     /**
@@ -94,7 +153,7 @@ class Mtgtools_Updates extends Module
      */
     private function updates_available() : bool
     {
-        return true;
+        return false;
     }
 
     /**
