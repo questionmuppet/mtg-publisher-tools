@@ -10,5 +10,10 @@
         "psr-4": {
             "Mtgtools\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mtgtools\\Tests\\": "tests/"
+        }
     }
 }
