@@ -34,4 +34,20 @@ class Scryfall_Data_Source extends Scryfall_Api_Handler implements Mtg_Data_Sour
         return $symbols;
     }
 
+    /**
+     * Get name for display
+     */
+    public function get_display_name() : string
+    {
+        return 'Scryfall API';
+    }
+
+    /**
+     * Get documentation uri
+     */
+    public function get_documentation_uri() : string
+    {
+        return 'https://scryfall.com/docs/api/';
+    }
+
 }   // End of class

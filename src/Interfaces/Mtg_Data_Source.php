@@ -19,4 +19,14 @@ interface Mtg_Data_Source
      */
     public function get_mana_symbols() : array;
 
+    /**
+     * Get name of source for display
+     */
+    public function get_display_name() : string;
+
+    /**
+     * Get uri to source documentation
+     */
+    public function get_documentation_uri() : string;
+
 }   // End of interface
