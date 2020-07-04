@@ -58,7 +58,7 @@ class Admin_Request_Processor extends Data
     {
         if ( !$this->verify_nonce() )
         {
-            $e = new Exceptions\AuthorizationException( "The specified nonce for the requested action is invalid or expired." );
+            $e = new Exceptions\AuthorizationException( "This link has expired. Please reload the page and try again." );
             $e->add_http_status( 401, 'Unauthorized' );
             throw $e;
         }
