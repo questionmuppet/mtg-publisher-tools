@@ -33,10 +33,7 @@ class Redirect_Handler extends Admin_Post_Handler
      */
     protected function handle_success( array $result ) : void
     {
-        $this->redirect_with_args([
-            'action' => $this->get_action(),
-            'status' => 'success',
-        ]);
+        $this->redirect_with_args( $result );
     }
 
     /**
@@ -66,21 +63,13 @@ class Redirect_Handler extends Admin_Post_Handler
      */
     protected function handle_error( PostHandlerException $e ) : void
     {
-        wp_die(
-            $e->getMessage(),
-            $e->get_http_response_title(),
-            $this->get_error_args( $e->get_http_response_code() )
-        );
+        $title = $e->get_http_status();
+        $message = sprintf( "<h3>%s</h3>%s", $title, $e->getMessage() );
+        $args = $this->get_error_args( $e->get_http_response_code() );
+        
+        wp_die( $message, $title, $args );
     }
-
-    /**
-     * Get error title
-     */
-    private function get_error_title() : string
-    {
-        return "Internal Server Error";
-    }
-    
+            
     /**
      * Get wp_die error arguments
      * 

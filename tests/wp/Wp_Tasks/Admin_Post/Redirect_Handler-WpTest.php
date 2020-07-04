@@ -178,8 +178,8 @@ class Redirect_Handler_WPTest extends Mtgtools_UnitTestCase
             // Expected exception
         }
 
-        $this->assertEquals( self::ERROR_MESSAGE, $this->get_wp_die_params('message'), 'Failed to assert that correct error message was passed to wp_die().' );
-        $this->assertEquals( self::HTTP_ERROR_TITLE, $this->get_wp_die_params('title'), 'Failed to assert that the Http status title was passed to wp_die().' );
+        $this->assertStringContainsString( self::ERROR_MESSAGE, $this->get_wp_die_params('message'), 'Failed to assert that correct error message was passed to wp_die().' );
+        $this->assertStringContainsString( self::HTTP_ERROR_TITLE, $this->get_wp_die_params('title'), 'Failed to assert that the Http status title was passed to wp_die().' );
         $this->assertEquals( self::HTTP_ERROR_STATUS, $this->get_wp_die_params('args')['response'], 'Failed to assert that the Http status code was passed to wp_die().' );
     }
 
