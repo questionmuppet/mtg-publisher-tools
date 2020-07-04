@@ -33,6 +33,15 @@ abstract class Module
     }
 
     /**
+     * Get dashboard url
+     */
+    protected function get_dashboard_url( string $tab ) : string
+    {
+        $plugin = \Mtgtools\Mtgtools_Plugin::get_instance();
+        return $plugin->dashboard()->get_tab_url( $tab );
+    }
+
+    /**
      * Enqueue a CSS style
      */
     protected function add_style( array $params ) : void
