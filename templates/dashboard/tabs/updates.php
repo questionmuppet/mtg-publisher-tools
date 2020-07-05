@@ -21,6 +21,16 @@ $updates = Mtgtools\Mtgtools_Plugin::get_instance()->updates();
  * Print notices from a completed admin-post action
  */
 $dashboard->print_action_notices([
+    'failed' => [
+        'title' => 'Failed Connection',
+        'type' => 'error',
+        'message' => 'MTG Publisher Tools encountered an error trying to connect to an external data source. Troubleshooting steps:',
+        'list' => [
+            'Check your connection and try again.',
+            "Check the status of your data provider: {$updates->get_nice_source_link()}.",
+            'Contact the site administrator.',
+        ],
+    ],
     'checked_available' => [
         'type' => 'warning',
         'message' => 'New updates are available to the Magic card data used by MTG Publisher Tools. Click "Update" to install the latest changes.',

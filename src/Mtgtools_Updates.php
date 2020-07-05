@@ -9,6 +9,7 @@ namespace Mtgtools;
 use Mtgtools\Abstracts\Module;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Exceptions\Api\ApiException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -42,14 +43,16 @@ class Mtgtools_Updates extends Module
     {
         add_action( 'mtgtools_dashboard_tabs', array( $this, 'add_dash_tab' ), 5, 1 );
         add_action( 'admin_notices', array( $this, 'print_notices' ) );
+        
+        $tab_url = $this->get_dashboard_url('updates');
         $this->register_post_handlers([
             [
                 'type'         => 'redirect',
                 'action'       => 'mtgtools_update_symbols',
                 'callback'     => array( $this, 'update_symbols' ),
-                'redirect_url' => $this->get_dashboard_url('updates'),
+                'redirect_url' => $tab_url,
                 'error_link'   => [
-                    'url' => $this->get_dashboard_url('updates'),
+                    'url' => $tab_url,
                     'text' => 'Return to updates',
                 ],
             ],
@@ -87,6 +90,18 @@ class Mtgtools_Updates extends Module
     }
 
     /**
+     * Get source name enclosed in a link
+     */
+    public function get_nice_source_link() : string
+    {
+        return sprintf(
+            '<a href="%s" target="_blank">%s</a>',
+            esc_url( $this->source->get_documentation_uri() ),
+            esc_html( $this->source->get_display_name() )
+        );
+    }
+
+    /**
      * Get link to source documentation
      */
     private function get_source_link() : string
@@ -94,8 +109,8 @@ class Mtgtools_Updates extends Module
         $url = $this->source->get_documentation_uri();
         return sprintf(
             '<a href="%s" target="_blank">%s</a>',
-            $url,
-            $url
+            esc_url( $url ),
+            esc_html( $url )
         );
     }
 
@@ -112,7 +127,7 @@ class Mtgtools_Updates extends Module
      */
     private function get_update_status() : string
     {
-        return $this->updates_available()
+        return $this->updates_pending()
             ? '<span style="color: red;">New Magic card data is available for download.</span>'
             : 'No updates are currently pending.';
     }
@@ -134,7 +149,7 @@ class Mtgtools_Updates extends Module
      */
     public function print_notices() : void
     {
-        if ( $this->updates_available() )
+        if ( $this->updates_pending() )
         {
             $this->print_admin_notice([
                 'title'   => 'Mana symbol updates available',
@@ -190,20 +205,35 @@ class Mtgtools_Updates extends Module
      */
     public function update_symbols() : array
     {
-        $count = 0;
-        foreach ( $this->source->get_mana_symbols() as $symbol )
+        try
         {
-            $count += intval(
-                $this->db_ops->add_symbol( $symbol )
-            );
+            $count = 0;
+            foreach ( $this->source->get_mana_symbols() as $symbol )
+            {
+                $count += intval(
+                    $this->db_ops->add_symbol( $symbol )
+                );
+            }
+            $action = $count ? 'updated' : 'checked_current';
         }
-        return [
-            'action' => $count ? 'updated' : 'checked_current'
-        ];
+        catch ( ApiException $e )
+        {
+            error_log( $e->getMessage() );
+            $action = 'failed';
+        }
+        return [ 'action' => $action ];
     }
 
     /**
-     * Check for available updates
+     * Check site transients for pending updates
+     */
+    private function updates_pending() : bool
+    {
+        return false;
+    }
+
+    /**
+     * Check data source for updates
      */
     private function updates_available() : bool
     {

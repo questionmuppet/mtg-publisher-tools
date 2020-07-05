@@ -70,6 +70,16 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
 
         $this->assertIsArray( $info );
     }
+    
+    /**
+     * TEST: Can get linked source name
+     */
+    public function testCanGetNiceSourceLink() : void
+    {
+        $link = $this->updates->get_nice_source_link();
+
+        $this->assertIsString( $link );
+    }
 
     /**
      * TEST: Can print notices
