@@ -56,6 +56,16 @@ class Mtgtools_Updates extends Module
                     'text' => 'Return to updates',
                 ],
             ],
+            [
+                'type'         => 'redirect',
+                'action'       => 'mtgtools_check_updates',
+                'callback'     => array( $this, 'check_for_updates' ),
+                'redirect_url' => $tab_url,
+                'error_link'   => [
+                    'url' => $tab_url,
+                    'text' => 'Return to updates',
+                ],
+            ],
         ]);
     }
 
@@ -131,10 +141,6 @@ class Mtgtools_Updates extends Module
             ? '<span style="color: red;">New Magic card data is available for download.</span>'
             : 'No updates are currently pending.';
     }
-
-    /**
-     * 
-     */
 
     /**
      * -----------------
@@ -225,6 +231,34 @@ class Mtgtools_Updates extends Module
     }
 
     /**
+     * Check for available updates and store as transient
+     * 
+     * @hooked admin_post_mtgtools_check_updates
+     * @return array query args to append to redirect url
+     */
+    public function check_for_updates() : array
+    {
+        try
+        {
+            if ( $this->updates_available() )
+            {
+                // $this->set_update_transient();
+                $action = 'checked_available';
+            }
+            else
+            {
+                $action = 'checked_current';
+            }
+        }
+        catch ( ApiException $e )
+        {
+            error_log( $e->getMessage() );
+            $action = 'failed';
+        }
+        return [ 'action' => $action ];
+    }
+
+    /**
      * Check site transients for pending updates
      */
     private function updates_pending() : bool
@@ -237,7 +271,7 @@ class Mtgtools_Updates extends Module
      */
     private function updates_available() : bool
     {
-        return true;
+        return false;
     }
 
     /**
