@@ -28,6 +28,7 @@ class Admin_Notice extends Data
         'title'       => '',
         'dismissible' => true,
         'p_wrap'      => true,
+        'list'        => [],
         'buttons'     => [],
     );
 
@@ -53,10 +54,11 @@ class Admin_Notice extends Data
     public function print() : void
     {
         printf(
-            '<div class="%s">%s%s%s</div>',
+            '<div class="%s">%s%s%s%s</div>',
             esc_attr( $this->get_class() ),
             $this->get_title_html(),                    // Sanitized below
             wp_kses_post( $this->get_message() ),
+            $this->get_list_html(),                     // Sanitized below
             $this->get_buttons_row()                    // Sanitized below
         );
     }
@@ -108,6 +110,30 @@ class Admin_Notice extends Data
     private function add_p_wrap( string $message ) : string
     {
         return sprintf( "<p>%s</p>", $message );
+    }
+
+    /**
+     * -----------
+     *   L I S T
+     * -----------
+     */
+
+    /**
+     * Get HTML for list items
+     */
+    private function get_list_html() : string
+    {
+        $items = [];
+        foreach ( $this->get_prop( 'list' ) as $item_text )
+        {
+            $items[] = sprintf(
+                "<li>%s</li>",
+                wp_kses_post( $item_text )
+            );
+        }
+        return count( $items )
+            ? sprintf( "<ol>%s</ol>", implode( '', $items ) )
+            : '';
     }
 
     /**

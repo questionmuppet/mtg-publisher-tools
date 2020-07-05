@@ -137,6 +137,32 @@ class Admin_Notice_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * -----------
+     *   L I S T
+     * -----------
+     */
+
+    /**
+     * TEST: Can add list markup
+     * 
+     * @depends testCanGetNoticeMarkup
+     */
+    public function testCanAddListMarkup() : void
+    {
+        $notice = $this->create_notice([
+            'list' => [
+                'First line',
+                'Second line',
+            ]
+        ]);
+
+        $html = $notice->get_markup();
+        
+        $this->assertSelectorCount( 2, 'div.notice li', $html, 'Failed to find two list items in the admin-notice markup.' );
+        $this->assertElementContains( 'Second line', 'div.notice li', $html, 'Failed to find the list item text in the admin-notice markup.' );
+    }
+
+    /**
      * -----------------
      *   B U T T O N S
      * -----------------
@@ -238,7 +264,7 @@ class Admin_Notice_Test extends Mtgtools_UnitTestCase
 
     /**
      * ---------------------
-     *   P R O D U C E R S
+     *   P R O V I D E R S
      * ---------------------
      */
     
