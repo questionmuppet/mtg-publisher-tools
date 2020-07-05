@@ -248,7 +248,7 @@ class Mtgtools_Dashboard extends Module
             'themeable' => false,
             'vars' => [
                 'classes' => [],
-                'table_rows' => $rows
+                'rows' => $rows
             ]
         ]);
     }
@@ -258,16 +258,20 @@ class Mtgtools_Dashboard extends Module
      * 
      * @param string $params['action']  Action to submit to admin-post.php
      * @param string $params['label']   Label for the submit button
+     * @param bool $params['primary']   Assign WordPress "button-primary" class to button
      */
     public function print_action_inputs( array $params ) : void
     {
+        $params = array_replace([
+            'action' => '',
+            'label' => '',
+            'primary' => false,
+        ], $params );
+        
         $this->print_template([
             'path' => 'dashboard/components/action-inputs.php',
             'themeable' => false,
-            'vars' => [
-                'action' => $params['action'] ?? '',
-                'label' => $params['label'] ?? '',
-            ],
+            'vars' => $params,
         ]);
     }
 

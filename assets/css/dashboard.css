@@ -19,6 +19,24 @@
 }
 
 /**
+ * Forms
+ */
+form.inline-form {
+    display: inline;
+}
+
+/**
+ * Info tables
+ */
+table.info-table {
+    margin: 1em 0;
+}
+th.info-table-cell {
+    padding-right: 1em;
+    text-align: left;
+}
+
+/**
  * Admin data tables
  */
 .mtgtools-table-wrapper {
