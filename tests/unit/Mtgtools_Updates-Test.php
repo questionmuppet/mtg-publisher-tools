@@ -62,6 +62,16 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can get status info
+     */
+    public function testCanGetStatusInfo() : void
+    {
+        $info = $this->updates->get_status_info();
+
+        $this->assertIsArray( $info );
+    }
+
+    /**
      * TEST: Can print notices
      */
     public function testCanPrintNotices() : void
@@ -69,6 +79,41 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
         $result = $this->updates->print_notices();
 
         $this->assertNull( $result );
+    }
+
+    /**
+     * -----------------
+     *   U P D A T E S
+     * -----------------
+     */
+
+    /**
+     * TEST: Can update symbols
+     */
+    public function testCanUpdateSymbols() : void
+    {
+        $this->source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
+        $this->db_ops->method('add_symbol')->willReturn( true );
+
+        $result = $this->updates->update_symbols();
+
+        $this->assertIsArray( $result );
+        $this->assertEquals( 'updated', $result['action'], 'Failed to assert that the "updated" action is passed back to the admin-post handler on success.' );
+    }
+
+    /**
+     * TEST: Updating symbols returns correct action on failure
+     * 
+     * @depends testCanUpdateSymbols
+     */
+    public function testUpdatingReturnsCorrectActionOnFailure() : void
+    {
+        $this->source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
+        $this->db_ops->method('add_symbol')->willReturn( false );
+
+        $result = $this->updates->update_symbols();
+
+        $this->assertEquals( 'checked_current', $result['action'], 'Failed to assert that the "checked_current" action is passed back to the admin-post handler on failure.' );
     }
 
 }   // End of class

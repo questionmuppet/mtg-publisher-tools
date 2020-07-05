@@ -74,6 +74,54 @@ class Mtgtools_Updates extends Module
     }
 
     /**
+     * Get status info for display on dashboard
+     */
+    public function get_status_info() : array
+    {
+        return [
+            'Source' => $this->source->get_display_name(),
+            'Link' => $this->get_source_link(),
+            'Last checked' => $this->get_last_checked(),
+            'Status' => $this->get_update_status(),
+        ];
+    }
+
+    /**
+     * Get link to source documentation
+     */
+    private function get_source_link() : string
+    {
+        $url = $this->source->get_documentation_uri();
+        return sprintf(
+            '<a href="%s" target="_blank">%s</a>',
+            $url,
+            $url
+        );
+    }
+
+    /**
+     * Get last-checked date
+     */
+    private function get_last_checked() : string
+    {
+        return 'July 4, 2020 00:00:00';
+    }
+
+    /**
+     * Get update status for display
+     */
+    private function get_update_status() : string
+    {
+        return $this->updates_available()
+            ? '<span style="color: red;">New Magic card data is available for download.</span>'
+            : 'No updates are currently pending.';
+    }
+
+    /**
+     * 
+     */
+
+    /**
      * -----------------
      *   N O T I C E S
      * -----------------
@@ -129,9 +177,9 @@ class Mtgtools_Updates extends Module
     }
 
     /**
-     * -----------------
-     *   U P D A T E S
-     * -----------------
+     * ---------------------
+     *   E X E C U T I O N
+     * ---------------------
      */
 
     /**
@@ -142,9 +190,15 @@ class Mtgtools_Updates extends Module
      */
     public function update_symbols() : array
     {
-        $successful = false;
+        $count = 0;
+        foreach ( $this->source->get_mana_symbols() as $symbol )
+        {
+            $count += intval(
+                $this->db_ops->add_symbol( $symbol )
+            );
+        }
         return [
-            'action' => $successful ? 'updated' : 'checked_current'
+            'action' => $count ? 'updated' : 'checked_current'
         ];
     }
 
@@ -153,7 +207,7 @@ class Mtgtools_Updates extends Module
      */
     private function updates_available() : bool
     {
-        return false;
+        return true;
     }
 
     /**
