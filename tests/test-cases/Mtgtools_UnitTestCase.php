@@ -2,10 +2,6 @@
 declare(strict_types=1);
 
 use SteveGrunwell\PHPUnit_Markup_Assertions\MarkupAssertionsTrait;
-use Mtgtools\Mtgtools_Plugin;
-use Mtgtools\Mtgtools_Enqueue;
-use Mtgtools\Wp_Task_Library;
-use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
 
 abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
@@ -32,25 +28,9 @@ abstract class Mtgtools_UnitTestCase extends WP_UnitTestCase
 
     /**
      * ---------------------
-     *   P R O D U C E R S
+     *   P R O V I D E R S
      * ---------------------
      */
-    
-    /**
-     * Get mock WP Task library
-     */
-    protected function get_mock_tasks_library() : Wp_Task_Library
-    {
-        return $this->createMock( Wp_Task_Library::class );
-    }
-
-    /**
-     * Get mock Mtg_Data_Source
-     */
-    protected function get_mock_mtg_data_source() : Mtg_Data_Source
-    {
-        return $this->createMock( Mtg_Data_Source::class );
-    }
 
     /**
      * Get specified number of mock symbols
