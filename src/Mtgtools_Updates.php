@@ -17,6 +17,11 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 class Mtgtools_Updates extends Module
 {
     /**
+     * Constants
+     */
+    const TRANSIENT = 'mtgtools_updates_available';
+
+    /**
      * Symbol database ops
      */
     private $db_ops;
@@ -129,7 +134,8 @@ class Mtgtools_Updates extends Module
      */
     private function get_last_checked() : string
     {
-        return 'July 4, 2020 00:00:00';
+        $date = get_option( 'mtgtools_last_checked' );
+        return $date ? $date : '—';
     }
 
     /**
@@ -242,11 +248,12 @@ class Mtgtools_Updates extends Module
         {
             if ( $this->updates_available() )
             {
-                // $this->set_update_transient();
+                set_transient( self::TRANSIENT, true, 2 * WEEK_IN_SECONDS );
                 $action = 'checked_available';
             }
             else
             {
+                delete_transient( self::TRANSIENT );
                 $action = 'checked_current';
             }
         }
@@ -255,7 +262,17 @@ class Mtgtools_Updates extends Module
             error_log( $e->getMessage() );
             $action = 'failed';
         }
+        $this->set_last_checked();
         return [ 'action' => $action ];
+    }
+    
+    /**
+     * Set the last-checked timestamp
+     */
+    private function set_last_checked() : void
+    {
+        $date = new \DateTime('now');
+        add_option( 'mtgtools_last_checked', $date->format( \DateTimeInterface::RFC7231 ) );
     }
 
     /**
@@ -263,7 +280,7 @@ class Mtgtools_Updates extends Module
      */
     private function updates_pending() : bool
     {
-        return false;
+        return get_transient( self::TRANSIENT );
     }
 
     /**
