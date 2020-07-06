@@ -253,6 +253,7 @@ class Symbol_Db_Ops extends Data
                 plaintext varchar(16) UNIQUE NOT NULL,
                 english_phrase text NOT NULL,
                 svg_uri text NOT NULL,
+                update_hash text NOT NULL,
                 PRIMARY KEY  (id)
             ) {$this->get_collate()};"
         );
