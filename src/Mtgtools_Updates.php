@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools;
+
 use Mtgtools\Abstracts\Module;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
@@ -230,7 +231,6 @@ class Mtgtools_Updates extends Module
         }
         catch ( ApiException $e )
         {
-            error_log( $e->getMessage() );
             $action = 'failed';
         }
         return [ 'action' => $action ];
@@ -246,9 +246,10 @@ class Mtgtools_Updates extends Module
     {
         try
         {
-            if ( $this->updates_available() )
+            $instructions = $this->get_new_symbol_updates();
+            if ( count( $instructions ) )
             {
-                set_transient( self::TRANSIENT, true, 2 * WEEK_IN_SECONDS );
+                set_transient( self::TRANSIENT, $instructions, 2 * WEEK_IN_SECONDS );
                 $action = 'checked_available';
             }
             else
@@ -259,7 +260,6 @@ class Mtgtools_Updates extends Module
         }
         catch ( ApiException $e )
         {
-            error_log( $e->getMessage() );
             $action = 'failed';
         }
         $this->set_last_checked();
@@ -284,11 +284,25 @@ class Mtgtools_Updates extends Module
     }
 
     /**
-     * Check data source for updates
+     * -----------------------
+     *   C O M P A R I S O N
+     * -----------------------
      */
-    private function updates_available() : bool
+
+    /**
+     * Check data source against db tables and return difference
+     * 
+     * @return array Associative array of out-of-date records, keyed by action required to fix
+     */
+    private function get_new_symbol_updates() : array
     {
-        return false;
+        $symbols = $this->source()->get_mana_symbols();
+        $checker = $this->db_ops()->get_update_checker( $symbols );
+        return array_filter([
+            'add' => $checker->records_to_add(),
+            'update' => $checker->records_to_update(),
+            'delete' => $checker->records_to_delete(),
+        ]);
     }
 
     /**

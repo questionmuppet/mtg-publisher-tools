@@ -59,6 +59,19 @@ class Db_Update_Checker extends Data
      */
 
     /**
+     * Check for updates
+     */
+    public function has_updates() : bool
+    {
+        $total = 0;
+        foreach ( $this->get_records() as $item_list )
+        {
+            $total += count( $item_list );
+        }
+        return boolval( $total );
+    }
+
+    /**
      * Get records to add to db
      */
     public function records_to_add() : array

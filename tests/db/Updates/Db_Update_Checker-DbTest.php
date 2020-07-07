@@ -51,8 +51,8 @@ class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
      */
     public function tearDown() : void
     {
-        $this->wpdb->query( 'DROP TABLE IF EXISTS ' . $this->get_dummy_table() ); 
-        $this->wpdb->query( 'DROP TABLE IF EXISTS ' . $this->get_hash_table() );
+        $this->wpdb->query( 'DROP TEMPORARY TABLE IF EXISTS ' . $this->get_dummy_table() ); 
+        $this->wpdb->query( 'DROP TEMPORARY TABLE IF EXISTS ' . $this->get_hash_table() );
         parent::tearDown();
     }
 
@@ -71,11 +71,28 @@ class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
         $this->hash_map->method('get_map')->willReturn( self::HASH_ELEMENTS );
         $checker = $this->create_checker();
 
-        $records = $checker->records_to_add();
+        $has_updates = $checker->has_updates();
 
-        $this->assertIsArray( $records );
+        $this->assertIsBool( $has_updates, 'Failed to execute the update check.' );
+        $this->assertTrue( $has_updates, 'Update check returned false for a case where updates are pending.' );
 
         return $checker;
+    }
+
+    /**
+     * TEST: Update check returns false for cases without updates
+     * 
+     * @depends testCanExecuteComparison
+     */
+    public function testUpdateCheckReturnsFalseForCaseWithoutUpdates() : void
+    {
+        $this->create_dummy_table();
+        $this->hash_map->method('get_map')->willReturn( self::DB_ELEMENTS );
+        $checker = $this->create_checker();
+
+        $has_updates = $checker->has_updates();
+
+        $this->assertFalse( $has_updates, 'Update check returned true for a case where no updates are pending.' );
     }
 
     /**
@@ -148,7 +165,7 @@ class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
     {
         $this->wpdb->query(
             sprintf(
-                "CREATE TABLE %s (
+                "CREATE TEMPORARY TABLE %s (
                     id int(10) UNSIGNED AUTO_INCREMENT,
                     %s varchar(256) UNIQUE NOT NULL,
                     %s text NOT NULL,

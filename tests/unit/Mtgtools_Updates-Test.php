@@ -7,6 +7,7 @@ use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Wp_Task_Library;
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Exceptions\Api\ApiException;
+use Mtgtools\Updates\Db_Update_Checker;
 
 class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
 {
@@ -14,6 +15,11 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
      * Constants
      */
     const TRANSIENT = Mtgtools_Updates::TRANSIENT;
+    const RECORDS_TO_ADD = [
+        'fake_item_1',
+        'fake_item_2',
+    ];
+
     /**
      * Updates module instance
      */
@@ -148,7 +154,7 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
     public function testApiExceptionResultsInUpdateFailure() : void
     {
         $this->source->method('get_mana_symbols')->willThrowException( new ApiException() );
-
+        
         $result = $this->updates->update_symbols();
 
         $this->assertEquals( 'failed', $result['action'], 'Failed to assert that a thrown ApiException resulted in a failed update action.' );
@@ -193,11 +199,15 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
     public function testSetsTransientWhenUpdatesAvailable() : void
     {
         delete_transient( self::TRANSIENT );
-        $this->source->method('get_mana_symbols')->willReturn( true );
+        $checker = $this->createMock( Db_Update_Checker::class );
+        $checker->method('records_to_add')->willReturn( [ 'fake_item_1', 'fake_item_2' ] );
+        $this->db_ops->method('get_update_checker')->willReturn( $checker );
 
         $this->updates->check_for_updates();
+        $transient = get_transient( self::TRANSIENT );
 
-        $this->assertTrue( get_transient( self::TRANSIENT ), 'Failed to assert that checking for updates sets transient when updates are available.' );
+        $this->assertIsArray( $transient, 'Failed to assert that checking for updates sets transient when updates are available.' );
+        $this->assertEqualsCanonicalizing( [ 'add' => self::RECORDS_TO_ADD ], $transient, 'Failed to assert that the expected pending records appear in the update transient.' );
     }
 
     /**
@@ -208,7 +218,8 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
     public function testDeletesTransientWhenUpdatesNotAvailable() : void
     {
         set_transient( self::TRANSIENT, true, HOUR_IN_SECONDS );
-        $this->source->method('get_mana_symbols')->willReturn( false );
+        $checker = $this->createMock( Db_Update_Checker::class );
+        $this->db_ops->method('get_update_checker')->willReturn( $checker );
 
         $this->updates->check_for_updates();
 

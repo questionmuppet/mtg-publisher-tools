@@ -7,6 +7,7 @@
 
 namespace Mtgtools\Symbols;
 use Mtgtools\Abstracts\Data;
+use Mtgtools\Updates\Db_Update_Checker;
 use Mtgtools\Exceptions\Db as Exceptions;
 use \wpdb;
 
@@ -47,6 +48,40 @@ class Symbol_Db_Ops extends Data
     {
         $this->db = $db;
         parent::__construct( $props );
+    }
+
+    /**
+     * -----------------
+     *   U P D A T E S
+     * -----------------
+     */
+
+    /**
+     * Get update checker for symbols table
+     * 
+     * @param Mana_Symbol[] $symbols    Symbols to check against extant database rows
+     */
+    public function get_update_checker( array $symbols ) : Db_Update_Checker
+    {
+        return new Db_Update_Checker(
+            $this->db,
+            $this->get_hash_map( $symbols ),
+            [
+                'db_table' => $this->get_table_short_name(),
+                'key_column' => 'plaintext',
+                'hash_column' => 'update_hash',
+            ]
+        );
+    }
+
+    /**
+     * Get symbols hash map
+     */
+    private function get_hash_map( array $symbols ) : Symbols_Hash_Map
+    {
+        $map = new Symbols_Hash_Map();
+        $map->add_records( $symbols );
+        return $map;
     }
 
     /**
@@ -288,7 +323,15 @@ class Symbol_Db_Ops extends Data
      */
     private function get_table() : string
     {
-        return sanitize_key( $this->db->prefix . $this->get_prop( 'table' ) );
+        return sanitize_key( $this->db->prefix . $this->get_table_short_name() );
+    }
+
+    /**
+     * Get non-prefixed part of table name
+     */
+    private function get_table_short_name() : string
+    {
+        return $this->get_prop( 'table' );
     }
 
     /**
