@@ -7,21 +7,30 @@ use Mtgtools\Interfaces\Hash_Map;
 class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
 {
     /**
-     * Constants
+     * Db table keys
      */
     const DB_TABLE = 'mtgtools_comparison_TEST';
     const KEY_COLUMN = 'test_id';
     const HASH_COLUMN = 'test_hash';
 
     /**
-     * Instantiated checker
+     * Dummy records to compare
      */
-    private $checker;
+    const DB_ELEMENTS = [
+        'item_same' => '1xxxx',
+        'item_changed' => '2xxxx',
+        'item_deleted' => '3xxxx',
+    ];
+    const HASH_ELEMENTS = [
+        'item_same' => '1xxxx',
+        'item_changed' => '22222',
+        'item_new' => '4xxxx',
+    ];
 
     /**
      * Dependencies
      */
-    private $db;
+    private $wpdb;
     private $hash_map;
 
     /**
@@ -31,13 +40,10 @@ class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
     {
         parent::setUp();
         global $wpdb;
-        $this->db = $wpdb;
+        $wpdb->query( 'ROLLBACK;' );    // Stop the transaction initiated in WP TestCase
+
+        $this->wpdb = $wpdb;
         $this->hash_map = $this->createMock( Hash_Map::class );
-        $this->checker = new Db_Update_Checker( $this->db, $this->hash_map, [
-            'db_table' => self::DB_TABLE,
-            'key_column' => self::KEY_COLUMN,
-            'hash_column' => self::HASH_COLUMN,
-        ]);
     }
 
     /**
@@ -45,49 +51,77 @@ class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
      */
     public function tearDown() : void
     {
-        global $wpdb;
-        $wpdb->query( 'DROP TEMPORARY TABLE ' . $this->get_hash_table_name() );
+        $this->wpdb->query( 'DROP TABLE IF EXISTS ' . $this->get_dummy_table() ); 
+        $this->wpdb->query( 'DROP TABLE IF EXISTS ' . $this->get_hash_table() );
         parent::tearDown();
     }
 
     /**
-     * TEST: Can create temporary table
+     * ---------------------
+     *   E X E C U T I O N
+     * ---------------------
      */
-    /* public function testCanCreateTempTable() : void
-    {
-        self::commit_transaction();
-        $this->checker->start_transaction();
-
-        $table = $this->db->get_results(
-            "SHOW COLUMNS FROM {$this->get_hash_table_name()};"
-        );
-
-        $this->assertNotEmpty( $table );
-    } */
 
     /**
-     * TEST: Temporary table has correct records
-     * 
-     * @depends testCanCreateTempTable
+     * TEST: Can execute db comparison
      */
-    /* public function testTemporaryTableHasCorrectRecords() : void
+    public function testCanExecuteComparison() : Db_Update_Checker
     {
-        $this->hash_map->method('get_map')->willReturn([
-            'item_1' => '11111',
-            'item_2' => '22222',
-        ]);
-        self::commit_transaction();
-        $this->checker->start_transaction();
+        $this->create_dummy_table();
+        $this->hash_map->method('get_map')->willReturn( self::HASH_ELEMENTS );
+        $checker = $this->create_checker();
 
-        $results = $this->db->get_results(
-            "SELECT * FROM " . $this->get_hash_table_name(),
-            ARRAY_A
-        );
+        $records = $checker->records_to_add();
 
-        $this->assertIsArray( $results );
-        $this->assertCount( 2, $results );
-        $this->assertEquals( '22222', $results[1]['hash_value'] );
-    } */
+        $this->assertIsArray( $records );
+
+        return $checker;
+    }
+
+    /**
+     * -----------------------
+     *   C O M P A R I S O N
+     * -----------------------
+     */
+    
+    /**
+     * TEST: Can get add records
+     * 
+     * @depends testCanExecuteComparison
+     */
+    public function testCanGetAddRecords( Db_Update_Checker $checker ) : void
+    {
+        $to_add = $checker->records_to_add();
+
+        $this->assertCount( 1, $to_add );
+        $this->assertContains( 'item_new', $to_add, 'Records marked for addition did not contain an expected item.' );
+    }
+
+    /**
+     * TEST: Can get update records
+     * 
+     * @depends testCanExecuteComparison
+     */
+    public function testCanGetUpdateRecords( Db_Update_Checker $checker ) : void
+    {
+        $to_update = $checker->records_to_update();
+
+        $this->assertCount( 1, $to_update );
+        $this->assertContains( 'item_changed', $to_update, 'Records marked for update did not contain an expected item.' );
+    }
+
+    /**
+     * TEST: Can get delete records
+     * 
+     * @depends testCanExecuteComparison
+     */
+    public function testCanGetDeleteRecords( Db_Update_Checker $checker ) : void
+    {
+        $to_delete = $checker->records_to_delete();
+
+        $this->assertCount( 1, $to_delete );
+        $this->assertContains( 'item_deleted', $to_delete, 'Records marked for deletion did not contain an expected item.' );
+    }
 
     /**
      * ---------------------
@@ -96,11 +130,69 @@ class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
      */
 
     /**
-     * Get hash table name
+     * Create update checker
      */
-    private function get_hash_table_name() : string
+    private function create_checker() : Db_Update_Checker
     {
-        return sanitize_key( $this->db->prefix . self::DB_TABLE . '_comparison_hash_map' );
+        return new Db_Update_Checker( $this->wpdb, $this->hash_map, [
+            'db_table' => self::DB_TABLE,
+            'key_column' => self::KEY_COLUMN,
+            'hash_column' => self::HASH_COLUMN,
+        ]);
+    }
+
+    /**
+     * Create comparison test table
+     */
+    private function create_dummy_table() : void
+    {
+        $this->wpdb->query(
+            sprintf(
+                "CREATE TABLE %s (
+                    id int(10) UNSIGNED AUTO_INCREMENT,
+                    %s varchar(256) UNIQUE NOT NULL,
+                    %s text NOT NULL,
+                    PRIMARY KEY (id)
+                );",
+                $this->get_dummy_table(),
+                self::KEY_COLUMN,
+                self::HASH_COLUMN
+            )
+        );
+        $this->insert_dummy_rows();
+    }
+
+    /**
+     * Insert dummy rows into comparison table
+     */
+    private function insert_dummy_rows() : void
+    {
+        foreach( self::DB_ELEMENTS as $key => $hash )
+        {
+            $this->wpdb->insert(
+                $this->get_dummy_table(),
+                [
+                    self::KEY_COLUMN => $key,
+                    self::HASH_COLUMN => $hash,
+                ]
+            );
+        }
+    }
+
+    /**
+     * Get hash table keyname
+     */
+    private function get_hash_table() : string
+    {
+        return sanitize_key( $this->get_dummy_table() . '_comparison_hash_map' );
+    }
+
+    /**
+     * Get dummy table keyname
+     */
+    private function get_dummy_table() : string
+    {
+        return sanitize_key( $this->wpdb->prefix . self::DB_TABLE );
     }
 
 }   // End of class

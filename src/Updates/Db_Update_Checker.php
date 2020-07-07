@@ -127,8 +127,8 @@ class Db_Update_Checker extends Data
         $db_hash = $this->get_hash_column();
 
         return $this->db->get_col(
-            "SELECT $key FROM $hash_table
-            LEFT JOIN $db_table ON $key = hash_key
+            "SELECT hash_key FROM $hash_table
+            LEFT JOIN $db_table ON hash_key = $key
             WHERE $db_hash IS NULL;"
         );
     }
@@ -165,7 +165,7 @@ class Db_Update_Checker extends Data
         return $this->db->get_col(
             "SELECT $key FROM $db_table
             LEFT JOIN $hash_table ON $key = hash_key
-            WHERE hash_key IS NULL;"
+            WHERE hash_value IS NULL;"
         );
     }
 
@@ -191,7 +191,7 @@ class Db_Update_Checker extends Data
      */
     private function end_transaction() : void
     {
-        $this->db->query( 'ROLLBACK' );
+        $this->db->query( 'ROLLBACK;' );
     }
 
     /**
@@ -220,11 +220,22 @@ class Db_Update_Checker extends Data
      */
     private function populate_hash_table() : void
     {
-        $size = $this->get_chunk_size();
-        foreach ( array_chunk( $this->hash_map->get_map(), $size ) as $chunk )
+        foreach ( $this->get_hash_in_chunks() as $chunk )
         {
             $this->insert_hash_pairs( $chunk );
         }
+    }
+    
+    /**
+     * Get hash in chunks
+     */
+    private function get_hash_in_chunks() : array
+    {
+        return array_chunk(
+            $this->hash_map->get_map(),
+            $this->get_chunk_size(),
+            true    // Preserve keys
+        );
     }
 
     /**
