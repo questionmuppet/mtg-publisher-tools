@@ -2,7 +2,7 @@
 /**
  * Hash_Map
  * 
- * Exposes a set of objects as key-hash pairs for db comparison
+ * Exposes objects as a set of key-hash pairs for db comparison
  */
 
 namespace Mtgtools\Interfaces;
@@ -18,5 +18,10 @@ interface Hash_Map
      * @return array Associative array of "key" => "hash"
      */
     public function get_map() : array;
+
+    /**
+     * Add items to hash map
+     */
+    public function add_records( array $items ) : void;
 
 }   // End of interface

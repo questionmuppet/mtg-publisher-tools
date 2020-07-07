@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 use Mtgtools\Symbols\Mana_Symbol;
 
 class Mana_SymbolTest extends Mtgtools_UnitTestCase
@@ -56,6 +57,26 @@ class Mana_SymbolTest extends Mtgtools_UnitTestCase
         $match = boolval( preg_match( $pattern, '{W/P}' ) );
 
         $this->assertTrue( $match );
+    }
+
+    /**
+     * TEST: Update hash contains correct elements
+     * 
+     * @depends testCanGetPublicProperties
+     */
+    public function testUpdateHashContainsCorrectElements() : void
+    {
+        $symbol = $this->create_symbol();
+        $elements = [
+            $symbol->get_plaintext(),
+            $symbol->get_english_phrase(),
+            $symbol->get_svg_uri(),
+        ];
+        $expected_hash = md5( implode( '|', $elements ) );
+
+        $hash = $symbol->get_update_hash();
+
+        $this->assertEquals( $expected_hash, $hash, 'The update hash for a mana symbol does not match the expected hash.' );
     }
 
     /**
