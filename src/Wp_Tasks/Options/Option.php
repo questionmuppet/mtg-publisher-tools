@@ -1,19 +1,17 @@
 <?php
 /**
- * Plugin_Setting
+ * Option
  * 
- * Abstract class that interfaces with WordPress options and settings APIs
+ * Abstract class for plugin options appearing on settings page
  */
 
-namespace Mtgtools\Wp_Tasks\Settings;
-
+namespace Mtgtools\Wp_Tasks\Options;
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Wp_Tasks\Inputs;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-abstract class Plugin_Setting extends Data
+abstract class Option extends Data
 {
     /**
      * Required properties
@@ -26,7 +24,7 @@ abstract class Plugin_Setting extends Data
     /**
      * Default properties
      */
-    protected $defaults = [
+    protected $abstract_defaults = [
         'default_value' => '',
         'section' => '',
         'label' => null,
@@ -40,7 +38,7 @@ abstract class Plugin_Setting extends Data
      */
 
     /**
-     * Register setting for WordPress admin screens
+     * Register option for WordPress setting screens
      */
     public function wp_register() : void
     {
@@ -66,6 +64,21 @@ abstract class Plugin_Setting extends Data
      * Print HTML input element
      */
     abstract public function print_input() : void;
+    
+    /**
+     * Get arguments for HTML input
+     */
+    protected function get_input_args() : array
+    {
+        return array_merge(
+            [
+                'id' => $this->get_id(),
+                'name' => $this->get_option_name(),
+                'value' => $this->get_value(),
+            ],
+            $this->get_prop( 'input_args' )
+        );
+    }
 
     /**
      * -----------
@@ -124,17 +137,9 @@ abstract class Plugin_Setting extends Data
      */
 
     /**
-     * Get optional arguments for HTML input
-     */
-    protected function get_input_args() : array
-    {
-        return $this->get_prop( 'input_args' );
-    }
-
-    /**
      * Get label
      */
-    protected function get_label()
+    protected function get_label() : string
     {
         return $this->get_prop( 'label' ) ?? ucfirst( $this->get_id() );
     }
@@ -184,7 +189,7 @@ abstract class Plugin_Setting extends Data
      * 
      * @return mixed
      */
-    private function get_default_value()
+    protected function get_default_value()
     {
         return $this->get_prop( 'default_value' );
     }
