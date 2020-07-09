@@ -119,7 +119,7 @@ class Symbol_Db_Ops extends Data
             : '';
         
         return $this->db->get_results(
-            "SELECT * FROM {$this->get_table()} {$WHERE};",
+            "SELECT plaintext, english_phrase, svg_uri FROM {$this->get_table()} {$WHERE};",
             ARRAY_A
         );
     }
@@ -206,6 +206,7 @@ class Symbol_Db_Ops extends Data
             'plaintext'      => $symbol->get_plaintext(),
             'english_phrase' => $symbol->get_english_phrase(),
             'svg_uri'        => $symbol->get_svg_uri(),
+            'update_hash'    => $symbol->get_update_hash(),
         ];
         return boolval(
             $this->symbol_exists( $symbol->get_plaintext() )

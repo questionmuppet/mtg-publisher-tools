@@ -118,13 +118,12 @@ class Db_Update_Checker extends Data
      */
     private function execute_comparison() : array
     {
-        $this->start_transaction();
+        $this->create_temporary_table();
         $records = [
             'add' => $this->find_add_rows(),
             'update' => $this->find_update_rows(),
             'delete' => $this->find_delete_rows(),
         ];
-        $this->end_transaction();
         return $records;
     }
 
@@ -189,22 +188,12 @@ class Db_Update_Checker extends Data
      */
 
     /**
-     * Start SQL transaction
+     * Create temporary hash table
      */
-    private function start_transaction() : void
+    private function create_temporary_table() : void
     {
-        $this->db->query( 'SET autocommit = 0;' );
-		$this->db->query( 'START TRANSACTION;' );
         $this->create_hash_table();
         $this->populate_hash_table();
-    }
-
-    /**
-     * End SQL transaction
-     */
-    private function end_transaction() : void
-    {
-        $this->db->query( 'ROLLBACK;' );
     }
 
     /**

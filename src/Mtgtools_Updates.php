@@ -227,12 +227,23 @@ class Mtgtools_Updates extends Module
                     $this->db_ops->add_symbol( $symbol )
                 );
             }
+            $changes = $this->get_new_symbol_updates();
+            if ( isset( $changes['delete'] ) )
+            {
+                foreach ( $changes['delete'] as $key )
+                {
+                    $count += intval(
+                        $this->db_ops->delete_symbol( $key )
+                    );
+                }
+            }
             $action = $count ? 'updated' : 'checked_current';
         }
         catch ( ApiException $e )
         {
             $action = 'failed';
         }
+        delete_transient( self::TRANSIENT );
         return [ 'action' => $action ];
     }
 
@@ -254,7 +265,6 @@ class Mtgtools_Updates extends Module
             }
             else
             {
-                delete_transient( self::TRANSIENT );
                 $action = 'checked_current';
             }
         }
@@ -280,7 +290,7 @@ class Mtgtools_Updates extends Module
      */
     private function updates_pending() : bool
     {
-        return get_transient( self::TRANSIENT );
+        return boolval( get_transient( self::TRANSIENT ) );
     }
 
     /**
