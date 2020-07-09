@@ -7,8 +7,17 @@ use Mtgtools\Wp_Tasks\Tables\Table_Data;
 use Mtgtools\Exceptions\Admin_Post\ParameterException;
 use Mtgtools\Wp_Task_Library;
 
-class Mtgtools_Dashboard_WPTest extends Mtgtools_DashboardTestCase
+class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
 {
+    /**
+     * Setup
+     */
+    public function setUp() : void
+    {
+        parent::setUp();
+        remove_all_filters( 'mtgtools_dashboard_tabs' );
+    }
+
     /**
      * TEST: Can display dashboard
      */

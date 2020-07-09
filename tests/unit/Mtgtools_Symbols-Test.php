@@ -4,9 +4,35 @@ declare(strict_types=1);
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Mtgtools_Dashboard;
+use Mtgtools\Wp_Task_Library;
+use Mtgtools\Interfaces\Mtg_Data_Source;
 
 class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 {
+    /**
+     * Symbols module
+     */
+    private $symbols;
+
+    /**
+     * Mock dependencies
+     */
+    private $db_ops;
+    private $source;
+    private $wp_tasks;
+
+    /**
+     * Setup
+     */
+    public function setUp() : void
+    {
+        parent::setUp();
+        $this->db_ops = $this->createMock( Symbol_Db_Ops::class );
+        $this->source = $this->createMock( Mtg_Data_Source::class );
+        $this->wp_tasks = $this->createMock( Wp_Task_Library::class );
+        $this->symbols = new Mtgtools_Symbols( $this->db_ops, $this->source, $this->wp_tasks );
+    }
+
     /**
      * -------------------
      *   W P   H O O K S
@@ -18,9 +44,7 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanAddHooks() : void
     {
-        $symbols = $this->create_symbols_module();
-
-        $result = $symbols->add_hooks();
+        $result = $this->symbols->add_hooks();
 
         $this->assertNull( $result );
     }
@@ -30,9 +54,7 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanEnqueueAssets() : void
     {
-        $symbols = $this->create_symbols_module();
-
-        $result = $symbols->enqueue_assets();
+        $result = $this->symbols->enqueue_assets();
 
         $this->assertNull( $result );
     }
@@ -45,11 +67,9 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
         $symbol = $this->get_mock_symbol([
             'markup' => '<p class="fake-content">A useless paragraph</p>'
         ]);
-        $db_ops = $this->get_mock_db_ops();
-        $db_ops->method('get_mana_symbols')->willReturn( array( $symbol ) );
-        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops, ]);
+        $this->db_ops->method('get_mana_symbols')->willReturn( array( $symbol ) );
         
-        $html = $symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
+        $html = $this->symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
 
         $this->assertContainsSelector( 'p.fake-content', $html, 'Could not find replacement string in shortcode output.' );
     }
@@ -65,10 +85,9 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanAddDashTab() : void
     {
-        $symbols = $this->create_symbols_module();
         $dashboard = $this->createMock( Mtgtools_Dashboard::class );
 
-        $result = $symbols->add_dash_tab( $dashboard );
+        $result = $this->symbols->add_dash_tab( $dashboard );
 
         $this->assertNull( $result );
     }
@@ -78,11 +97,9 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanGetSymbolListData() : void
     {
-        $db_ops = $this->get_mock_db_ops();
-        $db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
-        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
+        $this->db_ops->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
 
-        $rows = $symbols->get_symbol_list_data();
+        $rows = $this->symbols->get_symbol_list_data();
 
         $this->assertCount( 2, $rows );
         $this->assertContainsOnly( 'array', $rows );
@@ -95,14 +112,11 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testGetSymbolListDataCanPassFilter() : void
     {
-        $db_ops = $this->get_mock_db_ops();
-        $db_ops->expects( $this->once() )
+        $this->db_ops->expects( $this->once() )
             ->method( 'get_mana_symbols' )
             ->with( $this->arrayHasKey( 'plaintext' ) );
-
-        $symbols = $this->create_symbols_module([ 'db_ops' => $db_ops ]);
-
-        $symbols->get_symbol_list_data( 'A nice filter' );
+        
+        $this->symbols->get_symbol_list_data( 'A nice filter' );
     }
 
     /**
@@ -116,11 +130,9 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanImportSymbols() : void
     {
-        $source = $this->get_mock_mtg_data_source();
-        $source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
-        $symbols = $this->create_symbols_module([ 'source' => $source ]);
+        $this->source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
 
-        $result = $symbols->import_symbols();
+        $result = $this->symbols->import_symbols();
 
         $this->assertNull( $result );
     }
@@ -130,9 +142,7 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanInstallTables() : void
     {
-        $symbols = $this->create_symbols_module();
-
-        $result = $symbols->install_db_tables();
+        $result = $this->symbols->install_db_tables();
 
         $this->assertNull( $result );
     }
@@ -142,37 +152,9 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     public function testCanDeleteTables() : void
     {
-        $symbols = $this->create_symbols_module();
-
-        $result = $symbols->delete_db_tables();
+        $result = $this->symbols->delete_db_tables();
 
         $this->assertNull( $result );
-    }
-
-    /**
-     * ---------------------
-     *   P R O D U C E R S
-     * ---------------------
-     */
-
-    /**
-     * Create symbols module
-     */
-    private function create_symbols_module( array $args = [] ) : Mtgtools_Symbols
-    {
-        $db_ops   = $args['db_ops'] ?? $this->get_mock_db_ops();
-        $source   = $args['source'] ?? $this->get_mock_mtg_data_source();
-        $wp_tasks = $args['wp_tasks'] ?? $this->get_mock_tasks_library();
-        return new Mtgtools_Symbols( $db_ops, $source, $wp_tasks );
-    }
-
-    /**
-     * Get mock db_ops object
-     */
-    private function get_mock_db_ops() : Symbol_Db_Ops
-    {
-        $db_ops = $this->createMock( Symbol_Db_Ops::class );
-        return $db_ops;
     }
 
 }   // End of class

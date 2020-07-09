@@ -7,6 +7,7 @@
 
 namespace Mtgtools\Api;
 use Mtgtools\Exceptions\Api as Exceptions;
+use Mtgtools\Exceptions\Http\HttpConnectionException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -64,7 +65,14 @@ class Api_Call
      */
     private function status_is_ok() : bool
     {
-        return "200" === $this->request->get_status_code();
+        try
+        {
+            return "200" === $this->request->get_status_code();
+        }
+        catch ( HttpConnectionException $e )
+        {
+            throw new Exceptions\ApiConnectionException( $e->getMessage() );
+        }
     }
 
 }   // End of class

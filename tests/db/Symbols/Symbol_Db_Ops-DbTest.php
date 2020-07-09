@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Updates\Db_Update_Checker;
 use Mtgtools\Symbols\Mana_Symbol;
 use Mtgtools\Exceptions\Db as Exceptions;
 
@@ -180,6 +181,24 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $this->expectException( Exceptions\DbException::class );
         
         $this->db_ops->get_mana_symbols([ 'invalid_param' => 'Uh, oh! Better put the kibbosh on it!' ]);
+    }
+
+    /**
+     * -------------------------------
+     *   U P D A T E   C H E C K E R
+     * -------------------------------
+     */
+
+    /**
+     * TEST: Can get update checker
+     */
+    public function testCanGetUpdateChecker() : void
+    {
+        $symbols = $this->get_mock_symbols(2);
+
+        $checker = $this->db_ops->get_update_checker( $symbols );
+
+        $this->assertInstanceOf( Db_Update_Checker::class, $checker );
     }
 
 }   // End of class

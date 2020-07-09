@@ -3,6 +3,7 @@ declare(strict_types=1);
 use Mtgtools\Api\Api_Call;
 use Mtgtools\Api\Http_Request;
 use Mtgtools\Exceptions\Api as Exceptions;
+use Mtgtools\Exceptions\Http\HttpConnectionException;
 
 class Api_CallTest extends WP_UnitTestCase
 {
@@ -34,6 +35,19 @@ class Api_CallTest extends WP_UnitTestCase
         $api_call = new Api_Call( $this->request );
         
         $this->assertEqualsCanonicalizing( $response, $api_call->get_result() );
+    }
+
+    /**
+     * TEST: Failed HTTP connection throws ApiConnectionException
+     */
+    public function testFailedHttpConnectionThrowsApiConnectionException() : void
+    {
+        $this->request->method('get_status_code')->willThrowException( new HttpConnectionException() );
+        $api_call = new Api_Call( $this->request );
+
+        $this->expectException( Exceptions\ApiConnectionException::class );
+
+        $api_call->get_result();
     }
 
     /**

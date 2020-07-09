@@ -25,6 +25,19 @@ class Mana_Symbol extends Data
     );
 
     /**
+     * Get hash for tracking updates
+     */
+    public function get_update_hash() : string
+    {
+        $elements = [
+            $this->get_plaintext(),
+            $this->get_english_phrase(),
+            $this->get_svg_uri(),
+        ];
+        return md5( implode( '|', $elements ) );
+    }
+
+    /**
      * Check if symbol is valid for text replacement
      */
     public function is_valid() : bool

@@ -233,6 +233,63 @@ class Mtgtools_Dashboard extends Module
     }
 
     /**
+     * -----------------------------------
+     *   T E M P L A T E   H E L P E R S
+     * -----------------------------------
+     */
+
+    /**
+     * Print a simple table of static information
+     */
+    public function print_info_table( array $rows ) : void
+    {
+        $this->print_template([
+            'path' => 'dashboard/components/info-table.php',
+            'themeable' => false,
+            'vars' => [
+                'classes' => [],
+                'rows' => $rows
+            ]
+        ]);
+    }
+
+    /**
+     * Print form inputs for an admin-post action
+     * 
+     * @param string $params['action']  Action to submit to admin-post.php
+     * @param string $params['label']   Label for the submit button
+     * @param bool $params['primary']   Assign WordPress "button-primary" class to button
+     */
+    public function print_action_inputs( array $params ) : void
+    {
+        $params = array_replace([
+            'action' => '',
+            'label' => '',
+            'primary' => false,
+        ], $params );
+        
+        $this->print_template([
+            'path' => 'dashboard/components/action-inputs.php',
+            'themeable' => false,
+            'vars' => $params,
+        ]);
+    }
+
+    /**
+     * Print notices for the result of an admin-post action
+     * 
+     * @param array $actions    Associative array of "action" => [notice_params]
+     */
+    public function print_action_notices( array $actions ) : void
+    {
+        $key = $_GET['action'] ?? '';
+        if ( array_key_exists( $key, $actions ) )
+        {
+            $this->print_admin_notice( $actions[$key] );
+        }
+    }
+
+    /**
      * ---------------------
      *   D A S H   T A B S
      * ---------------------

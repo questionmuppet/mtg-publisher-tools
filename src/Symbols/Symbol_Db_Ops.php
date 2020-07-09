@@ -7,6 +7,7 @@
 
 namespace Mtgtools\Symbols;
 use Mtgtools\Abstracts\Data;
+use Mtgtools\Updates\Db_Update_Checker;
 use Mtgtools\Exceptions\Db as Exceptions;
 use \wpdb;
 
@@ -50,6 +51,40 @@ class Symbol_Db_Ops extends Data
     }
 
     /**
+     * -----------------
+     *   U P D A T E S
+     * -----------------
+     */
+
+    /**
+     * Get update checker for symbols table
+     * 
+     * @param Mana_Symbol[] $symbols    Symbols to check against extant database rows
+     */
+    public function get_update_checker( array $symbols ) : Db_Update_Checker
+    {
+        return new Db_Update_Checker(
+            $this->db,
+            $this->get_hash_map( $symbols ),
+            [
+                'db_table' => $this->get_table_short_name(),
+                'key_column' => 'plaintext',
+                'hash_column' => 'update_hash',
+            ]
+        );
+    }
+
+    /**
+     * Get symbols hash map
+     */
+    private function get_hash_map( array $symbols ) : Symbols_Hash_Map
+    {
+        $map = new Symbols_Hash_Map();
+        $map->add_records( $symbols );
+        return $map;
+    }
+
+    /**
      * -------------
      *   Q U E R Y
      * -------------
@@ -84,7 +119,7 @@ class Symbol_Db_Ops extends Data
             : '';
         
         return $this->db->get_results(
-            "SELECT * FROM {$this->get_table()} {$WHERE};",
+            "SELECT plaintext, english_phrase, svg_uri FROM {$this->get_table()} {$WHERE};",
             ARRAY_A
         );
     }
@@ -171,6 +206,7 @@ class Symbol_Db_Ops extends Data
             'plaintext'      => $symbol->get_plaintext(),
             'english_phrase' => $symbol->get_english_phrase(),
             'svg_uri'        => $symbol->get_svg_uri(),
+            'update_hash'    => $symbol->get_update_hash(),
         ];
         return boolval(
             $this->symbol_exists( $symbol->get_plaintext() )
@@ -253,6 +289,7 @@ class Symbol_Db_Ops extends Data
                 plaintext varchar(16) UNIQUE NOT NULL,
                 english_phrase text NOT NULL,
                 svg_uri text NOT NULL,
+                update_hash text NOT NULL,
                 PRIMARY KEY  (id)
             ) {$this->get_collate()};"
         );
@@ -287,7 +324,15 @@ class Symbol_Db_Ops extends Data
      */
     private function get_table() : string
     {
-        return sanitize_key( $this->db->prefix . $this->get_prop( 'table' ) );
+        return sanitize_key( $this->db->prefix . $this->get_table_short_name() );
+    }
+
+    /**
+     * Get non-prefixed part of table name
+     */
+    private function get_table_short_name() : string
+    {
+        return $this->get_prop( 'table' );
     }
 
     /**
