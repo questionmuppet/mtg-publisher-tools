@@ -2,16 +2,15 @@
 /**
  * Mtgtools_Settings
  * 
- * Module that controls plugin options and settings screens
+ * Module that controls plugin options and settings pages
  */
 
 namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Settings\Setting_Factory;
-use Mtgtools\Settings\Section_Factory;
-use Mtgtools\Settings\Plugin_Setting;
-use Mtgtools\Settings\Settings_Section;
+use Mtgtools\Wp_Tasks\Options\Option;
+use Mtgtools\Wp_Tasks\Options\Option_Factory;
+use Mtgtools\Wp_Tasks\Options\Settings_Section;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -19,19 +18,38 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 class Mtgtools_Settings extends Module
 {
     /**
-     * Setting definitions
+     * Section defs
      */
-    private $setting_defs = [];
-    
-    /**
-     * Settings
-     */
-    private $settings = [];
+    private $section_defs = [];
 
     /**
-     * Factories
+     * Sections
      */
-    private $factories = [];
+    private $sections;
+
+    /**
+     * Option defs
+     */
+    private $option_defs = [];
+
+    /**
+     * Options
+     */
+    private $options = [];
+
+    /**
+     * Option factory
+     */
+    private $option_factory;
+
+    /**
+     * Constructor
+     */
+    public function __construct( Option_Factory $factory, $wp_tasks )
+    {
+        $this->option_factory = $factory;
+        parent::__construct( $wp_tasks );
+    }
 
     /**
      * Add WordPress hooks
@@ -46,88 +64,153 @@ class Mtgtools_Settings extends Module
      */
     public function register_settings() : void
     {
-
-    }
-
-    /**
-     * Get the current value of a plugin setting
-     * 
-     * @param string $key   Unprefixed option name
-     * @return mixed        Value in db, default value if not found
-     */
-    public function get_setting_value( string $key )
-    {
-        return $this->get_setting( $key )->retrieve();
-    }
-
-    /**
-     * -------------------
-     *   S E T T I N G S
-     * -------------------
-     */
-
-    /**
-     * Get plugin setting
-     */
-    private function get_setting( string $key ) : Plugin_Setting
-    {
-        if ( !isset( $this->settings[ $key ] ) )
+        foreach ( $this->get_setting_sections() as $section )
         {
-            $this->settings[ $key ] = $this->create_setting( $key );
+            $section->wp_register();
         }
-        return $this->settings[ $key ];
+        foreach ( $this->get_all_options() as $option )
+        {
+            $option->wp_register();
+        }
+    }
+
+    /**
+     * -------------------
+     *   S E C T I O N S
+     * -------------------
+     */
+
+    /**
+     * Get setting sections
+     * 
+     * @return Setting_Section[]
+     */
+    private function get_setting_sections() : array
+    {
+        if ( !isset( $this->sections ) )
+        {
+            $this->sections = $this->create_sections();
+        }
+        return $this->sections;
     }
     
     /**
-     * Create plugin setting from defined params
+     * Create setting sections
      */
-    private function create_setting( string $key ) : Plugin_Setting
+    private function create_sections() : array
     {
-        if ( !$this->setting_defined( $key ) )
+        $sections = [];
+        foreach ( $this->section_defs as $params )
         {
-            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined plugin setting. No setting registered for key '{$key}'." );
+            $section = new Setting_Section( $params );
+            $sections[ $section->get_id() ] = $section;
         }
-        return $this->setting_factory()->create_setting(
-            $this->setting_defs[ $key ]
-        );
+        return $sections;
+    }
+    
+    /**
+     * -----------------
+     *   O P T I O N S
+     * -----------------
+     */
+
+    /**
+     * Get plugin option
+     */
+    public function get_plugin_option( string $key ) : Option
+    {
+        if ( !$this->option_instantiated( $key ) )
+        {
+            $this->options[ $key ] = $this->create_option( $key );
+        }
+        return $this->options[ $key ];
     }
 
     /**
-     * Check if a plugin setting is defined
+     * Get all plugin options for settings pages
+     * 
+     * @return Option[]
      */
-    private function setting_defined( string $key ) : bool
+    private function get_all_options() : array
     {
-        return array_key_exists( $key, $this->setting_defs );
+        foreach ( $this->option_defs as $key => $params )
+        {
+            if ( !$this->option_instantiated( $key ) )
+            {
+                $this->options[ $key ] = $this->create_option( $key );
+            }
+        }
+        return $this->options;
+    }
+    
+    /**
+     * Create plugin option from defined params
+     */
+    private function create_option( string $key ) : Option
+    {
+        if ( !$this->option_exists( $key ) )
+        {
+            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined plugin option. No option registered for key '{$key}'." );
+        }
+        $params = $this->option_defs[ $key ];
+        $params['id'] = $key;
+        return $this->option_factory()->create_option( $params );
     }
 
     /**
-     * ---------------------
-     *   F A C T O R I E S
-     * ---------------------
+     * Check if option is instantiated
      */
-
-    /**
-     * Get setting factory
-     */
-    protected function setting_factory() : Setting_Factory
+    private function option_instantiated( string $key ) : bool
     {
-        if ( !isset( $this->factories['setting'] ) )
-        {
-            $this->factories['setting'] = new Setting_Factory();
-        }
-        return $this->factories['setting'];
+        return isset( $this->options[ $key ] );
     }
 
     /**
-     * Get section factory
+     * Check if a plugin option is defined
      */
-    protected function section_factory() : Section_Factory
+    private function option_exists( string $key ) : bool
     {
-        if ( !isset( $this->factories['section'] ) )
+        return array_key_exists( $key, $this->option_defs );
+    }
+
+    /**
+     * -------------------------
+     *   D E F I N I T I O N S
+     * -------------------------
+     */
+
+    /**
+     * Add a plugin option definition
+     */
+    public function add_plugin_option( array $params ) : void
+    {
+        if ( !isset( $params['id'] ) )
         {
-            $this->factories['section'] = new Section_Factory();
+            throw new \DomainException( "Tried to register a plugin option without a valid id." );
         }
-        return $this->factories['section'];
+        $this->option_defs[ $params['id'] ] = $params;
+    }
+
+    /**
+     * Add a setting section definition
+     */
+    public function add_setting_section( array $params ) : void
+    {
+        $this->section_defs[] = $params;
+    }
+
+    /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+
+    /**
+     * Get option factory
+     */
+    private function option_factory() : Option_Factory
+    {
+        return $this->option_factory;
     }
 
 }   // End of class
