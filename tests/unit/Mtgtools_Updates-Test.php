@@ -130,6 +130,22 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
         $this->assertIsArray( $result );
         $this->assertEquals( 'updated', $result['action'], 'Failed to assert that the "updated" action is passed back to the admin-post handler on success.' );
     }
+    
+    /**
+     * TEST: Deletes transient when updating
+     * 
+     * @depends testCanUpdateSymbols
+     */
+    public function testDeletesTransientOnUpdate() : void
+    {
+        set_transient( self::TRANSIENT, true, HOUR_IN_SECONDS );
+        $this->source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
+        $this->db_ops->method('add_symbol')->willReturn( true );
+
+        $result = $this->updates->update_symbols();
+
+        $this->assertFalse( get_transient( self::TRANSIENT ), 'Failed to assert that updating deletes transient.' );
+    }
 
     /**
      * TEST: Updating symbols returns correct action on failure
@@ -208,22 +224,6 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
 
         $this->assertIsArray( $transient, 'Failed to assert that checking for updates sets transient when updates are available.' );
         $this->assertEqualsCanonicalizing( [ 'add' => self::RECORDS_TO_ADD ], $transient, 'Failed to assert that the expected pending records appear in the update transient.' );
-    }
-
-    /**
-     * TEST: Deletes transient when updates not available
-     * 
-     * @depends testCanCheckForUpdates
-     */
-    public function testDeletesTransientWhenUpdatesNotAvailable() : void
-    {
-        set_transient( self::TRANSIENT, true, HOUR_IN_SECONDS );
-        $checker = $this->createMock( Db_Update_Checker::class );
-        $this->db_ops->method('get_update_checker')->willReturn( $checker );
-
-        $this->updates->check_for_updates();
-
-        $this->assertFalse( get_transient( self::TRANSIENT ), 'Failed to assert that checking for updates deletes transient when updates are not available.' );
     }
 
 }   // End of class
