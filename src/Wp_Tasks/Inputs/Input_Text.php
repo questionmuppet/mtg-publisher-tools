@@ -17,6 +17,7 @@ class Input_Text extends Input
      */
     protected $defaults = array(
         'size' => 30,
+        'pattern' => '',
     );
 
     /**
@@ -25,13 +26,14 @@ class Input_Text extends Input
     public function print() : void
     {
         printf(
-            '<input type="text" id="%s" name="%s" value="%s" class="%s" placeholder="%s" size="%d" />',
+            '<input type="text" id="%s" name="%s" value="%s" class="%s" placeholder="%s" size="%d" pattern="%s" />',
             esc_attr( $this->get_id() ),
             esc_attr( $this->get_name() ),
             esc_attr( $this->get_value() ),
             esc_attr( $this->get_css_class() ),
             esc_attr( $this->get_placeholder() ),
-            esc_attr( $this->get_size() )
+            esc_attr( $this->get_size() ),
+            esc_attr( $this->get_pattern() )
         );
     }
 
@@ -41,6 +43,14 @@ class Input_Text extends Input
     protected function get_size() : int
     {
         return $this->get_prop( 'size' );
+    }
+
+    /**
+     * Get pattern
+     */
+    protected function get_pattern() : string
+    {
+        return $this->get_prop( 'pattern' );
     }
 
 }   // End of class

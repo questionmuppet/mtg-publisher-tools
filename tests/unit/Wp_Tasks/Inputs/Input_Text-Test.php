@@ -14,6 +14,7 @@ class Input_Text_Test extends Mtgtools_UnitTestCase
     const CUSTOM_CLASS = 'test_custom_class';
     const PLACEHOLDER = 'test_placeholder';
     const SIZE = 42;
+    const PATTERN = 'test_pattern';
 
     /**
      * Expected CSS class string
@@ -70,6 +71,7 @@ class Input_Text_Test extends Mtgtools_UnitTestCase
                 'value' => self::VALUE,
                 'placeholder' => self::PLACEHOLDER,
                 'size' => self::SIZE,
+                'pattern' => self::PATTERN,
             ],
             $html,
             'One or more expected attributes were missing from input element in the markup.'
@@ -94,6 +96,7 @@ class Input_Text_Test extends Mtgtools_UnitTestCase
             'classes' => [ self::CUSTOM_CLASS ],
             'placeholder' => self::PLACEHOLDER,
             'size' => self::SIZE,
+            'pattern' => self::PATTERN,
         ], $args );
         return new Input_Text( $args );
     }
