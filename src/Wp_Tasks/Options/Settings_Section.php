@@ -1,6 +1,6 @@
 <?php
 /**
- * Setting_Section
+ * Settings_Section
  * 
  * Section for grouping options on settings pages
  */
@@ -11,17 +11,18 @@ use Mtgtools\Abstracts\Data;
 // Exit if accessed directly
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
-class Setting_Section extends Data
+class Settings_Section extends Data
 {
     /**
      * Required properties
      */
-    protected $required = array( 'id', 'title', 'page' );
+    protected $required = array( 'id', 'page' );
 
     /**
      * Defaults
      */
     protected $defaults = array(
+        'title' => null,
         'description' => '',
     );
 
@@ -85,7 +86,7 @@ class Setting_Section extends Data
      */
     private function get_title() : string
     {
-        return $this->get_prop( 'title' );
+        return $this->get_prop( 'title' ) ?? $this->get_id();
     }
 
     /**

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Wp_Tasks\Options\Setting_Section;
+use Mtgtools\Wp_Tasks\Options\Settings_Section;
 
-class Setting_Section_Test extends Mtgtools_UnitTestCase
+class Settings_Section_Test extends Mtgtools_UnitTestCase
 {
     /**
      * Constants
@@ -40,7 +40,7 @@ class Setting_Section_Test extends Mtgtools_UnitTestCase
     /**
      * Create section
      */
-    private function create_section( array $args = [] ) : Setting_Section
+    private function create_section( array $args = [] ) : Settings_Section
     {
         $args = array_replace([
             'id' => 'fake_id',
@@ -48,7 +48,7 @@ class Setting_Section_Test extends Mtgtools_UnitTestCase
             'page' => 'fake_page',
             'description' => self::DESCRIPTION,
         ], $args );
-        return new Setting_Section( $args );
+        return new Settings_Section( $args );
     }
 
 }   // End of class
