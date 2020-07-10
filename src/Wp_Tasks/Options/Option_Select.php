@@ -27,8 +27,8 @@ class Option_Select extends Option
      */
     public function sanitize( $value )
     {
-        $sanitized = sanitize_text_field( $value );
-        return $this->is_valid_option( $sanitized ) ? $sanitized : $this->get_default_value();
+        $validated = $this->is_valid_option( $value ) ? $value : $this->get_default_value();
+        return sanitize_text_field( $validated );
     }
     
     /**
@@ -39,12 +39,22 @@ class Option_Select extends Option
         $input = new Input_Select(
             array_merge(
                 [
-                    'options' => $this->get_options_with_placeholder(),
+                    'options' => $this->needs_placeholder()
+                        ? $this->get_options_with_placeholder()
+                        : $this->get_options(),
                 ],
                 $this->get_input_args()
             )
         );
         $input->print();
+    }
+    
+    /**
+     * Check if select needs a placeholder
+     */
+    private function needs_placeholder() : bool
+    {
+        return !$this->is_valid_option( $this->get_default_value() );
     }
 
     /**
@@ -52,7 +62,7 @@ class Option_Select extends Option
      */
     private function get_options_with_placeholder() : array
     {
-        return array_merge(
+        return array_replace(
             [ $this->get_default_value() => $this->get_placeholder() ],
             $this->get_options()
         );
