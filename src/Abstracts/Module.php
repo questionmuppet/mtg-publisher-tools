@@ -42,6 +42,17 @@ abstract class Module
     }
 
     /**
+     * Get the value of a registered plugin option
+     * 
+     * @return mixed
+     */
+    protected function get_plugin_option( string $key )
+    {
+        $plugin = \Mtgtools\Mtgtools_Plugin::get_instance();
+        return $plugin->settings()->get_plugin_option( $key )->get_value();
+    }
+
+    /**
      * Enqueue a CSS style
      */
     protected function add_style( array $params ) : void
