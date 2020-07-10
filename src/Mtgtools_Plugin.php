@@ -11,6 +11,7 @@ use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
+use Mtgtools\Wp_Tasks\Options\Option_Factory;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -23,6 +24,7 @@ class Mtgtools_Plugin
 	private $symbols;
 	private $dashboard;
 	private $updates;
+	private $settings;
 
 	/**
 	 * Module task library
@@ -55,6 +57,7 @@ class Mtgtools_Plugin
 		{
 			$this->dashboard()->add_hooks();
 			$this->updates()->add_hooks();
+			$this->settings()->add_hooks();
 		}
 	}
 	
@@ -103,6 +106,19 @@ class Mtgtools_Plugin
 			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
 		}
 		return $this->updates;
+	}
+
+	/**
+	 * Get settings module
+	 */
+	public function settings() : Mtgtools_Settings
+	{
+		if ( !isset( $this->settings ) )
+		{
+			$factory = new Option_Factory();
+			$this->settings = new Mtgtools_Settings( $factory, $this->wp_tasks() );
+		}
+		return $this->settings;
 	}
 
 	/**

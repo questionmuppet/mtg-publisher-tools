@@ -60,6 +60,24 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can get settings module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetSettingsModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->settings();
+
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Settings::class, $module );
+    }
+
+    /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+
+    /**
      * TEST: Can get task library
      * 
      * @depends testCanGetInstance
