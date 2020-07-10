@@ -20,7 +20,14 @@ class Mtgtools_Settings extends Module
     /**
      * Section defs
      */
-    private $section_defs = [];
+    private $section_defs = [
+        [
+            'id' => 'mtgtools_updates',
+            'title' => 'Automated updates',
+            'page' => 'settings',
+            'description' => 'Settings to control automated updates to Magic card data.',
+        ],
+    ];
 
     /**
      * Sections
@@ -30,7 +37,31 @@ class Mtgtools_Settings extends Module
     /**
      * Option defs
      */
-    private $option_defs = [];
+    private $option_defs = [
+        'check_for_updates' => [
+            'page' => 'settings',
+            'section' => 'mtgtools_updates',
+            'type' => 'checkbox',
+            'default_value' => true,
+            'label' => 'Update checker',
+            'input_args' => [
+                'label' => 'Check for updates automatically'
+            ]
+        ],
+        'update_check_period' => [
+            'page' => 'settings',
+            'section' => 'mtgtools_updates',
+            'type' => 'select',
+            'label' => 'Frequency',
+            'default_value' => '2',
+            'options' => [
+                '1' => 'Weekly',
+                '2' => 'Biweekly',
+                '4' => 'Monthly',
+                '24' => 'Every 6 months',
+            ],
+        ],
+    ];
 
     /**
      * Options
@@ -102,7 +133,7 @@ class Mtgtools_Settings extends Module
         $sections = [];
         foreach ( $this->section_defs as $params )
         {
-            $section = new Setting_Section( $params );
+            $section = new Settings_Section( $params );
             $sections[ $section->get_id() ] = $section;
         }
         return $sections;
