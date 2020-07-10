@@ -33,15 +33,15 @@ $dashboard->print_action_notices([
     ],
     'checked_available' => [
         'type' => 'warning',
-        'message' => 'New updates are available to the Magic card data used by MTG Publisher Tools. Click "Update" to install the latest changes.',
+        'message' => '<strong>Updates available.</strong> New updates are available to the Magic card data used by MTG Publisher Tools. Click "Update" below to install the latest changes.',
     ],
     'checked_current' => [
         'type' => 'warning',
-        'message' => 'Your Magic card data for MTG Publisher Tools is already up to date.',
+        'message' => '<strong>No updates needed.</strong> Your Magic card data for MTG Publisher Tools is already synced to the latest version.',
     ],
     'updated' => [
         'type' => 'success',
-        'message' => 'Your Magic card data for MTG Publisher Tools has been updated to the latest version.',
+        'message' => '<strong>Updated.</strong> Your Magic card data for MTG Publisher Tools has been updated to the latest version.',
     ],
 ]);
 

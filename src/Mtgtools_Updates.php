@@ -162,7 +162,7 @@ class Mtgtools_Updates extends Module
      */
     public function print_notices() : void
     {
-        if ( $this->updates_pending() )
+        if ( $this->updates_pending() && !$this->was_just_checked() )
         {
             $this->print_admin_notice([
                 'title'   => 'Mana symbol updates available',
@@ -180,6 +180,15 @@ class Mtgtools_Updates extends Module
                 ],
             ]);
         }
+    }
+
+    /**
+     * Check if we're returning from an update check action
+     */
+    private function was_just_checked() : bool
+    {
+        $action = $_GET['action'] ?? '';
+        return preg_match( '/^checked_/', $action );
     }
 
     /**
