@@ -4,6 +4,8 @@ Plugin Name: MTG Publisher Tools
 Plugin URI: https://github.com/questionmuppet/mtg-publisher-tools
 Description: Enables insertion of Magic: The Gathering content directly into your posts or theme. Add mana symbols and card images the easy way.
 Version: 0.1.0
+Requires at least: 5.4
+Requires PHP: 7.3
 Author: Jason Schousboe
 Author URI: https://github.com/questionmuppet
 License: GNU General Public License v3 or later
