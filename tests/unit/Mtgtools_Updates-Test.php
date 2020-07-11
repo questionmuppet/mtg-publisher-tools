@@ -112,6 +112,16 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can disable notices
+     */
+    public function testCanDisableNotices() : void
+    {
+        $result = $this->updates->disable_notices();
+
+        $this->assertIsArray( $result );
+    }
+
+    /**
      * -----------------
      *   U P D A T E S
      * -----------------
@@ -224,6 +234,16 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
 
         $this->assertIsArray( $transient, 'Failed to assert that checking for updates sets transient when updates are available.' );
         $this->assertEqualsCanonicalizing( [ 'add' => self::RECORDS_TO_ADD ], $transient, 'Failed to assert that the expected pending records appear in the update transient.' );
+    }
+
+    /**
+     * TEST: Can get updates-pending value
+     */
+    public function testCanGetUpdatesPending() : void
+    {
+        $has_updates = $this->updates->updates_pending();
+
+        $this->assertIsBool( $has_updates );
     }
 
 }   // End of class

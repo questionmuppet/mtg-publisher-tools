@@ -45,10 +45,10 @@ class Mtgtools_Settings extends Module
             'default_value' => true,
             'label' => 'Update checker',
             'input_args' => [
-                'label' => 'Check for updates automatically'
-            ]
+                'label' => 'Check for updates automatically',
+            ],
         ],
-        'update_check_period' => [
+        'update_period_in_weeks' => [
             'page' => 'settings',
             'section' => 'mtgtools_updates',
             'type' => 'select',
@@ -59,6 +59,16 @@ class Mtgtools_Settings extends Module
                 '2' => 'Biweekly',
                 '4' => 'Monthly',
                 '24' => 'Every 6 months',
+            ],
+        ],
+        'show_update_notices' => [
+            'page' => 'settings',
+            'section' => 'mtgtools_updates',
+            'type' => 'checkbox',
+            'default_value' => true,
+            'label' => 'Admin notices',
+            'input_args' => [
+                'label' => 'Notify me about updates on the WordPress dashboard',
             ],
         ],
     ];

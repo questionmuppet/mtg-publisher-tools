@@ -61,6 +61,7 @@ $dashboard->print_action_notices([
             'action' => 'mtgtools_update_symbols',
             'label' => 'Update',
             'primary' => true,
+            'disabled' => !$updates->updates_pending()
         ]); ?>
 
     </form>

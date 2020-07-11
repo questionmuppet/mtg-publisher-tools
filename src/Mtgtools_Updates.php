@@ -72,6 +72,12 @@ class Mtgtools_Updates extends Module
                     'text' => 'Return to updates',
                 ],
             ],
+            [
+                'type' => 'redirect',
+                'action' => 'mtgtools_disable_notices',
+                'callback' => array( $this, 'disable_notices' ),
+                'redirect_url' => $this->get_dashboard_url('settings'),
+            ],
         ]);
     }
 
@@ -131,15 +137,6 @@ class Mtgtools_Updates extends Module
     }
 
     /**
-     * Get last-checked date
-     */
-    private function get_last_checked() : string
-    {
-        $date = get_option( 'mtgtools_last_checked' );
-        return $date ? $date : '—';
-    }
-
-    /**
      * Get update status for display
      */
     private function get_update_status() : string
@@ -162,7 +159,7 @@ class Mtgtools_Updates extends Module
      */
     public function print_notices() : void
     {
-        if ( $this->updates_pending() && !$this->was_just_checked() )
+        if ( $this->showing_notices() && $this->updates_pending() && !$this->was_just_checked() )
         {
             $this->print_admin_notice([
                 'title'   => 'Mana symbol updates available',
@@ -175,11 +172,28 @@ class Mtgtools_Updates extends Module
                     ],
                     [
                         'label' => 'Turn off notices',
-                        'href' => '',
+                        'href' => $this->get_disable_notices_link(),
                     ],
                 ],
             ]);
         }
+    }
+
+    /**
+     * Turn off admin notices
+     */
+    public function disable_notices() : array
+    {
+        $this->update_plugin_option( 'show_update_notices', false );
+        return [ 'action' => 'notices_disabled' ];
+    }
+
+    /**
+     * Check if we're showing admin notices
+     */
+    private function showing_notices() : bool
+    {
+        return $this->get_plugin_option('show_update_notices');
     }
 
     /**
@@ -208,6 +222,20 @@ class Mtgtools_Updates extends Module
             [
                 'action' => 'mtgtools_update_symbols',
                 '_wpnonce' => wp_create_nonce( 'mtgtools_update_symbols' ),
+            ],
+            admin_url( 'admin-post.php' )
+        );
+    }
+
+    /**
+     * Get disable notices action link
+     */
+    private function get_disable_notices_link() : string
+    {
+        return add_query_arg(
+            [
+                'action' => 'mtgtools_disable_notices',
+                '_wpnonce' => wp_create_nonce( 'mtgtools_disable_notices' ),
             ],
             admin_url( 'admin-post.php' )
         );
@@ -247,12 +275,13 @@ class Mtgtools_Updates extends Module
                 }
             }
             $action = $count ? 'updated' : 'checked_current';
+            $this->set_last_checked();
+            delete_transient( self::TRANSIENT );
         }
         catch ( ApiException $e )
         {
             $action = 'failed';
         }
-        delete_transient( self::TRANSIENT );
         return [ 'action' => $action ];
     }
 
@@ -269,37 +298,36 @@ class Mtgtools_Updates extends Module
             $instructions = $this->get_new_symbol_updates();
             if ( count( $instructions ) )
             {
-                set_transient( self::TRANSIENT, $instructions, 2 * WEEK_IN_SECONDS );
+                set_transient( self::TRANSIENT, $instructions, $this->get_update_period() );
                 $action = 'checked_available';
             }
             else
             {
                 $action = 'checked_current';
             }
+            $this->set_last_checked();
         }
         catch ( ApiException $e )
         {
             $action = 'failed';
         }
-        $this->set_last_checked();
         return [ 'action' => $action ];
-    }
-    
-    /**
-     * Set the last-checked timestamp
-     */
-    private function set_last_checked() : void
-    {
-        $date = new \DateTime('now');
-        add_option( 'mtgtools_last_checked', $date->format( \DateTimeInterface::RFC7231 ) );
     }
 
     /**
      * Check site transients for pending updates
      */
-    private function updates_pending() : bool
+    public function updates_pending() : bool
     {
         return boolval( get_transient( self::TRANSIENT ) );
+    }
+
+    /**
+     * Get update period
+     */
+    private function get_update_period() : int
+    {
+        return intval( $this->get_plugin_option('update_period_in_weeks') ) * WEEK_IN_SECONDS;
     }
 
     /**
@@ -322,6 +350,31 @@ class Mtgtools_Updates extends Module
             'update' => $checker->records_to_update(),
             'delete' => $checker->records_to_delete(),
         ]);
+    }
+
+    /**
+     * ---------------------------
+     *   L A S T   C H E C K E D
+     * ---------------------------
+     */
+    
+    /**
+     * Get last-checked date
+     * 
+     * @return string Human-readable string matching WordPress date-time settings
+     */
+    private function get_last_checked() : string
+    {
+        $unix_time = get_option( 'mtgtools_last_checked' );
+        return $unix_time ? wp_date( DATE_RFC850, $unix_time ) : '—';
+    }
+    
+    /**
+     * Set the last-checked timestamp
+     */
+    private function set_last_checked() : void
+    {
+        update_option( 'mtgtools_last_checked', time() );
     }
 
     /**
