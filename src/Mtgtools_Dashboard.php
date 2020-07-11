@@ -266,6 +266,7 @@ class Mtgtools_Dashboard extends Module
             'action' => '',
             'label' => '',
             'primary' => false,
+            'disabled' => false,
         ], $params );
         
         $this->print_template([
