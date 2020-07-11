@@ -148,7 +148,7 @@ class Mtgtools_Plugin
 	/**
 	 * Get Magic: The Gathering data source
 	 */
-	private function get_mtg_data_source() : Mtg_Data_Source
+	public function get_mtg_data_source() : Mtg_Data_Source
 	{
 		return apply_filters( 'mtgtools_mtg_data_source', $this->get_scryfall_source() );
 	}

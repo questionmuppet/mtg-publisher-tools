@@ -35,6 +35,21 @@ class Scryfall_Data_Source extends Scryfall_Api_Handler implements Mtg_Data_Sour
     }
 
     /**
+     * Get available image types
+     */
+    public function get_image_types() : array
+    {
+        return [
+            'png' => 'High-resolution',
+            'large' => 'Large',
+            'normal' => 'Normal',
+            'small' => 'Small',
+            'border_crop' => 'Border crop',
+            'art_crop' => 'Art crop',
+        ];
+    }
+
+    /**
      * Get name for display
      */
     public function get_display_name() : string

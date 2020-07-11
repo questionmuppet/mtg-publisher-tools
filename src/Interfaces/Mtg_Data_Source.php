@@ -20,6 +20,13 @@ interface Mtg_Data_Source
     public function get_mana_symbols() : array;
 
     /**
+     * Get available image types
+     * 
+     * @return array Associative array of "key" => "description"
+     */
+    public function get_image_types() : array;
+
+    /**
      * Get name of source for display
      */
     public function get_display_name() : string;
