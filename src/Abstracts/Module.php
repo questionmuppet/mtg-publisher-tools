@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools\Abstracts;
+use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Wp_Task_Library;
 use Mtgtools\Wp_Tasks\Templates\Template;
 
@@ -50,6 +51,16 @@ abstract class Module
     {
         $plugin = \Mtgtools\Mtgtools_Plugin::get_instance();
         return $plugin->settings()->get_plugin_option( $key )->get_value();
+    }
+
+    /**
+     * Update a registered plugin option
+     * 
+     * @param mixed $value
+     */
+    protected function update_plugin_option( string $key, $value ) : void
+    {
+        $this->plugin()->settings()->get_plugin_option( $key )->update( $value );
     }
 
     /**
@@ -116,6 +127,14 @@ abstract class Module
     final protected function wp_tasks() : Wp_Task_Library
     {
         return $this->wp_tasks;
+    }
+
+    /**
+     * Get plugin instance
+     */
+    final protected function plugin() : Mtgtools_Plugin
+    {
+        return Mtgtools_Plugin::get_instance();
     }
 
 }   // End of class
