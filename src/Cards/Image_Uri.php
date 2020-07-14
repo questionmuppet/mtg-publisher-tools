@@ -20,14 +20,14 @@ class Image_Uri extends Data
         'card_uuid',
         'uri',
         'type',
-        'cached',
     );
-
+    
     /**
      * Default properties
      */
     protected $defaults = array(
         'cache_period' => WEEK_IN_SECONDS,
+        'cached' => null,
     );
 
     /**
@@ -41,7 +41,7 @@ class Image_Uri extends Data
      */
     public function is_expired() : bool
     {
-        return time() > $this->get_expiration_timestamp();
+        return $this->was_cached() && time() > $this->get_expiration_timestamp();
     }
     
     /**
@@ -80,6 +80,14 @@ class Image_Uri extends Data
     public function get_type() : string
     {
         return $this->get_prop( 'type' );
+    }
+    
+    /**
+     * Check for a unix timestamp
+     */
+    private function was_cached() : bool
+    {
+        return !is_null( $this->get_prop( 'cached' ) );
     }
 
     /**
