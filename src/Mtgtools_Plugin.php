@@ -10,6 +10,7 @@ namespace Mtgtools;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Scryfall\Services;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Wp_Tasks\Options\Option_Factory;
 
@@ -158,7 +159,9 @@ class Mtgtools_Plugin
 	 */
 	private function get_scryfall_source() : Scryfall_Data_Source
 	{
-		return new Scryfall_Data_Source();
+		$symbols = new Services\Scryfall_Symbols();
+		$cards = new Services\Scryfall_Cards();
+		return new Scryfall_Data_Source( $symbols, $cards );
 	}
 
 	/**

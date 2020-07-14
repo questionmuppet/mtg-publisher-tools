@@ -6,6 +6,7 @@
  */
 
 namespace Mtgtools\Interfaces;
+use Mtgtools\Cards\Magic_Card;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -18,6 +19,11 @@ interface Mtg_Data_Source
      * @return Mana_Symbol[]
      */
     public function get_mana_symbols() : array;
+
+    /**
+     * Fetch a card matching search filters
+     */
+    public function fetch_card( array $filters ) : Magic_Card;
 
     /**
      * Get available image types
