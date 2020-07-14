@@ -5,7 +5,7 @@
  * Abstract class for making high-level calls to the Scryfall API
  */
 
-namespace Mtgtools\Scryfall\Abstracts;
+namespace Mtgtools\Scryfall\Services;
 use Mtgtools\Scryfall\Requests;
 
 // Exit if accessed directly
