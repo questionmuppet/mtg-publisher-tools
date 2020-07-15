@@ -21,6 +21,7 @@ class Magic_Card extends Data
         'uuid',
         'name',
         'set_code',
+        'collector_number',
         'language',
     );
 
@@ -28,7 +29,6 @@ class Magic_Card extends Data
      * Default properties
      */
     protected $defaults = [
-        'variant' => null,
         'images' => [],
     ];
 
@@ -124,19 +124,19 @@ class Magic_Card extends Data
     }
 
     /**
+     * Get collector number
+     */
+    public function get_collector_number() : string
+    {
+        return $this->get_prop( 'collector_number' );
+    }
+
+    /**
      * Get language
      */
     public function get_language() : string
     {
         return $this->get_prop( 'language' );
-    }
-
-    /**
-     * Get variant
-     */
-    public function get_variant() : string
-    {
-        return $this->get_prop( 'variant' ) ?? '';
     }
     
     /**

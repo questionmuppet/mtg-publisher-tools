@@ -22,7 +22,7 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         'name' => 'Stoneforge Mystic',
         'set_code' => 'WWK',
         'language' => 'English',
-        'variant' => '',
+        'collector_number' => '42a',
         'images' => [],
     ];
 
@@ -173,7 +173,7 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $this->assertEquals( self::MOCK_CARD['name'], $row['name'] );
         $this->assertEquals( self::MOCK_CARD['set_code'], $row['set_code'] );
         $this->assertEquals( self::MOCK_CARD['language'], $row['language'] );
-        $this->assertEquals( self::MOCK_CARD['variant'], $row['variant'] );
+        $this->assertEquals( self::MOCK_CARD['collector_number'], $row['collector_number'] );
     }
 
     /**

@@ -26,7 +26,7 @@ class Card_Db_Ops extends Db_Ops
     /**
      * Valid filter arguments for query
      */
-    protected $valid_filters = [ 'card_uuid', 'type', 'uuid', 'name', 'set_code', 'language', 'variant' ];
+    protected $valid_filters = [ 'card_uuid', 'type', 'uuid', 'name', 'set_code', 'language', 'collector_number' ];
 
     /**
      * Image cache period
@@ -59,7 +59,7 @@ class Card_Db_Ops extends Db_Ops
     private function get_card_row( array $filters ) : array
     {
         $row = $this->db()->get_row(
-            "SELECT uuid, name, set_code, language, variant, images
+            "SELECT uuid, name, set_code, language, collector_number, images
             FROM {$this->get_cards_table()}
             LEFT JOIN (
                 SELECT card_uuid, JSON_ARRAYAGG(
@@ -134,7 +134,7 @@ class Card_Db_Ops extends Db_Ops
                 'name' => $card->get_name(),
                 'set_code' => $card->get_set_code(),
                 'language' => $card->get_language(),
-                'variant' => $card->get_variant(),
+                'collector_number' => $card->get_collector_number(),
             ],
         ]);
         $this->cache_image_uris( $card->get_images(), $img_type );
@@ -240,8 +240,8 @@ class Card_Db_Ops extends Db_Ops
                 uuid varchar(128) UNIQUE NOT NULL,
                 name text NOT NULL,
                 set_code varchar(16) NOT NULL,
+                collector_number varchar(16) NOT NULL,
                 language varchar(16) NOT NULL,
-                variant varchar(128),
                 PRIMARY KEY (id)
             ) {$this->get_collate()};"
         );

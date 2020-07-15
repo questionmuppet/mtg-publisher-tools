@@ -14,7 +14,7 @@ class Magic_Card_Test extends WP_UnitTestCase
     const NAME = 'Stoneforge Mystic';
     const SET_CODE = 'WWK';
     const LANGUAGE = 'English';
-    const VARIANT = 'A normal variant';
+    const COLLECTOR_NUMBER = '42a';
     const URI = 'https://www.example.com/image.svg';
 
     /**
@@ -57,7 +57,7 @@ class Magic_Card_Test extends WP_UnitTestCase
         $this->assertEquals( self::NAME, $card->get_name(), "Could not retrieve public property 'name'." );
         $this->assertEquals( self::SET_CODE, $card->get_set_code(), "Could not retrieve public property 'set_code'." );
         $this->assertEquals( self::LANGUAGE, $card->get_language(), "Could not retrieve public property 'language'." );
-        $this->assertEquals( self::VARIANT, $card->get_variant(), "Could not retrieve public property 'variant'." );
+        $this->assertEquals( self::COLLECTOR_NUMBER, $card->get_collector_number(), "Could not retrieve public property 'collector_number'." );
         $this->assertIsArray( $card->get_images(), "Could not retrieve public property 'images'." );
     }
 
@@ -121,7 +121,7 @@ class Magic_Card_Test extends WP_UnitTestCase
             'name' => self::NAME,
             'set_code' => self::SET_CODE,
             'language' => self::LANGUAGE,
-            'variant' => self::VARIANT,
+            'collector_number' => self::COLLECTOR_NUMBER,
             'images' => $this->images,
         ], $args );
         return new Magic_Card( $args );
