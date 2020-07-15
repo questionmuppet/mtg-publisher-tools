@@ -237,8 +237,8 @@ class Card_Db_Ops extends Db_Ops
         return $this->db()->query(
             "CREATE TABLE IF NOT EXISTS {$this->get_cards_table()} (
                 id int(20) UNSIGNED AUTO_INCREMENT,
-                uuid varchar(128) UNIQUE NOT NULL,
                 name text NOT NULL,
+                uuid varchar(128) UNIQUE NOT NULL,
                 set_code varchar(16) NOT NULL,
                 collector_number varchar(16) NOT NULL,
                 language varchar(16) NOT NULL,

@@ -222,6 +222,40 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can update timestamp of an already cached uri
+     * 
+     * @depends testNewlyInsertedImageHasCorrectAttributes
+     */
+    public function testCanUpdateCachedUriWithNewTimestamp() : void
+    {
+        $this->db_ops->create_tables();
+        $card = $this->get_mock_magic_card([ 'images' => $this->get_mock_images() ]);
+        $this->db_ops->cache_card_data( $card, 'small' );
+
+        $first = $this->get_cache_timestamp( self::MOCK_CARD['uuid'], 'small' );
+        sleep(1);   // Wait 1 second
+        $this->db_ops->cache_card_data( $card, 'small' );
+        $second = $this->get_cache_timestamp( self::MOCK_CARD['uuid'], 'small' );
+
+        $this->assertGreaterThan( $first, $second, 'Failed to assert that a newly cached uri updated the timestamp.' );
+    }
+    
+    /**
+     * Check timestamp of a cached image
+     */
+    private function get_cache_timestamp( string $uuid, string $type ) : string
+    {
+        return $this->wpdb->get_var(
+            $this->wpdb->prepare(
+                "SELECT cached FROM {$this->get_images_table()}
+                WHERE card_uuid = %s && type = %s",
+                $uuid,
+                $type
+            )
+        );
+    }
+
+    /**
      * TEST: Can cache all image uris
      * 
      * @depends testCanCacheSingleImageUri
