@@ -77,7 +77,7 @@ class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this );
 		}
 		return $this->symbols;
 	}
@@ -90,7 +90,7 @@ class Mtgtools_Plugin
 		if ( !isset( $this->dashboard ) )
 		{
 			$factory = new Dashboard_Tab_Factory();
-			$this->dashboard = new Mtgtools_Dashboard( $factory, $this->wp_tasks() );
+			$this->dashboard = new Mtgtools_Dashboard( $factory, $this );
 		}
 		return $this->dashboard;
 	}
@@ -104,7 +104,7 @@ class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
+			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this );
 		}
 		return $this->updates;
 	}
@@ -117,7 +117,7 @@ class Mtgtools_Plugin
 		if ( !isset( $this->settings ) )
 		{
 			$factory = new Option_Factory();
-			$this->settings = new Mtgtools_Settings( $factory, $this->wp_tasks() );
+			$this->settings = new Mtgtools_Settings( $factory, $this );
 		}
 		return $this->settings;
 	}

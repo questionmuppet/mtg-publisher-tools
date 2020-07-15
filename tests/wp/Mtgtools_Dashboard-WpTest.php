@@ -159,8 +159,8 @@ class Mtgtools_Dashboard_WPTest extends Mtgtools_UnitTestCase
     private function create_live_dashboard() : Mtgtools_Dashboard
     {
         $factory = new Dashboard_Tab_Factory();
-        $wp_tasks = new Wp_Task_Library();
-        return new Mtgtools_Dashboard( $factory, $wp_tasks );
+        $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
+        return new Mtgtools_Dashboard( $factory, $plugin );
     }
 
     /**

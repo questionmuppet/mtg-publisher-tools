@@ -58,10 +58,10 @@ class Mtgtools_Settings extends Module
     /**
      * Constructor
      */
-    public function __construct( Option_Factory $factory, $wp_tasks )
+    public function __construct( Option_Factory $factory, $plugin )
     {
         $this->option_factory = $factory;
-        parent::__construct( $wp_tasks );
+        parent::__construct( $plugin );
     }
 
     /**

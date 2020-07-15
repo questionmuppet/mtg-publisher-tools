@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Images;
 use Mtgtools\Interfaces\Mtg_Data_Source;
-use Mtgtools\Wp_Task_Library;
+use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Cards\Card_Db_Ops;
 use Mtgtools\Cards\Magic_Card;
 use Mtgtools\Exceptions\Db\DbException;
@@ -25,7 +25,7 @@ class Mtgtools_Images_Test extends WP_UnitTestCase
      */
     private $db_ops;
     private $source;
-    private $wp_tasks;
+    private $plugin;
 
     /**
      * Setup
@@ -35,8 +35,8 @@ class Mtgtools_Images_Test extends WP_UnitTestCase
         parent::setUp();
         $this->db_ops = $this->createMock( Card_Db_Ops::class );
         $this->source = $this->createMock( Mtg_Data_Source::class );
-        $this->wp_tasks = $this->createMock( Wp_Task_Library::class );
-        $this->images = new Mtgtools_Images( $this->db_ops, $this->source, $this->wp_tasks );
+        $this->plugin = $this->createMock( Mtgtools_Plugin::class );
+        $this->images = new Mtgtools_Images( $this->db_ops, $this->source, $this->plugin );
     }
 
     /**
@@ -54,6 +54,9 @@ class Mtgtools_Images_Test extends WP_UnitTestCase
      */
     public function testCanGetCardLink() : void
     {
+        // Use live settings module
+        $settings = Mtgtools\Mtgtools_Plugin::get_instance()->settings();
+        $this->plugin->method('settings')->willReturn( $settings );
         $html = $this->images->add_card_link( [], 'Fake card' );
 
         $this->assertIsString( $html );

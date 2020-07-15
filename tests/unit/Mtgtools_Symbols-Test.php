@@ -4,7 +4,7 @@ declare(strict_types=1);
 use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Symbols\Symbol_Db_Ops;
 use Mtgtools\Mtgtools_Dashboard;
-use Mtgtools\Wp_Task_Library;
+use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 
 class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
@@ -19,7 +19,7 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
      */
     private $db_ops;
     private $source;
-    private $wp_tasks;
+    private $plugin;
 
     /**
      * Setup
@@ -29,8 +29,8 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
         parent::setUp();
         $this->db_ops = $this->createMock( Symbol_Db_Ops::class );
         $this->source = $this->createMock( Mtg_Data_Source::class );
-        $this->wp_tasks = $this->createMock( Wp_Task_Library::class );
-        $this->symbols = new Mtgtools_Symbols( $this->db_ops, $this->source, $this->wp_tasks );
+        $this->plugin = $this->createMock( Mtgtools_Plugin::class );
+        $this->symbols = new Mtgtools_Symbols( $this->db_ops, $this->source, $this->plugin );
     }
 
     /**

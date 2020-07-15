@@ -46,10 +46,10 @@ class Mtgtools_Dashboard extends Module
     /**
      * Constructor
      */
-    public function __construct( Dashboard_Tab_Factory $tab_factory, $wp_tasks )
+    public function __construct( Dashboard_Tab_Factory $tab_factory, $plugin )
     {
         $this->tab_factory = $tab_factory;
-        parent::__construct( $wp_tasks );
+        parent::__construct( $plugin );
     }
 
     /**

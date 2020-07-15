@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Dashboard;
+use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Wp_Task_Library;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab;
@@ -22,7 +23,7 @@ class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
      * Mock dependencies
      */
     private $tab_factory;
-    private $wp_tasks;
+    private $plugin;
 
     /**
      * Setup
@@ -31,8 +32,8 @@ class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
     {
         parent::setUp();
         $this->tab_factory = $this->get_mock_tab_factory();
-        $this->wp_tasks = $this->createMock( Wp_Task_Library::class );
-        $this->dashboard = new Mtgtools_Dashboard( $this->tab_factory, $this->wp_tasks );
+        $this->plugin = $this->createMock( Mtgtools_Plugin::class );
+        $this->dashboard = new Mtgtools_Dashboard( $this->tab_factory, $this->plugin );
         remove_all_filters( 'mtgtools_dashboard_tabs' );
     }
 
@@ -112,9 +113,11 @@ class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
         ];
         $_GET['action'] = 'fake_action';
 
-        $this->wp_tasks->expects( $this->once() )
+        $wp_tasks = $this->createMock( Wp_Task_Library::class );
+        $wp_tasks->expects( $this->once() )
             ->method('create_admin_notice')
             ->with( $this->equalTo( self::ACTION_NOTICE_PARAMS ) );
+        $this->plugin->method('wp_tasks')->willReturn( $wp_tasks );
         
         $this->dashboard->print_action_notices( $actions );
     }
