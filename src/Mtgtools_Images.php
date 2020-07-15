@@ -15,7 +15,7 @@ use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Exceptions\Db\DbException;
 use Mtgtools\Exceptions\Cache\CacheException;
 use Mtgtools\Exceptions\Cache\MissingDataException;
-use Mtgtools\Exceptions\Api\ApiException;
+use Mtgtools\Exceptions\Sources\MtgDataSourceException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -82,17 +82,30 @@ class Mtgtools_Images extends Module
      * @param array $atts   Optional list of search criteria
      * @return string       Content wrapped in link
      */
-    public function add_card_link( $atts, $content = '' ) : string
+    public function add_card_link( $atts, $content = null ) : string
     {
         $link = new Card_Link(
             [
-                'filters' => wp_parse_args( $atts ),
+                'filters' => array_filter(
+                    shortcode_atts(
+                        $this->get_shortcode_defaults(),
+                        $atts
+                    )
+                ),
                 'content' => $content,
                 'is_ajax' => $this->fetching_lazily(),
             ],
             $this
         );
         return $link->get_markup();
+    }
+
+    /**
+     * Get shortcode defaults
+     */
+    private function get_shortcode_defaults() : array
+    {
+        return array_fill_keys( $this->get_valid_search_filters(), '' );
     }
 
     /**
@@ -113,40 +126,50 @@ class Mtgtools_Images extends Module
         try
         {
             $filters = $this->validate_filters( $filters );
-            return count( $filters )
-                ? $this->locate_image_uri(
-                    $filters,
-                    $type ?? $this->get_popup_image_type()
-                )
-                : '';
+            return empty( $filters )
+                ? ''
+                : $this->locate_image_uri( $filters, $type ?? $this->get_popup_image_type() );
         }
-        catch ( ApiException $e )
+        catch ( MtgDataSourceException $e )
         {
             return '';
         }
     }
 
     /**
-     * Convert user-readable args to standardized filter keys
+     * Convert user args to a standardized search scheme
      */
-    private function validate_filters( array $filters ) : array
+    private function validate_filters( array $args ) : array
     {
-        return array_filter(
-            [
-                'name' => sanitize_text_field( $filters['name'] ?? '' ),
-                'uuid' => sanitize_text_field( $filters['id'] ?? '' ),
-                'set_code' => sanitize_text_field( $filters['set'] ?? '' ),
-                'collector_number' => sanitize_text_field( $filters['number'] ?? '' ),
-                'language' => sanitize_text_field( $filters['language'] ?? '' ),
-            ],
-            'strlen'
-        );
+        if ( isset( $args['id'] ) )
+        {
+            // Search by unique id
+            $filters = [
+                'uuid' => sanitize_text_field( $args['id'] )
+            ];
+        }
+        elseif ( isset( $args['set'], $args['number'] ) )
+        {
+            // Search by set + collector #
+            $filters = [
+                'set_code'         => strtolower( sanitize_text_field( $args['set'] ) ),
+                'collector_number' => sanitize_text_field( $args['number'] ),
+                'language'         => strtolower( sanitize_text_field( $args['language'] ?? $this->get_default_language() ) ),
+            ];
+        }
+        else
+        {
+            // Search by name
+            $filters = [
+                'name' => sanitize_text_field( $args['name'] ?? '' ),
+                'set_code' => sanitize_text_field( $args['set'] ?? '' ),
+            ];
+        }
+        return array_filter( $filters, 'strlen' );
     }
 
     /**
      * Get card image uri from db or data source
-     * 
-     * @throws ApiException
      */
     private function locate_image_uri( array $filters, string $type ) : string
     {
@@ -246,6 +269,14 @@ class Mtgtools_Images extends Module
     private function get_valid_search_filters() : array
     {
         return $this->search_filters;
+    }
+
+    /**
+     * Get default language
+     */
+    private function get_default_language() : string
+    {
+        return 'en';
     }
 
 }   // End of class
