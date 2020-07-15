@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use Mtgtools\Scryfall\Services\Scryfall_Cards;
 use Mtgtools\Cards\Magic_Card;
-use Mtgtools\Exceptions\Api as Exceptions;
+use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;
 
 class Scryfall_Cards_HttpTest extends Mtgtools_UnitTestCase
 {
@@ -167,13 +167,13 @@ class Scryfall_Cards_HttpTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Id search with no results throws ApiException
+     * TEST: Id search with no results throws ScryfallApiException
      * 
      * @depends testCanFetchCardByUuid
      */
-    public function testIdSearchWithNoResultsThrowsApiException() : void
+    public function testIdSearchWithNoResultsThrowsScryfallApiException() : void
     {
-        $this->expectException( Exceptions\ApiException::class );
+        $this->expectException( Exceptions\ScryfallApiException::class );
 
         $this->cards->fetch_card_by_filters([
             'uuid' => 'invalid_scryfall_id_string'
@@ -181,13 +181,13 @@ class Scryfall_Cards_HttpTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Collector number search with no results throws ApiException
+     * TEST: Collector number search with no results throws ScryfallApiException
      * 
      * @depends testCanFetchCardByCollectorNumber
      */
-    public function testCollectorNumberSearchWithNoResultsThrowsApiException() : void
+    public function testCollectorNumberSearchWithNoResultsThrowsScryfallApiException() : void
     {
-        $this->expectException( Exceptions\ApiException::class );
+        $this->expectException( Exceptions\ScryfallApiException::class );
 
         $this->cards->fetch_card_by_filters([
             'set_code' => 'invalid_set',
@@ -196,13 +196,13 @@ class Scryfall_Cards_HttpTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Name search with no results throws ApiException
+     * TEST: Name search with no results throws ScryfallApiException
      * 
      * @depends testCanFetchCardByName
      */
-    public function testNameSearchWithNoResultsThrowsApiException() : void
+    public function testNameSearchWithNoResultsThrowsScryfallApiException() : void
     {
-        $this->expectException( Exceptions\ApiException::class );
+        $this->expectException( Exceptions\ScryfallApiException::class );
 
         $this->cards->fetch_card_by_filters([
             'name' => 'nonexistent card name',

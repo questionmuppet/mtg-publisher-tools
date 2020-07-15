@@ -8,7 +8,7 @@
 namespace Mtgtools\Scryfall\Services;
 
 use Mtgtools\Cards;
-use Mtgtools\Exceptions\Api as Exceptions;
+use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -34,7 +34,7 @@ class Scryfall_Cards extends Scryfall_Api_Handler
      * Fetch a single card matching search filters
      * 
      * @param array $filter One or more filters conforming to a valid search scheme. Priority is granted to the most specific scheme.
-     * @throws ApiException
+     * @throws ScryfallException
      */
     public function fetch_card_by_filters( array $filters ) : Cards\Magic_Card
     {

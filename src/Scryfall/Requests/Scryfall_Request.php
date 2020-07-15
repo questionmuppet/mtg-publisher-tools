@@ -8,7 +8,7 @@
 namespace Mtgtools\Scryfall\Requests;
 use Mtgtools\Abstracts\Data;
 use Mtgtools\Api;
-use Mtgtools\Exceptions\Api as Exceptions;
+use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

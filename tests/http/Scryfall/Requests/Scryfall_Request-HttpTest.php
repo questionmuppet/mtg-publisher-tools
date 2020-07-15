@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 use Mtgtools\Scryfall\Requests\Scryfall_Request;
-use Mtgtools\Exceptions\Api as Exceptions;
+use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;
+use Mtgtools\Exceptions\Api\ApiStatusException;
 
 class Scryfall_Request_HttpTest extends Mtgtools_UnitTestCase
 {
@@ -60,7 +61,7 @@ class Scryfall_Request_HttpTest extends Mtgtools_UnitTestCase
             'expects'  => 'card',
         ]);
 
-        $this->expectException( Exceptions\ApiStatusException::class );
+        $this->expectException( ApiStatusException::class );
 
         $request->get_data();
     }
