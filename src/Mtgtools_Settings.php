@@ -22,6 +22,12 @@ class Mtgtools_Settings extends Module
      */
     private $section_defs = [
         [
+            'id' => 'mtgtools_card_images',
+            'title' => 'Card images',
+            'page' => 'settings',
+            'description' => 'Settings to control Magic card images in popups and inline content.',
+        ],
+        [
             'id' => 'mtgtools_updates',
             'title' => 'Automated updates',
             'page' => 'settings',
@@ -37,41 +43,7 @@ class Mtgtools_Settings extends Module
     /**
      * Option defs
      */
-    private $option_defs = [
-        'check_for_updates' => [
-            'page' => 'settings',
-            'section' => 'mtgtools_updates',
-            'type' => 'checkbox',
-            'default_value' => true,
-            'label' => 'Update checker',
-            'input_args' => [
-                'label' => 'Check for updates automatically',
-            ],
-        ],
-        'update_period_in_weeks' => [
-            'page' => 'settings',
-            'section' => 'mtgtools_updates',
-            'type' => 'select',
-            'label' => 'Frequency',
-            'default_value' => '2',
-            'options' => [
-                '1' => 'Weekly',
-                '2' => 'Biweekly',
-                '4' => 'Monthly',
-                '24' => 'Every 6 months',
-            ],
-        ],
-        'show_update_notices' => [
-            'page' => 'settings',
-            'section' => 'mtgtools_updates',
-            'type' => 'checkbox',
-            'default_value' => true,
-            'label' => 'Admin notices',
-            'input_args' => [
-                'label' => 'Notify me about updates on the WordPress dashboard',
-            ],
-        ],
-    ];
+    private $option_defs;
 
     /**
      * Options
@@ -86,10 +58,10 @@ class Mtgtools_Settings extends Module
     /**
      * Constructor
      */
-    public function __construct( Option_Factory $factory, $wp_tasks )
+    public function __construct( Option_Factory $factory, $plugin )
     {
         $this->option_factory = $factory;
-        parent::__construct( $wp_tasks );
+        parent::__construct( $plugin );
     }
 
     /**
@@ -174,7 +146,7 @@ class Mtgtools_Settings extends Module
      */
     private function get_all_options() : array
     {
-        foreach ( $this->option_defs as $key => $params )
+        foreach ( $this->get_option_defs() as $key => $params )
         {
             if ( !$this->option_instantiated( $key ) )
             {
@@ -193,7 +165,7 @@ class Mtgtools_Settings extends Module
         {
             throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined plugin option. No option registered for key '{$key}'." );
         }
-        $params = $this->option_defs[ $key ];
+        $params = $this->get_option_defs()[ $key ];
         $params['id'] = $key;
         return $this->option_factory()->create_option( $params );
     }
@@ -211,7 +183,7 @@ class Mtgtools_Settings extends Module
      */
     private function option_exists( string $key ) : bool
     {
-        return array_key_exists( $key, $this->option_defs );
+        return array_key_exists( $key, $this->get_option_defs() );
     }
 
     /**
@@ -238,6 +210,83 @@ class Mtgtools_Settings extends Module
     public function add_setting_section( array $params ) : void
     {
         $this->section_defs[] = $params;
+    }
+
+    /**
+     * Get option definitions
+     */
+    private function get_option_defs() : array
+    {
+        if ( !isset( $this->option_defs ) )
+        {
+            $this->option_defs = [
+                'lazy_fetch_images' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'checkbox',
+                    'label' => 'Image uris',
+                    'default_value' => true,
+                    'input_args' => [
+                        'label' => 'Fetch card images lazily.',
+                    ],
+                ],
+                'image_cache_period_in_seconds' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'select',
+                    'label' => 'Refresh cached images',
+                    'default_value' => strval( MONTH_IN_SECONDS ),
+                    'options' => [
+                        DAY_IN_SECONDS => 'Daily',
+                        WEEK_IN_SECONDS => 'Weekly',
+                        MONTH_IN_SECONDS => 'Monthly',
+                        YEAR_IN_SECONDS => 'Annually',
+                    ],
+                ],
+                'popup_image_type' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'select',
+                    'label' => 'Image size in hover-over popups',
+                    'default_value' => 'normal',
+                    'options_callback' => array( $this->plugin()->get_mtg_data_source(), 'get_image_types' ),
+                ],
+                'check_for_updates' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_updates',
+                    'type' => 'checkbox',
+                    'default_value' => true,
+                    'label' => 'Update checker',
+                    'input_args' => [
+                        'label' => 'Check for updates automatically',
+                    ],
+                ],
+                'update_period_in_weeks' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_updates',
+                    'type' => 'select',
+                    'label' => 'Frequency',
+                    'default_value' => '2',
+                    'options' => [
+                        '1' => 'Weekly',
+                        '2' => 'Biweekly',
+                        '4' => 'Monthly',
+                        '24' => 'Every 6 months',
+                    ],
+                ],
+                'show_update_notices' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_updates',
+                    'type' => 'checkbox',
+                    'default_value' => true,
+                    'label' => 'Admin notices',
+                    'input_args' => [
+                        'label' => 'Notify me about updates on the WordPress dashboard',
+                    ],
+                ],
+            ];
+        }
+        return $this->option_defs;
     }
 
     /**

@@ -72,6 +72,18 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can get images module
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetImagesModule( Mtgtools_Plugin $instance ) : void
+    {
+        $module = $instance->images();
+
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Images::class, $module );
+    }
+
+    /**
      * ---------------------------
      *   D E P E N D E N C I E S
      * ---------------------------

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Settings;
-use Mtgtools\Wp_Task_Library;
+use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Wp_Tasks\Options\Option_Factory;
 use Mtgtools\Wp_Tasks\Options\Option;
 
@@ -22,7 +22,7 @@ class Mtgtools_Settings_Test extends WP_UnitTestCase
      * Dependencies
      */
     private $option_factory;
-    private $wp_tasks;
+    private $plugin;
 
     /**
      * Setup
@@ -31,8 +31,8 @@ class Mtgtools_Settings_Test extends WP_UnitTestCase
     {
         parent::setUp();
         $this->option_factory = $this->createMock( Option_Factory::class );
-        $this->wp_tasks = $this->createMock( Wp_Task_Library::class );
-        $this->settings = new Mtgtools_Settings( $this->option_factory, $this->wp_tasks );
+        $this->plugin = $this->createMock( Mtgtools_Plugin::class );
+        $this->settings = new Mtgtools_Settings( $this->option_factory, $this->plugin );
     }
 
     /**

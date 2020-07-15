@@ -8,8 +8,10 @@
 namespace Mtgtools;
 
 use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Cards\Card_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Scryfall\Services;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Wp_Tasks\Options\Option_Factory;
 
@@ -25,6 +27,7 @@ class Mtgtools_Plugin
 	private $dashboard;
 	private $updates;
 	private $settings;
+	private $images;
 
 	/**
 	 * Module task library
@@ -53,6 +56,7 @@ class Mtgtools_Plugin
 	public function init() : void
 	{
 		$this->symbols()->add_hooks();
+		$this->images()->add_hooks();
 		if ( is_admin() && is_user_logged_in() )
 		{
 			$this->dashboard()->add_hooks();
@@ -76,7 +80,7 @@ class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this );
 		}
 		return $this->symbols;
 	}
@@ -89,7 +93,7 @@ class Mtgtools_Plugin
 		if ( !isset( $this->dashboard ) )
 		{
 			$factory = new Dashboard_Tab_Factory();
-			$this->dashboard = new Mtgtools_Dashboard( $factory, $this->wp_tasks() );
+			$this->dashboard = new Mtgtools_Dashboard( $factory, $this );
 		}
 		return $this->dashboard;
 	}
@@ -103,7 +107,7 @@ class Mtgtools_Plugin
 		{
 			global $wpdb;
 			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this->wp_tasks() );
+			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this );
 		}
 		return $this->updates;
 	}
@@ -116,9 +120,40 @@ class Mtgtools_Plugin
 		if ( !isset( $this->settings ) )
 		{
 			$factory = new Option_Factory();
-			$this->settings = new Mtgtools_Settings( $factory, $this->wp_tasks() );
+			$this->settings = new Mtgtools_Settings( $factory, $this );
 		}
 		return $this->settings;
+	}
+
+	/**
+	 * Get images module
+	 */
+	public function images() : Mtgtools_Images
+	{
+		if ( !isset( $this->images ) )
+		{
+			$this->images = new Mtgtools_Images(
+				$this->cards_db(),
+				$this->get_mtg_data_source(),
+				$this
+			);
+		}
+		return $this->images;
+	}
+
+	/**
+	 * -------------------
+	 *   D A T A B A S E
+	 * -------------------
+	 */
+
+	/**
+	 * Get db ops for cards
+	 */
+	public function cards_db() : Card_Db_Ops
+	{
+		global $wpdb;
+		return new Card_Db_Ops( $wpdb );
 	}
 
 	/**
@@ -148,7 +183,7 @@ class Mtgtools_Plugin
 	/**
 	 * Get Magic: The Gathering data source
 	 */
-	private function get_mtg_data_source() : Mtg_Data_Source
+	public function get_mtg_data_source() : Mtg_Data_Source
 	{
 		return apply_filters( 'mtgtools_mtg_data_source', $this->get_scryfall_source() );
 	}
@@ -158,7 +193,9 @@ class Mtgtools_Plugin
 	 */
 	private function get_scryfall_source() : Scryfall_Data_Source
 	{
-		return new Scryfall_Data_Source();
+		$symbols = new Services\Scryfall_Symbols();
+		$cards = new Services\Scryfall_Cards();
+		return new Scryfall_Data_Source( $symbols, $cards );
 	}
 
 	/**

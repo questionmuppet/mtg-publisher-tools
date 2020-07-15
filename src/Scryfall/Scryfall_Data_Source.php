@@ -2,19 +2,42 @@
 /**
  * Scryfall_Data_Source
  * 
- * Fetches MTG data from Scryfall API
+ * Exposes Scryfall Api data using a standardized interface
  */
 
 namespace Mtgtools\Scryfall;
-use Mtgtools\Scryfall\Abstracts\Scryfall_Api_Handler;
+
 use Mtgtools\Interfaces\Mtg_Data_Source;
-use Mtgtools\Symbols\Mana_Symbol;
+use Mtgtools\Scryfall\Services\Scryfall_Symbols;
+use Mtgtools\Scryfall\Services\Scryfall_Cards;
+use Mtgtools\Cards\Magic_Card;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Scryfall_Data_Source extends Scryfall_Api_Handler implements Mtg_Data_Source
+class Scryfall_Data_Source implements Mtg_Data_Source
 {
+    /**
+     * Api services
+     */
+    private $symbols;
+    private $cards;
+
+    /**
+     * Constructor
+     */
+    public function __construct( Scryfall_Symbols $symbols, Scryfall_Cards $cards )
+    {
+        $this->symbols = $symbols;
+        $this->cards = $cards;
+    }
+
+    /**
+     * ---------------------------
+     *   M A N A   S Y M B O L S
+     * ---------------------------
+     */
+
     /**
      * Get all mana symbols
      * 
@@ -22,16 +45,44 @@ class Scryfall_Data_Source extends Scryfall_Api_Handler implements Mtg_Data_Sour
      */
     public function get_mana_symbols() : array
     {
-        $symbols = [];
-        foreach ( $this->get_list_endpoint('symbology') as $data )
-        {
-            $symbols[] = new Mana_Symbol([
-                'plaintext'      => $data['symbol'],
-                'english_phrase' => $data['english'],
-                'svg_uri'        => $data['svg_uri'],
-            ]);
-        }
-        return $symbols;
+        return $this->symbols()->get_all_symbols();
+    }
+
+    /**
+     * -------------------------
+     *   M A G I C   C A R D S
+     * -------------------------
+     */
+
+    /**
+     * Fetch a single card matching search filters
+     * 
+     * @throws ApiException
+     */
+    public function fetch_card( array $filters ) : Magic_Card
+    {
+        return $this->cards()->fetch_card_by_filters( $filters );
+    }
+
+    /**
+     * -----------
+     *   I N F O
+     * -----------
+     */
+
+    /**
+     * Get available image types
+     */
+    public function get_image_types() : array
+    {
+        return [
+            'png' => 'High-resolution',
+            'large' => 'Large',
+            'normal' => 'Normal',
+            'small' => 'Small',
+            'border_crop' => 'Border crop',
+            'art_crop' => 'Art crop',
+        ];
     }
 
     /**
@@ -48,6 +99,28 @@ class Scryfall_Data_Source extends Scryfall_Api_Handler implements Mtg_Data_Sour
     public function get_documentation_uri() : string
     {
         return 'https://scryfall.com/docs/api/';
+    }
+
+    /**
+     * ---------------------------
+     *   A P I   S E R V I C E S
+     * ---------------------------
+     */
+
+    /**
+     * Get symbols service
+     */
+    private function symbols() : Scryfall_Symbols
+    {
+        return $this->symbols;
+    }
+
+    /**
+     * Get cards service
+     */
+    private function cards() : Scryfall_Cards
+    {
+        return $this->cards;
     }
 
 }   // End of class

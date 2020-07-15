@@ -35,11 +35,11 @@ class Mtgtools_Updates extends Module
     /**
      * Constructor
      */
-    public function __construct( Symbol_Db_Ops $db_ops, Mtg_Data_Source $source, $wp_tasks )
+    public function __construct( Symbol_Db_Ops $db_ops, Mtg_Data_Source $source, $plugin )
     {
         $this->db_ops = $db_ops;
         $this->source = $source;
-        parent::__construct( $wp_tasks );
+        parent::__construct( $plugin );
     }
 
     /**

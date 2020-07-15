@@ -16,9 +16,9 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 abstract class Module
 {
     /**
-     * WP Task library
+     * Plugin instance
      */
-    private $wp_tasks;
+    private $plugin;
 
     /**
      * Admin-post handlers
@@ -28,18 +28,23 @@ abstract class Module
     /**
      * Constructor
      */
-    public function __construct( Wp_Task_Library $wp_tasks )
+    public function __construct( Mtgtools_Plugin $plugin )
     {
-        $this->wp_tasks = $wp_tasks;
+        $this->plugin = $plugin;
     }
+
+    /**
+     * ---------------------------
+     *   P L U G I N   T A S K S
+     * ---------------------------
+     */
 
     /**
      * Get dashboard url
      */
     protected function get_dashboard_url( string $tab ) : string
     {
-        $plugin = \Mtgtools\Mtgtools_Plugin::get_instance();
-        return $plugin->dashboard()->get_tab_url( $tab );
+        return $this->plugin()->dashboard()->get_tab_url( $tab );
     }
 
     /**
@@ -49,8 +54,7 @@ abstract class Module
      */
     protected function get_plugin_option( string $key )
     {
-        $plugin = \Mtgtools\Mtgtools_Plugin::get_instance();
-        return $plugin->settings()->get_plugin_option( $key )->get_value();
+        return $this->plugin()->settings()->get_plugin_option( $key )->get_value();
     }
 
     /**
@@ -62,6 +66,12 @@ abstract class Module
     {
         $this->plugin()->settings()->get_plugin_option( $key )->update( $value );
     }
+
+    /**
+     * -------------------
+     *   W P   T A S K S
+     * -------------------
+     */
 
     /**
      * Enqueue a CSS style
@@ -122,11 +132,17 @@ abstract class Module
     }
 
     /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+
+    /**
      * Get WP Tasks library
      */
     final protected function wp_tasks() : Wp_Task_Library
     {
-        return $this->wp_tasks;
+        return $this->plugin()->wp_tasks();
     }
 
     /**
@@ -134,7 +150,7 @@ abstract class Module
      */
     final protected function plugin() : Mtgtools_Plugin
     {
-        return Mtgtools_Plugin::get_instance();
+        return $this->plugin;
     }
 
 }   // End of class
