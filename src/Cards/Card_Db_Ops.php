@@ -27,6 +27,11 @@ class Card_Db_Ops extends Db_Ops
      * Valid filter arguments for query
      */
     protected $valid_filters = [ 'card_uuid', 'type', 'uuid', 'name', 'set_code', 'language', 'variant' ];
+
+    /**
+     * Image cache period
+     */
+    private $cache_period = 0;
     
     /**
      * -------------
@@ -100,6 +105,7 @@ class Card_Db_Ops extends Db_Ops
         $images = [];
         foreach ( json_decode( $json, true ) as $data )
         {
+            $data['cache_period'] = $this->get_cache_period();
             $image = new Image_Uri( $data );
             $images[ $image->get_type() ] = $image;
         }
@@ -176,6 +182,30 @@ class Card_Db_Ops extends Db_Ops
                 'cached' => date( 'Y-m-d H:i:s' ),
             ],
         ]);
+    }
+
+    /**
+     * ---------------------------
+     *   C A C H E   P E R I O D
+     * ---------------------------
+     */
+    
+    /**
+     * Get image cache period
+     * 
+     * @return int Cache period in seconds
+     */
+    private function get_cache_period() : int
+    {
+        return $this->cache_period;
+    }
+
+    /**
+     * Set image cache period
+     */
+    public function set_cache_period( int $seconds ) : void
+    {
+        $this->cache_period = $seconds;
     }
 
     /**

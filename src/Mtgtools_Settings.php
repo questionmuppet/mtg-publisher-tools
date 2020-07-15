@@ -220,6 +220,29 @@ class Mtgtools_Settings extends Module
         if ( !isset( $this->option_defs ) )
         {
             $this->option_defs = [
+                'lazy_fetch_images' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'checkbox',
+                    'label' => 'Image uris',
+                    'default_value' => true,
+                    'input_args' => [
+                        'label' => 'Fetch card images lazily.',
+                    ],
+                ],
+                'image_cache_period_in_seconds' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'select',
+                    'label' => 'Refresh cached images',
+                    'default_value' => strval( MONTH_IN_SECONDS ),
+                    'options' => [
+                        DAY_IN_SECONDS => 'Daily',
+                        WEEK_IN_SECONDS => 'Weekly',
+                        MONTH_IN_SECONDS => 'Monthly',
+                        YEAR_IN_SECONDS => 'Annually',
+                    ],
+                ],
                 'popup_image_type' => [
                     'page' => 'settings',
                     'section' => 'mtgtools_card_images',

@@ -26,7 +26,7 @@ class Image_Uri extends Data
      * Default properties
      */
     protected $defaults = array(
-        'cache_period' => WEEK_IN_SECONDS,
+        'cache_period' => 0,
         'cached' => null,
     );
 
