@@ -242,7 +242,8 @@ class Card_Db_Ops extends Db_Ops
                 set_code varchar(16) NOT NULL,
                 collector_number varchar(16) NOT NULL,
                 language varchar(16) NOT NULL,
-                PRIMARY KEY (id)
+                PRIMARY KEY (id),
+                UNIQUE KEY printing (set_code, collector_number, language)
             ) {$this->get_collate()};"
         );
     }

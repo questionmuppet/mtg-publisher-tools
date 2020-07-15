@@ -7,6 +7,7 @@ use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Cards\Card_Db_Ops;
 use Mtgtools\Cards\Magic_Card;
 use Mtgtools\Exceptions\Db\DbException;
+use Mtgtools\Exceptions\Api\ApiException;
 
 class Mtgtools_Images_Test extends WP_UnitTestCase
 {
@@ -69,7 +70,7 @@ class Mtgtools_Images_Test extends WP_UnitTestCase
     {
         $this->db_ops->method('find_card')->willReturn( $this->get_mock_card() );
         
-        $uri = $this->images->find_image_uri( [], '' );
+        $uri = $this->images->find_image_uri( [ 'name' => 'Tarmogoyf' ], 'small' );
         
         $this->assertEquals( self::TEST_URI, $uri );
     }
@@ -84,9 +85,24 @@ class Mtgtools_Images_Test extends WP_UnitTestCase
         $this->db_ops->method('find_card')->willThrowException( new DbException( "Encountered a database error." ) );
         $this->source->method('fetch_card')->willReturn( $this->get_mock_card() );
 
-        $uri = $this->images->find_image_uri( [], '' );
+        $uri = $this->images->find_image_uri( [ 'name' => 'Tarmogoyf' ], 'small' );
 
         $this->assertEquals( self::TEST_URI, $uri );
+    }
+
+    /**
+     * TEST: Uri fetch that encounters an api error returns an empty string
+     * 
+     * @depends testCanGetImageUriRemotely
+     */
+    public function testApiErrorDuringImageFetchReturnsEmptyString() : void
+    {
+        $this->db_ops->method('find_card')->willThrowException( new DbException( "Encountered a database error." ) );
+        $this->source->method('fetch_card')->willThrowException( new ApiException( "Encountered an api error." ) );
+
+        $uri = $this->images->find_image_uri( [], '' );
+
+        $this->assertEquals( '', $uri );
     }
 
     /**

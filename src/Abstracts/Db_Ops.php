@@ -37,7 +37,7 @@ abstract class Db_Ops extends Data
     {
         $this->db = $db;
         parent::__construct( $props );
-        $this->tables = array_replace( $this->tables, $this->get_prop( 'tables' ) );
+        $this->tables = array_replace( $this->tables, $this->get_prop( 'tables' ) ?? [] );
     }
 
     /**

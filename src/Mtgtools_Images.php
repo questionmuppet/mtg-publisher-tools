@@ -15,6 +15,7 @@ use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Exceptions\Db\DbException;
 use Mtgtools\Exceptions\Cache\CacheException;
 use Mtgtools\Exceptions\Cache\MissingDataException;
+use Mtgtools\Exceptions\Api\ApiException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -25,10 +26,10 @@ class Mtgtools_Images extends Module
      * Search filters
      */
     private $search_filters = [
-        'uuid',
-        'set_code',
-        'collector_number',
+        'id',
         'name',
+        'set',
+        'number',
         'language'
     ];
 
@@ -46,11 +47,11 @@ class Mtgtools_Images extends Module
     /**
      * Constructor
      */
-    public function __construct( Card_Db_Ops $db_ops, Mtg_Data_Source $source, $wp_tasks )
+    public function __construct( Card_Db_Ops $db_ops, Mtg_Data_Source $source, $plugin )
     {
         $this->db_ops = $db_ops;
         $this->source = $source;
-        parent::__construct( $wp_tasks );
+        parent::__construct( $plugin );
     }
 
     /**
@@ -101,16 +102,54 @@ class Mtgtools_Images extends Module
      */
 
     /**
+     * Locate a card image uri
+     * 
+     * @param array $filters    One or more parameters matching a valid search scheme
+     * @param string $type      Image type, defaults to admin setting
+     * @return string           Uri to remote image file, empty string on failure
+     */
+    public function find_image_uri( array $filters, string $type = null ) : string
+    {
+        try
+        {
+            $filters = $this->validate_filters( $filters );
+            return count( $filters )
+                ? $this->locate_image_uri(
+                    $filters,
+                    $type ?? $this->get_popup_image_type()
+                )
+                : '';
+        }
+        catch ( ApiException $e )
+        {
+            return '';
+        }
+    }
+
+    /**
+     * Convert user-readable args to standardized filter keys
+     */
+    private function validate_filters( array $filters ) : array
+    {
+        return array_filter(
+            [
+                'name' => sanitize_text_field( $filters['name'] ?? '' ),
+                'uuid' => sanitize_text_field( $filters['id'] ?? '' ),
+                'set_code' => sanitize_text_field( $filters['set'] ?? '' ),
+                'collector_number' => sanitize_text_field( $filters['number'] ?? '' ),
+                'language' => sanitize_text_field( $filters['language'] ?? '' ),
+            ],
+            'strlen'
+        );
+    }
+
+    /**
      * Get card image uri from db or data source
      * 
-     * @param array $filters One or more parameters matching a valid search scheme
-     * @param string $type   Image type, defaults to admin setting
-     * @return string        Uri to remote image file
      * @throws ApiException
      */
-    public function find_image_uri( array $filters = [], string $type = null ) : string
+    private function locate_image_uri( array $filters, string $type ) : string
     {
-        $type = $type ?? $this->get_popup_image_type();
         try
         {
             return $this->get_cached_image_uri( $filters, $type );

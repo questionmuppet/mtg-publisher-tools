@@ -307,7 +307,6 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $this->expectException( Exceptions\DbException::class );
 
         $card = $this->db_ops->find_card([
-            'uuid' => self::MOCK_CARD['uuid'],
             'name' => 'Incorrect Card Name',
         ]);
     }

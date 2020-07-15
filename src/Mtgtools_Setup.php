@@ -7,6 +7,8 @@
 
 namespace Mtgtools;
 
+use Mtgtools\Cards\Card_Db_Ops;
+
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
@@ -32,6 +34,7 @@ class Mtgtools_Setup
     {
         $this->mtgtools()->symbols()->install_db_tables();
         $this->mtgtools()->symbols()->import_symbols();
+        $this->mtgtools()->cards_db()->create_tables();
     }
 
     /**
@@ -48,6 +51,7 @@ class Mtgtools_Setup
     public function uninstall() : void
     {
         $this->mtgtools()->symbols()->delete_db_tables();
+        $this->mtgtools()->cards_db()->drop_tables();
     }
 
     /**

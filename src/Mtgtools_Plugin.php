@@ -8,6 +8,7 @@
 namespace Mtgtools;
 
 use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Cards\Card_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Scryfall\Services;
@@ -26,6 +27,7 @@ class Mtgtools_Plugin
 	private $dashboard;
 	private $updates;
 	private $settings;
+	private $images;
 
 	/**
 	 * Module task library
@@ -54,6 +56,7 @@ class Mtgtools_Plugin
 	public function init() : void
 	{
 		$this->symbols()->add_hooks();
+		$this->images()->add_hooks();
 		if ( is_admin() && is_user_logged_in() )
 		{
 			$this->dashboard()->add_hooks();
@@ -120,6 +123,37 @@ class Mtgtools_Plugin
 			$this->settings = new Mtgtools_Settings( $factory, $this );
 		}
 		return $this->settings;
+	}
+
+	/**
+	 * Get images module
+	 */
+	public function images() : Mtgtools_Images
+	{
+		if ( !isset( $this->images ) )
+		{
+			$this->images = new Mtgtools_Images(
+				$this->cards_db(),
+				$this->get_mtg_data_source(),
+				$this
+			);
+		}
+		return $this->images;
+	}
+
+	/**
+	 * -------------------
+	 *   D A T A B A S E
+	 * -------------------
+	 */
+
+	/**
+	 * Get db ops for cards
+	 */
+	public function cards_db() : Card_Db_Ops
+	{
+		global $wpdb;
+		return new Card_Db_Ops( $wpdb );
 	}
 
 	/**

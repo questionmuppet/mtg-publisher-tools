@@ -74,7 +74,7 @@ class Scryfall_Cards extends Scryfall_Api_Handler
     {
         foreach ( $required as $key )
         {
-            if ( empty( $params[ $key ] ) )
+            if ( !strlen( $params[ $key ] ?? '' ) )
             {
                 return false;
             }
