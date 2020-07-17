@@ -64,6 +64,34 @@ class Card_Cache_Test extends WP_UnitTestCase
     }
 
     /**
+     * TEST: Can retrieve card using name
+     * 
+     * @depends testCanRetrieveCardFromCache
+     */
+    public function testCanRetrieveCardUsingName() : void
+    {
+        $card = $this->cache->locate_card([ 'name' => 'Stoneforge Mystic' ]);
+
+        $this-> assertInstanceOf( Cards\Magic_Card::class, $card );
+    }
+
+    /**
+     * TEST: Can retrieve card using set + number
+     * 
+     * @depends testCanRetrieveCardFromCache
+     */
+    public function testCanRetrieveCardUsingCollectorNumber() : void
+    {
+        $card = $this->cache->locate_card([
+            'set' => 'WWK',
+            'number' => 20,
+            'language' => 'en',
+        ]);
+
+        $this-> assertInstanceOf( Cards\Magic_Card::class, $card );
+    }
+
+    /**
      * TEST: Can retrieve card with required image type
      * 
      * @depends testCanRetrieveCardFromCache

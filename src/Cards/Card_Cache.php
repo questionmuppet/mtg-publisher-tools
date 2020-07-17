@@ -72,8 +72,8 @@ class Card_Cache extends Module
      */
     private function validate_filters( array $filters ) : array
     {
-        $filters = $this->find_search_scheme( $filters );
-        if ( empty( $filters ) )
+        $filters = $this->find_search_scheme( array_filter( $filters, 'strlen' ) );
+        if ( !count( $filters ) )
         {
             throw new Mtg\MtgParameterException( "A request for Magic card data was made with invalid search criteria. Your filters must match a valid search scheme." );
         }
