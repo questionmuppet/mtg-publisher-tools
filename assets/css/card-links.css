@@ -1,0 +1,55 @@
+/**
+* Links
+*/
+.mtgtools-card-link {
+    position: relative;
+}
+
+/**
+* Tooltips
+*/
+.mtgtools-tooltip {
+    position: absolute;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+}
+.mtgtools-tooltip.right,
+.mtgtools-tooltip.left {
+    top: 50%;
+    transform: translateY(-50%);
+}
+.mtgtools-tooltip.left {
+    right: 100%;
+}
+.mtgtools-tooltip.top,
+.mtgtools-tooltip.bottom {
+    left: 50%;
+    transform: translateX(-50%);
+}
+.mtgtools-tooltip.top {
+    bottom: 100%;
+}
+.mtgtools-tooltip.bottom {
+    top: 100%;
+}
+
+/**
+* Popups
+*/
+.mtgtools-card-popup {
+    margin: 1em;
+    width: 244px;
+    height: 340px;
+    z-index: 10;
+    background: whitesmoke;
+    border-radius: 10.5px;      /* Slightly greater than image to allow anti-aliasing on edges */
+}
+.mtgtools-card-popup.hidden {
+    display: none;
+}
+
+/**
+* Card Images
+*/
+.mtgtools-card-image {
+    max-width: 100%;
+}

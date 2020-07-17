@@ -2,7 +2,7 @@
 /**
  * ExpiredDataException
  * 
- * Exception thrown when data requested from db cache has expired
+ * Exception thrown when data requested from cache is expired
  */
 
 namespace Mtgtools\Exceptions\Cache;

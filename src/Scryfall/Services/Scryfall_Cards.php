@@ -153,6 +153,7 @@ class Scryfall_Cards extends Scryfall_Api_Handler
             'uuid' => $data['id'],
             'name' => $data['name'],
             'set_code' => $data['set'],
+            'set_name' => $data['set_name'],
             'language' => $data['lang'],
             'collector_number' => $data['collector_number'],
             'images' => $this->create_image_uris( $data ),

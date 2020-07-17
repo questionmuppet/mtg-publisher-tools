@@ -43,6 +43,7 @@ class Card_Db_Ops extends Db_Ops
      * Find a card and all cached image uris
      * 
      * @param array $filters One or more "column" => "value" pairs to search by
+     * @throws NoResultsException
      */
     public function find_card( array $filters ) : Magic_Card
     {
@@ -59,7 +60,7 @@ class Card_Db_Ops extends Db_Ops
     private function get_card_row( array $filters ) : array
     {
         $row = $this->db()->get_row(
-            "SELECT uuid, name, set_code, language, collector_number, images
+            "SELECT uuid, name, set_code, set_name, language, collector_number, images
             FROM {$this->get_cards_table()}
             LEFT JOIN (
                 SELECT card_uuid, JSON_ARRAYAGG(
@@ -73,7 +74,7 @@ class Card_Db_Ops extends Db_Ops
         );
         if ( is_null( $row ) )
         {
-            throw new Exceptions\DbException( "No card record was found in the database matching the provided filters." );
+            throw new Exceptions\NoResultsException( "No card record was found in the database matching the provided filters." );
         }
         return $row;
     }
@@ -133,6 +134,7 @@ class Card_Db_Ops extends Db_Ops
                 'uuid' => $card->get_uuid(),
                 'name' => $card->get_name(),
                 'set_code' => $card->get_set_code(),
+                'set_name' => $card->get_set_name(),
                 'language' => $card->get_language(),
                 'collector_number' => $card->get_collector_number(),
             ],
@@ -240,6 +242,7 @@ class Card_Db_Ops extends Db_Ops
                 name text NOT NULL,
                 uuid varchar(128) UNIQUE NOT NULL,
                 set_code varchar(16) NOT NULL,
+                set_name tinytext NOT NULL,
                 collector_number varchar(16) NOT NULL,
                 language varchar(16) NOT NULL,
                 PRIMARY KEY (id),

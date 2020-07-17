@@ -2,13 +2,12 @@
 /**
  * Card_Link
  * 
- * Generates HTML for a Magic card hyperlink
+ * Generates HTML for a Magic card popup link
  */
 
 namespace Mtgtools\Cards;
 
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Mtgtools_Images;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -27,22 +26,8 @@ class Card_Link extends Data
      * Default properties
      */
     protected $defaults = [
-        'is_ajax' => false,
+        'href' => '#',
     ];
-
-    /**
-     * Dependencies
-     */
-    private $images;
-
-    /**
-     * Constructor
-     */
-    public function __construct( array $props, Mtgtools_Images $images )
-    {
-        $this->images = $images;
-        parent::__construct( $props );
-    }
 
     /**
      * Get HTML markup as string
@@ -53,19 +38,9 @@ class Card_Link extends Data
             '<a href="%s" class="%s" %s>%s</a>',
             esc_url( $this->get_href() ),
             esc_attr( $this->get_css_class() ),
-            $this->is_ajax() ? $this->generate_data_attributes() : '',
+            $this->generate_data_attributes(),
             wp_kses_post( $this->get_content() )
         );
-    }
-
-    /**
-     * Get href
-     */
-    private function get_href() : string
-    {
-        return $this->is_ajax()
-            ? '#'
-            : $this->images()->find_image_uri( $this->get_filters() );
     }
 
     /**
@@ -83,11 +58,10 @@ class Card_Link extends Data
     {
         $classes = array_filter([
             'mtgtools-card-link',
-            $this->is_ajax() ? 'is-ajax' : ''
         ]);
 
         /**
-         * Allow for third-party modifications
+         * Allow for third-party classes
          * 
          * @param array $filters    User-provided search filters in shortcode
          * @param string $content   Interior link content
@@ -123,7 +97,7 @@ class Card_Link extends Data
     /**
      * Get card search filters
      */
-    private function get_filters() : array
+    public function get_filters() : array
     {
         return array_replace(
             [ 'name' => $this->get_content() ],
@@ -138,27 +112,21 @@ class Card_Link extends Data
     {
         return $this->get_prop( 'content' );
     }
-
+    
     /**
-     * Check whether image is fetched lazily via ajax
+     * Set href
      */
-    private function is_ajax() : bool
+    public function set_href( string $href ) : void
     {
-        return boolval( $this->get_prop( 'is_ajax' ) );
+        $this->set_prop( 'href', $href );
     }
 
     /**
-     * ---------------------------
-     *   D E P E N D E N C I E S
-     * ---------------------------
+     * Get href
      */
-
-    /**
-     * Get images module
-     */
-    private function images() : Mtgtools_Images
+    private function get_href() : string
     {
-        return $this->images;
+        return $this->get_prop( 'href' );
     }
 
 }   // End of class

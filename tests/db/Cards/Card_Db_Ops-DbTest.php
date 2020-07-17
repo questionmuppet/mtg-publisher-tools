@@ -362,7 +362,7 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $card = $this->db_ops->find_card([ 'uuid' => self::MOCK_CARD['uuid'] ]);
 
         $this->assertCount( 2, $card->get_images(), 'A Magic_Card returned by a query did not contain the expected number of image uris.' );
-        $this->assertEquals( self::IMAGE_1['uri'], $card->get_image_uri( self::IMAGE_1['type'] ), 'Failed to assert that an image uri returned by a query contained the expected values.' );
+        $this->assertEquals( self::IMAGE_1['uri'], $card->get_image( self::IMAGE_1['type'] )->get_uri(), 'Failed to assert that an image uri returned by a query contained the expected values.' );
     }
 
     /**

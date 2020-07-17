@@ -2,7 +2,7 @@
 /**
  * MissingDataException
  * 
- * Exception thrown when data requested from db cache is missing
+ * Exception thrown when data requested from cache is missing
  */
 
 namespace Mtgtools\Exceptions\Cache;

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 use Mtgtools\Cards\Magic_Card;
 use Mtgtools\Cards\Image_Uri;
-use Mtgtools\Exceptions\Cache as Exceptions;
 
 class Magic_Card_Test extends WP_UnitTestCase
 {
@@ -15,7 +14,6 @@ class Magic_Card_Test extends WP_UnitTestCase
     const SET_CODE = 'WWK';
     const LANGUAGE = 'English';
     const COLLECTOR_NUMBER = '42a';
-    const URI = 'https://www.example.com/image.svg';
 
     /**
      * Dependencies
@@ -56,53 +54,60 @@ class Magic_Card_Test extends WP_UnitTestCase
         $this->assertEquals( self::UUID, $card->get_uuid(), "Could not retrieve public property 'uuid'." );
         $this->assertEquals( self::NAME, $card->get_name(), "Could not retrieve public property 'name'." );
         $this->assertEquals( self::SET_CODE, $card->get_set_code(), "Could not retrieve public property 'set_code'." );
-        $this->assertEquals( self::LANGUAGE, $card->get_language(), "Could not retrieve public property 'language'." );
         $this->assertEquals( self::COLLECTOR_NUMBER, $card->get_collector_number(), "Could not retrieve public property 'collector_number'." );
-        $this->assertIsArray( $card->get_images(), "Could not retrieve public property 'images'." );
+        $this->assertEquals( self::LANGUAGE, $card->get_language(), "Could not retrieve public property 'language'." );
+        $this->assertCount( 2, $card->get_images(), "Failed to assert that a card contained the expected number of image uris." );
+        $this->assertIsString( $card->get_name_with_edition(), "Could not retrieve human-readable name string with edition." );
+        $this->assertIsString( $card->get_alt_text(), "Could not retreive alt-text string." );
     }
-
+    
     /**
-     * TEST: Can get valid image uri by type
-     * 
-     * @depends testCanGetPublicProperties
+     * TEST: Can get image by type
      */
-    public function testCanGetValidImageUriByType() : void
-    {
-        $this->images['large']->method('get_uri')->willReturn( self::URI );
-        $card = $this->create_card();
-
-        $uri = $card->get_image_uri( 'large' );
-
-        $this->assertEquals( self::URI, $uri );
-    }
-
-    /**
-     * TEST: Request for missing uri throws MissingDataException
-     * 
-     * @depends testCanGetValidImageUriByType
-     */
-    public function testRequestForMissingUriThrowsMissingDataException() : void
+    public function testCanGetImageByType() : void
     {
         $card = $this->create_card();
 
-        $this->expectException( Exceptions\MissingDataException::class );
+        $image = $card->get_image( 'large' );
 
-        $uri = $card->get_image_uri( 'invalid_type' );
+        $this->assertInstanceOf( Image_Uri::class, $image );
     }
 
     /**
-     * TEST: Request for expired uri throws ExpiredDataException
+     * TEST: Requesting a missing type returns default image
      * 
-     * @depends testCanGetValidImageUriByType
+     * @depends testCanGetImageByType
      */
-    public function testRequestForExpiredUriThrowsExpiredDataException() : void
+    public function testRequestingMissingImageReturnsDefault() : void
     {
-        $this->images['small']->method('is_expired')->willReturn( true );
         $card = $this->create_card();
 
-        $this->expectException( Exceptions\ExpiredDataException::class );
+        $image = $card->get_image( 'missing_type' );
 
-        $uri = $card->get_image_uri( 'small' );
+        $this->assertInstanceOf( Image_Uri::class, $image );
+    }
+
+    /**
+     * TEST: Requesting an image when none available throws UnexpectedValueException
+     */
+    public function testRequestingImageWhenNoneAvailableThrowsUnexpectedValueException() : void
+    {
+        $card = $this->create_card([ 'images' => [] ]);
+
+        $this->expectException( \UnexpectedValueException::class );
+
+        $card->get_image();
+    }
+    
+    /**
+     * Can check for presence of image
+     */
+    public function testCanCheckForImagePresence() : void
+    {
+        $card = $this->create_card();
+
+        $this->assertTrue( $card->has_image( 'small' ) );
+        $this->assertFalse( $card->has_image( 'invalid_type' ) );
     }
 
     /**

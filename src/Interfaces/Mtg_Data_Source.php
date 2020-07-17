@@ -17,13 +17,39 @@ interface Mtg_Data_Source
      * Get all mana symbols
      * 
      * @return Mana_Symbol[]
+     * @throws MtgSourceException
      */
     public function get_mana_symbols() : array;
 
     /**
      * Fetch a card matching search filters
+     * 
+     * @throws MtgSourceException
      */
     public function fetch_card( array $filters ) : Magic_Card;
+
+    /**
+     * ---------------------
+     *   M E T A   I N F O
+     * ---------------------
+     */
+
+    /**
+     * Get default language
+     */
+    public function get_default_language() : string;
+
+    /**
+     * Get available languages
+     * 
+     * @return array Associative array of "key" => "description"
+     */
+    public function get_languages() : array;
+
+    /**
+     * Get default image type
+     */
+    public function get_default_image_type() : string;
 
     /**
      * Get available image types

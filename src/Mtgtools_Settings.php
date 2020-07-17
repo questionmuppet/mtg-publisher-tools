@@ -11,6 +11,7 @@ use Mtgtools\Abstracts\Module;
 use Mtgtools\Wp_Tasks\Options\Option;
 use Mtgtools\Wp_Tasks\Options\Option_Factory;
 use Mtgtools\Wp_Tasks\Options\Settings_Section;
+use Mtgtools\Interfaces\Mtg_Data_Source;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -220,6 +221,14 @@ class Mtgtools_Settings extends Module
         if ( !isset( $this->option_defs ) )
         {
             $this->option_defs = [
+                'inline_image_type' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'select',
+                    'label' => 'Inline image size',
+                    'default_value' => $this->source()->get_default_image_type(),
+                    'options_callback' => array( $this->source(), 'get_image_types' ),
+                ],
                 'lazy_fetch_images' => [
                     'page' => 'settings',
                     'section' => 'mtgtools_card_images',
@@ -243,13 +252,26 @@ class Mtgtools_Settings extends Module
                         YEAR_IN_SECONDS => 'Annually',
                     ],
                 ],
-                'popup_image_type' => [
+                'popup_tooltip_location' => [
                     'page' => 'settings',
                     'section' => 'mtgtools_card_images',
                     'type' => 'select',
-                    'label' => 'Image size in hover-over popups',
-                    'default_value' => 'normal',
-                    'options_callback' => array( $this->plugin()->get_mtg_data_source(), 'get_image_types' ),
+                    'label' => 'Image popup location (relative to link)',
+                    'default_value' => 'right',
+                    'options' => [
+                        'left' => 'Left',
+                        'right' => 'Right',
+                        'top' => 'Top',
+                        'bottom' => 'Bottom',
+                    ],
+                ],
+                'default_language' => [
+                    'page' => 'settings',
+                    'section' => 'mtgtools_card_images',
+                    'type' => 'select',
+                    'label' => 'Default language for card images',
+                    'default_value' => $this->source()->get_default_language(),
+                    'options_callback' => array( $this->source(), 'get_languages' ),
                 ],
                 'check_for_updates' => [
                     'page' => 'settings',
@@ -301,6 +323,14 @@ class Mtgtools_Settings extends Module
     private function option_factory() : Option_Factory
     {
         return $this->option_factory;
+    }
+
+    /**
+     * Get data source
+     */
+    private function source() : Mtg_Data_Source
+    {
+        return $this->plugin()->get_mtg_data_source();
     }
 
 }   // End of class
