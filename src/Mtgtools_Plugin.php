@@ -14,6 +14,7 @@ use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Scryfall\Services;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Wp_Tasks\Options\Option_Factory;
+use Mtgtools\Cards\Card_Cache;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -132,11 +133,9 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->images ) )
 		{
-			$this->images = new Mtgtools_Images(
-				$this->cards_db(),
-				$this->get_mtg_data_source(),
-				$this
-			);
+			$source = $this->get_mtg_data_source();
+			$cache = new Card_Cache( $this->cards_db(), $source, $this );
+			$this->images = new Mtgtools_Images( $cache, $source->get_default_image_type(), $this );
 		}
 		return $this->images;
 	}

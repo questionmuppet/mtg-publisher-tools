@@ -8,14 +8,10 @@
 namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Cards\Card_Db_Ops;
-use Mtgtools\Cards\Card_Link;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Cards;
 
-use Mtgtools\Exceptions\Db\DbException;
-use Mtgtools\Exceptions\Cache\CacheException;
-use Mtgtools\Exceptions\Cache\MissingDataException;
-use Mtgtools\Exceptions\Sources\MtgDataSourceException;
+use Mtgtools\Exceptions\Mtg;
+use Mtgtools\Exceptions\Admin_Post;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -34,23 +30,22 @@ class Mtgtools_Images extends Module
     ];
 
     /**
-     * Options
+     * Parameters
      */
-    private $cache_period;
+    private $default_image_type;
 
     /**
      * Dependencies
      */
-    private $db_ops;
-    private $source;
+    private $card_cache;
 
     /**
      * Constructor
      */
-    public function __construct( Card_Db_Ops $db_ops, Mtg_Data_Source $source, $plugin )
+    public function __construct( Cards\Card_Cache $card_cache, string $img_type, $plugin )
     {
-        $this->db_ops = $db_ops;
-        $this->source = $source;
+        $this->card_cache = $card_cache;
+        $this->default_image_type = $img_type;
         parent::__construct( $plugin );
     }
 
@@ -63,8 +58,8 @@ class Mtgtools_Images extends Module
         $this->register_post_handlers([
             [
                 'type' => 'ajax',
-                'action' => 'mtgtools_find_image_uri',
-                'callback' => array( $this, 'find_image_uri' ),
+                'action' => 'mtgtools_get_card_popup',
+                'callback' => array( $this, 'get_popup_markup' ),
                 'user_args' => $this->get_valid_search_filters(),
             ]
         ]);
@@ -84,19 +79,20 @@ class Mtgtools_Images extends Module
      */
     public function add_card_link( $atts, $content = null ) : string
     {
-        $link = new Card_Link(
-            [
-                'filters' => array_filter(
-                    shortcode_atts(
-                        $this->get_shortcode_defaults(),
-                        $atts
-                    )
-                ),
-                'content' => $content,
-                'is_ajax' => $this->fetching_lazily(),
-            ],
-            $this
-        );
+        $link = new Cards\Card_Link([
+            'content' => $content,
+            'filters' => array_filter(
+                shortcode_atts(
+                    $this->get_shortcode_defaults(),
+                    $atts
+                )
+            ),
+        ]);
+        if ( !$this->fetching_lazily() )
+        {
+            $uri = $this->get_image_uri( $link->get_filters(), $this->get_default_image_type() );
+            $link->set_href( $uri );
+        }
         return $link->get_markup();
     }
 
@@ -109,128 +105,80 @@ class Mtgtools_Images extends Module
     }
 
     /**
-     * -----------------------
-     *   I M A G E   U R I S
-     * -----------------------
+     * -------------
+     *   P O P U P
+     * -------------
      */
 
     /**
-     * Locate a card image uri
+     * Get HTML for a card popup
      * 
-     * @param array $filters    One or more parameters matching a valid search scheme
-     * @param string $type      Image type, defaults to admin setting
-     * @return string           Uri to remote image file, empty string on failure
+     * @param array $filters Search criteris
+     * @throws PostHandlerException
      */
-    public function find_image_uri( array $filters, string $type = null ) : string
+    public function get_popup_markup( array $filters ) : array
     {
         try
         {
-            $filters = $this->validate_filters( $filters );
-            return empty( $filters )
-                ? ''
-                : $this->locate_image_uri( $filters, $type ?? $this->get_popup_image_type() );
+            $type = $this->get_default_image_type();
+            $card = $this->get_magic_card( $filters, $type );
+
+            $template = $this->wp_tasks()->create_template([
+                'path' => 'components/card-popup.php',
+                'vars' => [
+                    'card' => $card,
+                    'image' => $card->get_image( $type ),
+                    'tooltip' => $this->get_tooltip_location(),
+                ],
+            ]);
+            
+            return [
+                'transients' => [ 'popup' => $template->get_markup() ],
+            ];
         }
-        catch ( MtgDataSourceException $e )
+        catch ( Mtg\MtgDataException $e )
+        {
+            $exception = ( $e instanceof Mtg\MtgParameterException )
+                ? new Admin_Post\ParameterException( "Failed to generate an image popup due to a bad request. Your search terms must adhere to a valid search scheme.", 0, $e )
+                : new Admin_Post\ExternalCallException( "Failed to generate an image popup. No Magic card could be located matching the specified filters.", 0, $e );
+            throw $exception;
+        }
+    }
+
+    /**
+     * -------------------
+     *   M T G   D A T A
+     * -------------------
+     */
+
+    /**
+     * Get an image uri
+     * 
+     * @return string Uri to remote image, empty string if not found
+     */
+    private function get_image_uri( array $filters, string $type ) : string
+    {
+        try
+        {
+            $card = $this->get_magic_card( $filter, $type );
+            return $card->get_image( $type )->get_uri();
+        }
+        catch ( Mtg\MtgDataException $e )
         {
             return '';
         }
     }
 
     /**
-     * Convert user args to a standardized search scheme
-     */
-    private function validate_filters( array $args ) : array
-    {
-        if ( isset( $args['id'] ) )
-        {
-            // Search by unique id
-            $filters = [
-                'uuid' => sanitize_text_field( $args['id'] )
-            ];
-        }
-        elseif ( isset( $args['set'], $args['number'] ) )
-        {
-            // Search by set + collector #
-            $filters = [
-                'set_code'         => strtolower( sanitize_text_field( $args['set'] ) ),
-                'collector_number' => sanitize_text_field( $args['number'] ),
-                'language'         => strtolower( sanitize_text_field( $args['language'] ?? $this->get_default_language() ) ),
-            ];
-        }
-        else
-        {
-            // Search by name
-            $filters = [
-                'name' => sanitize_text_field( $args['name'] ?? '' ),
-                'set_code' => sanitize_text_field( $args['set'] ?? '' ),
-            ];
-        }
-        return array_filter( $filters, 'strlen' );
-    }
-
-    /**
-     * Get card image uri from db or data source
-     */
-    private function locate_image_uri( array $filters, string $type ) : string
-    {
-        try
-        {
-            return $this->get_cached_image_uri( $filters, $type );
-        }
-        catch ( CacheException $e )
-        {
-            $card = $this->source()->fetch_card( $filters );    // fetch remotely
-            $this->db_ops()->cache_card_data( $card, $type );
-            return $card->get_image_uri( $type );
-        }
-    }
-
-    /**
-     * Get image uri from cache in db
+     * Get a Magic card from the cache
      * 
-     * @param array $filters    Search parameters
-     * @param string $type      Image type
-     * @return string           Valid, non-expired image uri
-     * @throws CacheException
+     * @param array $filters                Search terms for the card
+     * @param string $preferred_image_type  Image type to fetch if missing
+     * @throws MtgDataException
      */
-    private function get_cached_image_uri( array $filters, string $type ) : string
+    private function get_magic_card( array $filters, string $preferred_image_type ) : Cards\Magic_Card
     {
-        try
-        {
-            $card = $this->db_ops()->find_card( $filters );
-        }
-        catch( DbException $e )
-        {
-            throw new MissingDataException( "Requested data for a Magic card that's missing from the db. No record found for the filters provided." );
-        }
-        return $card->get_image_uri( $type );
-    }
-
-    /**
-     * ---------------------------
-     *   D E P E N D E N C I E S
-     * ---------------------------
-     */
-
-    /**
-     * Get db ops class
-     */
-    private function db_ops() : Card_Db_Ops
-    {
-        if ( !isset( $this->cache_period ) )
-        {
-            $this->cache_period = $this->get_cache_period();
-            $this->db_ops->set_cache_period( $this->cache_period );
-        }
-        return $this->db_ops;
-    }
-
-    /**
-     * Get MTG data source
-     */
-    private function source() : Mtg_Data_Source
-    {
-        return $this->source;
+        return $this->card_cache()->locate_card( $filters, $preferred_image_type );
     }
     
     /**
@@ -238,6 +186,22 @@ class Mtgtools_Images extends Module
      *   O P T I O N S
      * -----------------
      */
+    
+    /**
+     * Get valid search filters
+     */
+    private function get_valid_search_filters() : array
+    {
+        return $this->search_filters;
+    }
+    
+    /**
+     * Get default image type
+     */
+    private function get_default_image_type() : string
+    {
+        return $this->default_image_type;
+    }
 
     /**
      * Check for lazy fetch
@@ -248,35 +212,25 @@ class Mtgtools_Images extends Module
     }
 
     /**
-     * Get image type for popups
+     * Get popup tooltip location
      */
-    private function get_popup_image_type() : string
+    private function get_tooltip_location() : string
     {
-        return $this->get_plugin_option( 'popup_image_type' );
+        return $this->get_plugin_option( 'popup_tooltip_location' );
     }
 
     /**
-     * Get image cache period
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
      */
-    private function get_cache_period() : int
-    {
-        return (int) $this->get_plugin_option( 'image_cache_period_in_seconds' );
-    }
 
     /**
-     * Get valid search filters
+     * Get card cache
      */
-    private function get_valid_search_filters() : array
+    private function card_cache() : Cards\Card_Cache
     {
-        return $this->search_filters;
-    }
-
-    /**
-     * Get default language
-     */
-    private function get_default_language() : string
-    {
-        return 'en';
+        return $this->card_cache;
     }
 
 }   // End of class
