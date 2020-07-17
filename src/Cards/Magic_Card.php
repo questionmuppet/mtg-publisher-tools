@@ -7,7 +7,6 @@
 
 namespace Mtgtools\Cards;
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Exceptions\Cache as Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -53,51 +52,76 @@ class Magic_Card extends Data
     }
 
     /**
-     * ---------------------
-     *   I M A G E   U R I
-     * ---------------------
+     * ---------------
+     *   I M A G E S
+     * ---------------
      */
+    
+    /**
+     * Get image with type preference
+     * 
+     * @param string $type  Preferred type to retrieve
+     * @return Image_Uri    Image uri matching specified type or highest priority image available
+     * @throws UnexpectedValueException
+     */
+    public function get_image( string $type = '' ) : Image_Uri
+    {
+        return $this->has_image( $type )
+            ? $this->get_images()[ $type ]
+            : $this->get_best_image();
+    }
 
     /**
-     * Get image uri by type
-     * 
-     * @throws CacheException
+     * Get highest priority image
      */
-    public function get_image_uri( string $type ) : string
+    private function get_best_image() : Image_Uri
     {
-        $image = $this->get_image( $type );
-        if ( $image->is_expired() )
+        if ( !count( $this->get_images() ) )
         {
-            throw new Exceptions\ExpiredDataException( "Requested an expired image uri. Image of type '{$type}' for card '{$this->get_name()}' needs to be refreshed in the cache." );
+            throw new \UnexpectedValueException( get_called_class() . " tried to retrieve a missing image uri. No image could be found for card '{$this->get_name_with_edition()}'." );
         }
-        return $image->get_uri();
+        return $this->get_first_image();
     }
     
     /**
-     * Get image by type
+     * Get first image
      */
-    private function get_image( string $type ) : Image_Uri
+    private function get_first_image() : Image_Uri
     {
-        if ( !$this->has_image( $type ) )
-        {
-            throw new Exceptions\MissingDataException( "Requested a missing card image. No image of type '{$type}' cached for card '{$this->get_name()}'." );
-        }
-        return $this->get_images()[ $type ];
+        $images = $this->get_images();
+        $key = array_key_first( $images );
+        return $images[ $key ];
     }
 
     /**
      * Check for image by type
      */
-    private function has_image( string $type ) : bool
+    public function has_image( string $type ) : bool
     {
         return array_key_exists( $type, $this->get_images() );
     }
-
+    
+    /**
+     * Get all images
+     */
+    public function get_images() : array
+    {
+        return $this->get_prop( 'images' );
+    }
+    
     /**
      * -----------------------
      *   P R O P E R T I E S
      * -----------------------
      */
+
+    /**
+     * Get human-readable name with edition information
+     */
+    public function get_name_with_edition() : string
+    {
+        return sprintf( "%s (%s)", $this->get_name(), $this->get_set_code() );
+    }
 
     /**
      * Get uuid (unique to data source)
@@ -137,14 +161,6 @@ class Magic_Card extends Data
     public function get_language() : string
     {
         return $this->get_prop( 'language' );
-    }
-    
-    /**
-     * Get images
-     */
-    public function get_images() : array
-    {
-        return $this->get_prop( 'images' );
     }
 
 }   // End of class
