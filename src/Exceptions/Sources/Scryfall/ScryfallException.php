@@ -7,12 +7,12 @@
 
 namespace Mtgtools\Exceptions\Sources\Scryfall;
 
-use Mtgtools\Exceptions\Sources\MtgDataSourceException;
+use Mtgtools\Exceptions\Sources\MtgSourceException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class ScryfallException extends MtgDataSourceException
+class ScryfallException extends MtgSourceException
 {
 
 }

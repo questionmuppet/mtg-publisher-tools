@@ -56,8 +56,6 @@ class Scryfall_Data_Source implements Mtg_Data_Source
 
     /**
      * Fetch a single card matching search filters
-     * 
-     * @throws ApiException
      */
     public function fetch_card( array $filters ) : Magic_Card
     {
@@ -69,6 +67,42 @@ class Scryfall_Data_Source implements Mtg_Data_Source
      *   I N F O
      * -----------
      */
+
+    /**
+     * Get default language
+     */
+    public function get_default_language() : string
+    {
+        return 'en';
+    }
+
+    /**
+     * Get available languages
+     */
+    public function get_languages() : array
+    {
+        return [
+            'en' => 'English',
+            'es' => 'Spanish',
+            'fr' => 'French',
+            'de' => 'German',
+            'it' => 'Italian',
+            'pt' => 'Portuguese',
+            'ja' => 'Japanese',
+            'ko' => 'Korean',
+            'ru' => 'Russian',
+            'zhs' => 'Simplified Chinese',
+            'zht' => 'Traditional Chinese',
+        ];
+    }
+
+    /**
+     * Get default image type
+     */
+    public function get_default_image_type() : string
+    {
+        return 'png';
+    }
 
     /**
      * Get available image types
