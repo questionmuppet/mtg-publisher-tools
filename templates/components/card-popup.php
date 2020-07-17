@@ -24,7 +24,7 @@ $classes = array_filter([
     <img
         class="mtgtools-card-image"
         src="<?php echo esc_url( $image->get_uri() ); ?>"
-        alt="<?php echo esc_attr( $card->get_name_with_edition() ); ?>"
+        alt="<?php echo esc_attr( $card->get_alt_text() ); ?>"
     />
 
 </span>

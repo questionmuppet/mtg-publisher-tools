@@ -29,6 +29,7 @@ class Magic_Card extends Data
      */
     protected $defaults = [
         'images' => [],
+        'set_name' => '',
     ];
 
     /**
@@ -110,9 +111,9 @@ class Magic_Card extends Data
     }
     
     /**
-     * -----------------------
-     *   P R O P E R T I E S
-     * -----------------------
+     * ---------------
+     *   L A B E L S
+     * ---------------
      */
 
     /**
@@ -120,8 +121,34 @@ class Magic_Card extends Data
      */
     public function get_name_with_edition() : string
     {
-        return sprintf( "%s (%s)", $this->get_name(), $this->get_set_code() );
+        return sprintf( "%s – %s", $this->get_name(), $this->get_set_label() );
     }
+    
+    /**
+     * Get human-readable set label for display
+     */
+    private function get_set_label() : string
+    {
+        return sprintf(
+            "%s (%s)",
+            $this->get_set_name(),
+            strtoupper( $this->get_set_code() )
+        );
+    }
+
+    /**
+     * Get alt text
+     */
+    public function get_alt_text() : string
+    {
+        return sprintf( "%s from %s", $this->get_name(), $this->get_set_name() );
+    }
+
+    /**
+     * -----------------------
+     *   P R O P E R T I E S
+     * -----------------------
+     */
 
     /**
      * Get uuid (unique to data source)
@@ -145,6 +172,14 @@ class Magic_Card extends Data
     public function get_set_code() : string
     {
         return $this->get_prop( 'set_code' );
+    }
+
+    /**
+     * Get set name
+     */
+    public function get_set_name() : string
+    {
+        return $this->get_prop( 'set_name' );
     }
 
     /**

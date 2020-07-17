@@ -58,6 +58,7 @@ class Magic_Card_Test extends WP_UnitTestCase
         $this->assertEquals( self::LANGUAGE, $card->get_language(), "Could not retrieve public property 'language'." );
         $this->assertCount( 2, $card->get_images(), "Failed to assert that a card contained the expected number of image uris." );
         $this->assertIsString( $card->get_name_with_edition(), "Could not retrieve human-readable name string with edition." );
+        $this->assertIsString( $card->get_alt_text(), "Could not retreive alt-text string." );
     }
     
     /**
