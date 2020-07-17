@@ -7,7 +7,6 @@
 
 namespace Mtgtools\Abstracts;
 
-use Mtgtools\Exceptions\Db as Exceptions;
 use \wpdb;
 
 // Exit if accessed directly
@@ -142,7 +141,7 @@ abstract class Db_Ops extends Data
         {
             if ( !$this->is_valid_filter( $key ) )
             {
-                throw new Exceptions\DbException( get_called_class() . " tried to retrieve database rows using an unknown filter key '{$key}'." );
+                throw new \DomainException( get_called_class() . " tried to retrieve database rows using an unknown filter key '{$key}'." );
             }
             $conditions[] = $this->generate_where_condition([
                 'key' => $key,

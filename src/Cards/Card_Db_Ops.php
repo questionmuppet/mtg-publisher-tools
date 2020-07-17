@@ -43,6 +43,7 @@ class Card_Db_Ops extends Db_Ops
      * Find a card and all cached image uris
      * 
      * @param array $filters One or more "column" => "value" pairs to search by
+     * @throws NoResultsException
      */
     public function find_card( array $filters ) : Magic_Card
     {
@@ -73,7 +74,7 @@ class Card_Db_Ops extends Db_Ops
         );
         if ( is_null( $row ) )
         {
-            throw new Exceptions\DbException( "No card record was found in the database matching the provided filters." );
+            throw new Exceptions\NoResultsException( "No card record was found in the database matching the provided filters." );
         }
         return $row;
     }
