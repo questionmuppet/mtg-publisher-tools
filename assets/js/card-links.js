@@ -1,8 +1,8 @@
 /**
  * On document loaded
  */
-document.addEventListener( 'DOMContentLoaded', (event) => {
-    jQuery('.mtgtools-card-link').each( (index, element) => {
+document.addEventListener( 'DOMContentLoaded', function (event) {
+    jQuery('.mtgtools-card-link').each( function(index, element) {
         mtgtoolsCardLinks.createHoverLink(element);
     });
 });
@@ -10,7 +10,7 @@ document.addEventListener( 'DOMContentLoaded', (event) => {
 /**
  * Mtgtools Card Links Object
  */
-mtgtoolsCardLinks = ( ($) => {
+mtgtoolsCardLinks = ( function($) {
     return {
         
         /**
