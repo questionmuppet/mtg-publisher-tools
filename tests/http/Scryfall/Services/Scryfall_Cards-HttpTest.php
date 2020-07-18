@@ -27,6 +27,12 @@ class Scryfall_Cards_HttpTest extends Mtgtools_UnitTestCase
     const LANG_JA = 'ja';
 
     /**
+     * Dfc
+     */
+    const DFC_FRONT = 'Delver of Secrets';
+    const DFC_BACK = 'Insectile Aberration';
+
+    /**
      * Image types
      */
     const NUM_TYPES = 6;
@@ -117,6 +123,34 @@ class Scryfall_Cards_HttpTest extends Mtgtools_UnitTestCase
 
         $this->assertEquals( self::NAME, $card->get_name() );
         $this->assertEquals( self::ALT_SET_CODE, $card->get_set_code() );
+    }
+
+    /**
+     * TEST: Can fetch front face of dfc
+     * 
+     * @depends testCanFetchCardByName
+     */
+    public function testCanFetchFrontFaceOfDfc() : void
+    {
+        $card = $this->cards->fetch_card_by_filters([
+            'name' => self::DFC_FRONT,
+        ]);
+
+        $this->assertEquals( self::DFC_FRONT, $card->get_name() );
+    }
+
+    /**
+     * TEST: Can fetch back face of dfc
+     * 
+     * @depends testCanFetchCardByName
+     */
+    public function testCanFetchBackFaceOfDfc() : void
+    {
+        $card = $this->cards->fetch_card_by_filters([
+            'name' => self::DFC_BACK,
+        ]);
+
+        $this->assertEquals( self::DFC_BACK, $card->get_name() );
     }
 
     /**
