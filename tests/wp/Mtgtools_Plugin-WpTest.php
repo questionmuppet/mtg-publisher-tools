@@ -24,63 +24,19 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
      */
 
     /**
-     * TEST: Can get symbols module
+     * TEST: Can get modules
      * 
      * @depends testCanGetInstance
      */
-    public function testCanGetSymbolsModule( Mtgtools_Plugin $instance ) : void
+    public function testCanGetModules( Mtgtools_Plugin $instance ) : void
     {
-        $module = $instance->symbols();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Symbols::class, $module );
-    }
-
-    /**
-     * TEST: Can get dashboard module
-     * 
-     * @depends testCanGetInstance
-     */
-    public function testCanGetDashboardModule( Mtgtools_Plugin $instance ) : void
-    {
-        $module = $instance->dashboard();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Dashboard::class, $module );
-    }
-
-    /**
-     * TEST: Can get updates module
-     * 
-     * @depends testCanGetInstance
-     */
-    public function testCanGetUpdatesModule( Mtgtools_Plugin $instance ) : void
-    {
-        $module = $instance->updates();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Updates::class, $module );
-    }
-
-    /**
-     * TEST: Can get settings module
-     * 
-     * @depends testCanGetInstance
-     */
-    public function testCanGetSettingsModule( Mtgtools_Plugin $instance ) : void
-    {
-        $module = $instance->settings();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Settings::class, $module );
-    }
-
-    /**
-     * TEST: Can get images module
-     * 
-     * @depends testCanGetInstance
-     */
-    public function testCanGetImagesModule( Mtgtools_Plugin $instance ) : void
-    {
-        $module = $instance->images();
-
-        $this->assertInstanceOf( Mtgtools\Mtgtools_Images::class, $module );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Symbols::class, $instance->symbols(), 'Could not retreive the symbols module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Dashboard::class, $instance->dashboard(), 'Could not retreive the dashboard module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Updates::class, $instance->updates(), 'Could not retreive the updates module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Settings::class, $instance->settings(), 'Could not retreive the settings module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Images::class, $instance->images(), 'Could not retreive the images module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Action_Links::class, $instance->action_links(), 'Could not retreive the action_links module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Editor::class, $instance->editor(), 'Could not retreive the editor module.' );
     }
 
     /**
