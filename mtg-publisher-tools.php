@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) or die("Don't mess with it!");
 
 // Define constants
 define( 'MTGTOOLS__VERSION', get_file_data( __FILE__, array( 'Version' => 'Version' ) )['Version'] );
+define( 'MTGTOOLS__BASENAME', plugin_basename( __FILE__ ) );
 require_once( plugin_dir_path( __FILE__ ) . 'constants.php' );
 
 // Enable autoloading

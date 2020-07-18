@@ -29,6 +29,7 @@ class Mtgtools_Plugin
 	private $updates;
 	private $settings;
 	private $images;
+	private $action_links;
 
 	/**
 	 * Module task library
@@ -63,6 +64,7 @@ class Mtgtools_Plugin
 			$this->dashboard()->add_hooks();
 			$this->updates()->add_hooks();
 			$this->settings()->add_hooks();
+			$this->action_links()->add_hooks();
 		}
 	}
 	
@@ -138,6 +140,18 @@ class Mtgtools_Plugin
 			$this->images = new Mtgtools_Images( $cache, $source->get_default_image_type(), $this );
 		}
 		return $this->images;
+	}
+
+	/**
+	 * Get action links module
+	 */
+	public function action_links() : Mtgtools_Action_Links
+	{
+		if ( !isset( $this->action_links ) )
+		{
+			$this->action_links = new Mtgtools_Action_Links( $this );
+		}
+		return $this->action_links;
 	}
 
 	/**
