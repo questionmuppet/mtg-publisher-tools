@@ -40,6 +40,7 @@ class Scryfall_Cards extends Scryfall_Api_Handler
     {
         $method = $this->find_search_scheme( $filters );
         $data = call_user_func( $method, $filters );
+        $data = $this->normalize_dfc_data( $data, $filters );
         return $this->create_card( $data );
     }
 
@@ -139,6 +140,47 @@ class Scryfall_Cards extends Scryfall_Api_Handler
     }
 
     /**
+     * -------------------
+     *   D F C   D A T A
+     * -------------------
+     */
+    
+    /**
+     * Normalize dfc data to match single-faced cards
+     * 
+     * @return array Data for a single card face
+     */
+    private function normalize_dfc_data( array $data, array $filters ) : array
+    {
+        if ( !isset( $data['image_uris'] ) )
+        {
+            $request_name = $filters['name'] ?? '';
+            $faces = $data['card_faces'];
+            $index = $this->find_matching_face_index( $faces, $request_name );
+            
+            $data['name'] = $faces[$index]['name'];
+            $data['image_uris'] = $faces[$index]['image_uris'];
+            $data['backface'] = boolval( $index );
+        }
+        return $data;
+    }
+
+    /**
+     * Get index of dfc face best matching search params
+     */
+    private function find_matching_face_index( array $faces, string $name ) : int
+    {
+        foreach ( $faces as $index => $face )
+        {
+            if ( $name === $face['name'] )
+            {
+                return $index;
+            }
+        }
+        return 0;
+    }
+
+    /**
      * ---------------------------------
      *   O B J E C T   C R E A T I O N
      * ---------------------------------
@@ -168,7 +210,7 @@ class Scryfall_Cards extends Scryfall_Api_Handler
     private function create_image_uris( array $data ) : array
     {
         $images = [];
-        foreach ( $this->find_image_uris_in_card_data( $data ) as $type => $uri )
+        foreach ( $data['image_uris'] as $type => $uri )
         {
             $image = new Cards\Image_Uri([
                 'card_uuid' => $data['id'],
@@ -178,18 +220,6 @@ class Scryfall_Cards extends Scryfall_Api_Handler
             $images[ $image->get_type() ] = $image;
         }
         return $images;
-    }
-
-    /**
-     * Find image uris in response data
-     * 
-     * @return array Image uris from parent, dfc front-face, or empty array if not found
-     */
-    private function find_image_uris_in_card_data( array $data ) : array
-    {
-        return $data['image_uris']
-            ?? $data['card_faces'][0]['image_uris']
-            ?? [];
     }
 
 }   // End of class
