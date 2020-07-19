@@ -31,6 +31,7 @@ class Option_WPTest extends Mtgtools_UnitTestCase
     const ID = 'fake_option';
     const FULL_NAME = 'mtgtools_' . self::ID;
     const DEFAULT = 'fake initial value';
+    const CUSTOM_CALLBACK_VALUE = 'Match, Poit, & Narf';
 
     /**
      * Instantiated option
@@ -147,6 +148,22 @@ class Option_WPTest extends Mtgtools_UnitTestCase
         $count = self::get_call_count('sanitize');
 
         $this->assertEquals( 1, $count );
+    }
+
+    /**
+     * TEST: Can provide external sanitization callback
+     * 
+     * @depends testCanUpdateOption
+     */
+    public function testCanProvideExternalSanitizationCallback() : void
+    {
+        $opt = $this->create_option([ 'sanitization' => function( $value ) {
+            return self::CUSTOM_CALLBACK_VALUE;
+        }]);
+
+        $opt->update( 'Narf!' );
+
+        $this->assertEquals( self::CUSTOM_CALLBACK_VALUE, $opt->get_value() );
     }
 
     /**

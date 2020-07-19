@@ -29,6 +29,7 @@ abstract class Option extends Data
         'section' => '',
         'label' => null,
         'input_args' => [],
+        'sanitization' => null,
     ];
 
     /**
@@ -45,7 +46,7 @@ abstract class Option extends Data
         register_setting(
             $this->get_page(),
             $this->get_option_name(),
-            array( 'sanitize_callback' => array( $this, 'sanitize' ) )
+            array( 'sanitize_callback' => array( $this, 'sanitize_override' ) )
         );
         if ( $this->has_section() )
         {
@@ -111,7 +112,7 @@ abstract class Option extends Data
      */
     public function update( $value ) : void
     {
-        update_option( $this->get_option_name(), $this->sanitize( $value ) );
+        update_option( $this->get_option_name(), $this->sanitize_override( $value ) );
     }
 
     /**
@@ -123,12 +124,52 @@ abstract class Option extends Data
     }
 
     /**
+     * ---------------------------
+     *   S A N I T I Z A T I O N
+     * ---------------------------
+     */
+
+    /**
+     * Override default sanitization if external method provided
+     */
+    public function sanitize_override( $value )
+    {
+        $sanitized = $this->has_external_sanitization()
+            ? call_user_func( $this->get_external_sanitization_callback(), $value )
+            : $this->sanitize( $value );
+        
+        /**
+         * Allow filtering of final value
+         * 
+         * @param mixed $value      Value of the option before saving
+         * @param Option $option    The option object
+         */
+        return apply_filters( "mtgtools_save_option_{$this->get_id()}", $sanitized, $this->get_value(), $this );
+    }
+
+    /**
      * Sanitize value before saving
      * 
      * @param mixed $value Value to be saved in db
      * @return mixed Value sanitized for the appropriate type
      */
     abstract public function sanitize( $value );
+
+    /**
+     * Check for external sanitization callback
+     */
+    private function has_external_sanitization() : bool
+    {
+        return $this->prop_isset( 'sanitization' );
+    }
+
+    /**
+     * Get external sanitization callback
+     */
+    private function get_external_sanitization_callback() : callable
+    {
+        return $this->get_prop( 'sanitization' );
+    }
 
     /**
      * -------------
