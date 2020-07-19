@@ -31,6 +31,7 @@ class Mtgtools_Plugin
 	private $images;
 	private $action_links;
 	private $editor;
+	private $cron;
 
 	/**
 	 * Module task library
@@ -166,6 +167,18 @@ class Mtgtools_Plugin
 			$this->editor = new Mtgtools_Editor( $this );
 		}
 		return $this->editor;
+	}
+
+	/**
+	 * Get cron module
+	 */
+	public function cron() : Mtgtools_Cron
+	{
+		if ( !isset( $this->cron ) )
+		{
+			$this->cron = new Mtgtools_Cron( $this->updates(), $this );
+		}
+		return $this->cron;
 	}
 
 	/**

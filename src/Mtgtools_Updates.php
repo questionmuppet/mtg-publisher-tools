@@ -159,23 +159,47 @@ class Mtgtools_Updates extends Module
      */
     public function print_notices() : void
     {
-        if ( $this->showing_notices() && $this->updates_pending() && !$this->was_just_checked() )
+        if ( $this->showing_notices() && !$this->was_just_checked() )
         {
-            $this->print_admin_notice([
-                'title'   => 'Mana symbol updates available',
-                'type'    => 'info',
-                'message' => $this->get_update_message(),
-                'buttons' => [
-                    [
-                        'label' => 'Update now',
-                        'href' => $this->get_update_action_link(),
+            if ( $msg = get_transient( 'mtgtools_update_check_failure' ) )
+            {
+                $this->print_admin_notice([
+                    'title' => 'MTG Tools update check failed',
+                    'type' => 'error',
+                    'message' => sprintf(
+                        "MTG Publisher Tools failed to complete a check for updates on %s. There may be a problem with your connection or with your provided data source.",
+                        wp_date( DATE_RFC850, $msg['timestamp'] )
+                    ),
+                    'buttons' => [
+                        [
+                            'label' => 'Try again now',
+                            'href' => $this->get_check_action_link(),
+                        ],
+                        [
+                            'label' => 'Turn off notices',
+                            'href' => $this->get_disable_notices_link(),
+                        ],
+                    ]
+                ]);
+            }
+            else if ( $this->updates_pending() )
+            {
+                $this->print_admin_notice([
+                    'title'   => 'Mana symbol updates available',
+                    'type'    => 'info',
+                    'message' => $this->get_update_message(),
+                    'buttons' => [
+                        [
+                            'label' => 'Update now',
+                            'href' => $this->get_update_action_link(),
+                        ],
+                        [
+                            'label' => 'Turn off notices',
+                            'href' => $this->get_disable_notices_link(),
+                        ],
                     ],
-                    [
-                        'label' => 'Turn off notices',
-                        'href' => $this->get_disable_notices_link(),
-                    ],
-                ],
-            ]);
+                ]);
+            }
         }
     }
 
@@ -211,6 +235,20 @@ class Mtgtools_Updates extends Module
     private function get_update_message() : string
     {
         return 'The MTG mana symbol database used by your posts and themes is out of date. To download the latest update and begin including the newest Magic content, click "Update now".';
+    }
+
+    /**
+     * Get check updates action link
+     */
+    private function get_check_action_link() : string
+    {
+        return add_query_arg(
+            [
+                'action' => 'mtgtools_check_updates',
+                '_wpnonce' => wp_create_nonce( 'mtgtools_check_updates' ),
+            ],
+            admin_url( 'admin-post.php' )
+        );
     }
 
     /**
@@ -306,9 +344,18 @@ class Mtgtools_Updates extends Module
                 $action = 'checked_current';
             }
             $this->set_last_checked();
+            delete_transient( 'mtgtools_update_check_failure' );
         }
         catch ( ApiException $e )
         {
+            set_transient(
+                'mtgtools_update_check_failure',
+                [
+                    'message' => 'An update check failed.',
+                    'timestamp' => time(),
+                ],
+                $this->get_update_period()
+            );
             $action = 'failed';
         }
         return [ 'action' => $action ];
@@ -324,10 +371,12 @@ class Mtgtools_Updates extends Module
 
     /**
      * Get update period
+     * 
+     * @return mixed
      */
-    private function get_update_period() : int
+    public function get_update_period( string $context = '' )
     {
-        return intval( $this->get_plugin_option('update_period_in_weeks') ) * WEEK_IN_SECONDS;
+        return 'for_cron' === $context ? 'weekly' : WEEK_IN_SECONDS;
     }
 
     /**

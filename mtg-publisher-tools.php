@@ -31,5 +31,8 @@ $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
 register_activation_hook( __FILE__, array( $plugin, 'activate' ) );
 register_deactivation_hook( __FILE__, array( $plugin, 'deactivate' ) );
 
+// Cron jobs
+$plugin->cron()->add_hooks();
+
 // Initialize
 add_action( 'init', array( $plugin, 'init' ) );

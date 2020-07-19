@@ -61,6 +61,14 @@ abstract class Data
     }
 
     /**
+     * Check if property is defined
+     */
+    protected function prop_isset( string $key ) : bool
+    {
+        return !is_null( $this->get_prop( $key ) );
+    }
+
+    /**
      * Get property
      * 
      * @return mixed

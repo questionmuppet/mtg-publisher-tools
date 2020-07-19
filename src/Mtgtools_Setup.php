@@ -35,6 +35,7 @@ class Mtgtools_Setup
         $this->mtgtools()->symbols()->install_db_tables();
         $this->mtgtools()->symbols()->import_symbols();
         $this->mtgtools()->cards_db()->create_tables();
+        $this->mtgtools()->cron()->schedule_update_checks();
     }
 
     /**
@@ -42,7 +43,7 @@ class Mtgtools_Setup
      */
     public function deactivate() : void
     {
-
+        $this->mtgtools()->cron()->cancel_update_checks();
     }
 
     /**

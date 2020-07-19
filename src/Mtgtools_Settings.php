@@ -249,7 +249,7 @@ class Mtgtools_Settings extends Module
                         DAY_IN_SECONDS => 'Daily',
                         WEEK_IN_SECONDS => 'Weekly',
                         MONTH_IN_SECONDS => 'Monthly',
-                        YEAR_IN_SECONDS => 'Annually',
+                        YEAR_IN_SECONDS => 'Yearly',
                     ],
                 ],
                 'popup_tooltip_location' => [
@@ -283,19 +283,6 @@ class Mtgtools_Settings extends Module
                         'label' => 'Check for updates automatically',
                     ],
                 ],
-                'update_period_in_weeks' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_updates',
-                    'type' => 'select',
-                    'label' => 'Frequency',
-                    'default_value' => '2',
-                    'options' => [
-                        '1' => 'Weekly',
-                        '2' => 'Biweekly',
-                        '4' => 'Monthly',
-                        '24' => 'Every 6 months',
-                    ],
-                ],
                 'show_update_notices' => [
                     'page' => 'settings',
                     'section' => 'mtgtools_updates',
@@ -303,7 +290,7 @@ class Mtgtools_Settings extends Module
                     'default_value' => true,
                     'label' => 'Admin notices',
                     'input_args' => [
-                        'label' => 'Notify me about updates on the WordPress dashboard',
+                        'label' => 'Notify me about updates and connection issues on the WordPress dashboard',
                     ],
                 ],
             ];

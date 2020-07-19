@@ -249,4 +249,14 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
         $this->assertIsBool( $has_updates );
     }
 
+    /**
+     * TEST: Can get update period
+     */
+    public function testCanGetUpdatePeriod() : void
+    {
+        $period = $this->updates->get_update_period();
+
+        $this->assertIsInt( $period );
+    }
+
 }   // End of class
