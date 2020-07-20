@@ -11,8 +11,8 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     /**
      * Dummy table name
      */
-    const TEST_TABLE = 'mtgtools_cards_TEST';
-    const IMG_TEST_TABLE = 'mtgtools_images_TEST';
+    const TEST_TABLE = 'mtgtools_cards';
+    const IMG_TEST_TABLE = 'mtgtools_images';
 
     /**
      * Mock Magic card attributes
@@ -58,15 +58,7 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         parent::setUp();
         global $wpdb;
         $this->wpdb = $wpdb;
-        $this->db_ops = new Card_Db_Ops(
-            $this->wpdb,
-            [
-                'tables' => [
-                    'cards' => self::TEST_TABLE,
-                    'images' => self::IMG_TEST_TABLE,
-                ],
-            ]
-        );
+        $this->db_ops = new Card_Db_Ops( $this->wpdb );
         $this->remove_temp_table_filters();
     }
     

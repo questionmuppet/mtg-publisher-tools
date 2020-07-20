@@ -7,7 +7,8 @@
 
 namespace Mtgtools\Cards;
 
-use Mtgtools\Abstracts\Db_Ops;
+use Mtgtools\Db\Db_Ops;
+use Mtgtools\Db\Db_Table;
 use Mtgtools\Exceptions\Db as Exceptions;
 
 // Exit if accessed directly
@@ -19,14 +20,9 @@ class Card_Db_Ops extends Db_Ops
      * Db tables
      */
     protected $tables = [
-        'cards' => 'mtgtools_cards',
-        'images' => 'mtgtools_images',
+        'cards' => null,
+        'images' => null,
     ];
-
-    /**
-     * Valid filter arguments for query
-     */
-    protected $valid_filters = [ 'card_uuid', 'type', 'uuid', 'name', 'set_code', 'language', 'collector_number' ];
 
     /**
      * Image cache period
@@ -40,77 +36,45 @@ class Card_Db_Ops extends Db_Ops
      */
 
     /**
-     * Find a card and all cached image uris
+     * Find a card and corresponding image uris
      * 
-     * @param array $filters One or more "column" => "value" pairs to search by
+     * @param array $filters    One or more column-value pairs to search by
+     * @return Magic_Card       First card matching filters, with all cached image uris
      * @throws NoResultsException
      */
     public function find_card( array $filters ) : Magic_Card
     {
-        if ( !count( $filters ) )
-        {
-            throw new \DomainException( get_called_class() . " tried to search for a card without any search criteria. You must include at least one filter." );
-        }
-        return $this->create_card( $this->get_card_row( $filters ) );
-    }
-    
-    /**
-     * Get card row matching filters
-     */
-    private function get_card_row( array $filters ) : array
-    {
-        $row = $this->db()->get_row(
-            "SELECT uuid, name, set_code, set_name, language, collector_number, images
-            FROM {$this->get_cards_table()}
-            LEFT JOIN (
-                SELECT card_uuid, JSON_ARRAYAGG(
-                    JSON_OBJECT('card_uuid', card_uuid, 'type', type, 'uri', uri, 'cached', cached)
-                ) AS images
-                FROM {$this->get_images_table()}
-                GROUP BY card_uuid
-            ) aggregate_images ON card_uuid = uuid
-            WHERE {$this->where_conditions( $filters )};",
-            ARRAY_A
-        );
-        if ( is_null( $row ) )
-        {
-            throw new Exceptions\NoResultsException( "No card record was found in the database matching the provided filters." );
-        }
-        return $row;
+        $card = $this->cards()->get_record( $filters );
+        $images = $this->images()->find_records([
+            'filters' => [
+                'card_uuid' => $card['uuid']
+            ]
+        ]);
+        $card['images'] = $this->create_images( $images );
+        return new Magic_Card( $card );
     }
 
     /**
-     * -------------------------
-     *   M A G I C   C A R D S
-     * -------------------------
+     * Create all images
      */
-
-    /**
-     * Create card object
-     */
-    private function create_card( array $data ) : Magic_Card
-    {
-        $data['images'] = empty( $data['images'] )
-            ? []
-            : $this->create_images_from_json( $data['images'] );
-        return new Magic_Card( $data );
-    }
-
-    /**
-     * Create image objects from json
-     * 
-     * @return Image_Uri[]
-     */
-    private function create_images_from_json( string $json ) : array
+    private function create_images( array $records ) : array
     {
         $images = [];
-        foreach ( json_decode( $json, true ) as $data )
+        foreach ( $records as $data )
         {
-            $data['cache_period'] = $this->get_cache_period();
-            $image = new Image_Uri( $data );
+            $image = $this->create_image( $data );
             $images[ $image->get_type() ] = $image;
         }
         return $images;
+    }
+    
+    /**
+     * Create image from db data
+     */
+    private function create_image( array $data ) : Image_Uri
+    {
+        $data['cache_period'] = $this->get_cache_period();
+        return new Image_Uri( $data );
     }
     
     /**
@@ -127,17 +91,13 @@ class Card_Db_Ops extends Db_Ops
      */
     public function cache_card_data( Magic_Card $card, string $img_type = '' ) : void
     {
-        $this->save_record([
-            'table' => 'cards',
-            'identifiers' => [ 'uuid' ],
-            'values' => [
-                'uuid' => $card->get_uuid(),
-                'name' => $card->get_name(),
-                'set_code' => $card->get_set_code(),
-                'set_name' => $card->get_set_name(),
-                'language' => $card->get_language(),
-                'collector_number' => $card->get_collector_number(),
-            ],
+        $this->cards()->save_record([
+            'uuid' => $card->get_uuid(),
+            'name' => $card->get_name(),
+            'set_code' => $card->get_set_code(),
+            'set_name' => $card->get_set_name(),
+            'language' => $card->get_language(),
+            'collector_number' => $card->get_collector_number(),
         ]);
         $this->cache_image_uris( $card->get_images(), $img_type );
     }
@@ -168,21 +128,17 @@ class Card_Db_Ops extends Db_Ops
      */
     private function update_image( Image_Uri $image ) : void
     {
-        $this->save_record([
-            'table' => 'images',
-            'identifiers' => [ 'card_uuid', 'type' ],
-            'values' => [
-                'card_uuid' => $image->get_card_uuid(),
-                'type' => $image->get_type(),
-                'uri' => $image->get_uri(),
+        $this->images()->save_record([
+            'card_uuid' => $image->get_card_uuid(),
+            'type' => $image->get_type(),
+            'uri' => $image->get_uri(),
 
-                /**
-                 * This is a bug. It will insert current server time
-                 * rather than current db time. Should be unescaped
-                 * "now()" in query instead.
-                 */
-                'cached' => date( 'Y-m-d H:i:s' ),
-            ],
+            /**
+             * This is a bug. It will insert current server time
+             * rather than current db time. Should be unescaped
+             * "now()" in query instead.
+             */
+            'cached' => date( 'Y-m-d H:i:s' ),
         ]);
     }
 
@@ -223,12 +179,19 @@ class Card_Db_Ops extends Db_Ops
      */
     public function create_tables() : bool
     {
-        $this->start_transaction();
-        $result = $this->create_cards_table() && $this->create_images_table();
-        $result
-            ? $this->commit_transaction()
-            : $this->rollback_transaction();
-        return $result;
+        try
+        {
+            $this->start_transaction();
+            $this->create_cards_table();
+            $this->create_images_table();
+            $this->commit_transaction();
+            return true;
+        }
+        catch ( Exceptions\SqlErrorException $e )
+        {
+            $this->rollback_transaction();
+            return false;
+        }
     }
     
     /**
@@ -236,8 +199,8 @@ class Card_Db_Ops extends Db_Ops
      */
     private function create_cards_table() : bool
     {
-        return $this->db()->query(
-            "CREATE TABLE IF NOT EXISTS {$this->get_cards_table()} (
+        return $this->execute_query(
+            "CREATE TABLE IF NOT EXISTS {$this->get_cards_table_name()} (
                 id int(20) UNSIGNED AUTO_INCREMENT,
                 name text NOT NULL,
                 uuid varchar(128) UNIQUE NOT NULL,
@@ -256,8 +219,8 @@ class Card_Db_Ops extends Db_Ops
      */
     private function create_images_table() : bool
     {
-        return $this->db()->query(
-            "CREATE TABLE IF NOT EXISTS {$this->get_images_table()} (
+        return $this->execute_query(
+            "CREATE TABLE IF NOT EXISTS {$this->get_images_table_name()} (
                 id int(20) UNSIGNED AUTO_INCREMENT,
                 card_uuid varchar(128) NOT NULL,
                 type varchar(16) NOT NULL,
@@ -265,7 +228,7 @@ class Card_Db_Ops extends Db_Ops
                 cached timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 FOREIGN KEY (card_uuid)
-                    REFERENCES {$this->get_cards_table()}(uuid)
+                    REFERENCES {$this->get_cards_table_name()}(uuid)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE,
                 UNIQUE KEY image_address (card_uuid, type)
@@ -280,24 +243,82 @@ class Card_Db_Ops extends Db_Ops
      */
     public function drop_tables() : bool
     {
-        return $this->db()->query( "DROP TABLE IF EXISTS {$this->get_images_table()};" )
-            && $this->db()->query( "DROP TABLE IF EXISTS {$this->get_cards_table()};");
+        try
+        {
+            $this->start_transaction();
+            $this->execute_query( "DROP TABLE IF EXISTS {$this->get_images_table_name()};" );
+            $this->execute_query( "DROP TABLE IF EXISTS {$this->get_cards_table_name()};" );
+            $this->commit_transaction();
+            return true;
+        }
+        catch ( Exceptions\SqlErrorException $e )
+        {
+            $this->rollback_transaction();
+            return false;
+        }
     }
 
     /**
      * Get cards table sanitized for SQL statement
      */
-    private function get_cards_table() : string
+    private function get_cards_table_name() : string
     {
-        return sanitize_key( $this->get_table_name( 'cards' ) );
+        return $this->cards()->get_table_name();
     }
 
     /**
      * Get images table sanitized for SQL statement
      */
-    private function get_images_table() : string
+    private function get_images_table_name() : string
     {
-        return sanitize_key( $this->get_table_name( 'images' ) );
+        return $this->images()->get_table_name();
+    }
+
+    /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+
+    /**
+     * Get cards db table
+     */
+    private function cards() : Db_Table
+    {
+        if ( !isset( $this->tables['cards'] ) )
+        {
+            $this->tables['cards'] = new Db_Table( $this->db(), [
+                'table' => 'mtgtools_cards',
+                'filters' => [
+                    'uuid',
+                    'name',
+                    'set_code',
+                    'collector_number',
+                    'language',
+                ],
+                'field_types' => [],
+            ]);
+        }
+        return $this->tables['cards'];
+    }
+
+    /**
+     * Get images db table
+     */
+    private function images() : Db_Table
+    {
+        if ( !isset( $this->tables['images'] ) )
+        {
+            $this->tables['images'] = new Db_Table( $this->db(), [
+                'table' => 'mtgtools_images',
+                'filters' => [
+                    'card_uuid',
+                    'type',
+                ],
+                'field_types' => [],
+            ]);
+        }
+        return $this->tables['images'];
     }
 
 }   // End of class
