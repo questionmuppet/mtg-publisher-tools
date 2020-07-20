@@ -7,13 +7,12 @@
 
 namespace Mtgtools\Db;
 
-use \wpdb;
 use Mtgtools\Exceptions\Db as Exceptions;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Db_Table
+class Db_Table extends Db_Ops
 {
     /**
      * Unprefixed table name
@@ -31,16 +30,11 @@ class Db_Table
     private $field_types = [];
 
     /**
-     * Database class
-     */
-    private $db;
-
-    /**
      * Constructor
      */
-    public function __construct( wpdb $db, array $props = [] )
+    public function __construct( $db, array $props = [] )
     {
-        $this->db = $db;
+        parent::__construct( $db );
         $this->set_table_props( $props );
     }
 
@@ -111,7 +105,13 @@ class Db_Table
         ]);
         if ( !count( $results ) )
         {
-            throw new Exceptions\NoResultsException( get_called_class() . " failed to find a requested record. No results found matching the provided search filters." );
+            throw new Exceptions\NoResultsException(
+                sprintf(
+                    "%s failed to find a requested record. No results found in table '%s' matching the provided search filters.",
+                    get_called_class(),
+                    $this->get_table_name()
+                )
+            );
         }
         return $results[0];
     }
@@ -132,7 +132,13 @@ class Db_Table
 
         if ( !count( $filters ) )
         {
-            throw new \DomainException( get_called_class() . " cannot find records without any search criteria. You must provide at least one filter." );
+            throw new \DomainException(
+                sprintf(
+                    "%s cannot find records without search criteria. No filters were provided to search table '%s'.",
+                    get_called_class(),
+                    $this->get_table_name()
+                )
+            );
         }
         return $this->db()->get_results(
             sprintf(
@@ -167,8 +173,9 @@ class Db_Table
             {
                 throw new \DomainException(
                     sprintf(
-                        "%s cannot generate WHERE conditions using unknown filter key '%s'. To search against a column you must first define it as a valid filter key.",
+                        "%s cannot generate WHERE conditions for table '%s' using unknown filter key '%s'. To search against a column you must first define it as a valid filter key.",
                         get_called_class(),
+                        $this->get_table_name(),
                         $key
                     )
                 );
@@ -216,64 +223,6 @@ class Db_Table
     }
     
     /**
-     * -----------------------------
-     *   G E N E R I C   Q U E R Y
-     * -----------------------------
-     */
-
-    /**
-     * Execute a generic, unescaped SQL query
-     * 
-     * @param string $query Unescaped query string – calling methods must sanitize the query
-     * @return int Rows affected
-     * @throws SqlErrorException
-     */
-    public function execute_query( string $query ) : int
-    {
-        $result = $this->db()->query( $query );
-        if ( false === $result )
-        {
-            throw new Exceptions\SqlErrorException(
-                sprintf( "%s encountered a SQL error trying to save a new record. %s", get_called_class(), $this->db()->last_error )
-            );
-        }
-        return (int) $result; // wpdb::query() returns int|true on success
-    }
-    
-    /**
-     * ---------------------------
-     *   T R A N S A C T I O N S
-     * ---------------------------
-     */
-
-    /**
-     * Start transaction
-     */
-    public function start_transaction() : void
-    {
-        $this->db()->query( 'SET autocommit = 0;' );
-        $this->db()->query( 'START TRANSACTION;' );
-    }
-
-    /**
-     * Commit transaction
-     */
-    public function commit_transaction() : void
-    {
-        $this->db()->query( 'COMMIT;' );
-        $this->db()->query( 'SET autocommit = 1;' );
-    }
-
-    /**
-     * Rollback transaction
-     */
-    public function rollback_transaction() : void
-    {
-        $this->db()->query( 'ROLLBACK;' );
-        $this->db()->query( 'SET autocommit = 1;' );
-    }
-    
-    /**
      * ---------------------------
      *   S A N I T I Z A T I O N
      * ---------------------------
@@ -297,14 +246,6 @@ class Db_Table
             $sanitized[ $key ] = $this->db()->prepare( $placeholder, $value );
         }
         return $sanitized;
-    }
-
-    /**
-     * Strip backticks from a SQL keyname
-     */
-    private function strip_backticks( string $keyname ) : string
-    {
-        return preg_replace( '/`/', '', $keyname );
     }
 
     /**
@@ -410,28 +351,6 @@ class Db_Table
     public function set_field_types( array $fields ) : void
     {
         $this->field_types = $fields;
-    }
-    
-    /**
-     * ---------------------------
-     *   D E P E N D E N C I E S
-     * ---------------------------
-     */
-
-    /**
-     * Get charset collation
-     */
-    public function get_collate() : string
-    {
-        return $this->db()->get_charset_collate();
-    }
-
-    /**
-     * Get WordPress database class
-     */
-    protected function db() : wpdb
-    {
-        return $this->db;
     }
 
 }   // End of class

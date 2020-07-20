@@ -1,0 +1,129 @@
+<?php
+/**
+ * Db_Ops
+ * 
+ * Abstract class for handling database operations
+ */
+
+namespace Mtgtools\Db;
+
+use \wpdb;
+use Mtgtools\Exceptions\Db as Exceptions;
+
+// Exit if accessed directly
+defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
+
+abstract class Db_Ops
+{
+    /**
+     * Database class
+     */
+    private $db;
+
+    /**
+     * Constructor
+     */
+    public function __construct( wpdb $db )
+    {
+        $this->db = $db;
+    }
+    
+    /**
+     * -----------------------------
+     *   G E N E R I C   Q U E R Y
+     * -----------------------------
+     */
+
+    /**
+     * Execute a generic, unescaped SQL query
+     * 
+     * @param string $query     Raw query string. Calling methods are responsible for sanitization.
+     * @return int              Rows affected
+     * @throws SqlErrorException
+     */
+    protected function execute_query( string $query ) : int
+    {
+        $result = $this->db()->query( $query );
+        if ( false === $result )
+        {
+            throw new Exceptions\SqlErrorException(
+                sprintf(
+                    "%s encountered a SQL error trying to execute a query. %s",
+                    get_called_class(),
+                    $this->db()->last_error
+                )
+            );
+        }
+        return (int) $result; // wpdb::query() returns int|true on success
+    }
+    
+    /**
+     * ---------------------------
+     *   T R A N S A C T I O N S
+     * ---------------------------
+     */
+
+    /**
+     * Start transaction
+     */
+    protected function start_transaction() : void
+    {
+        $this->db()->query( 'SET autocommit = 0;' );
+        $this->db()->query( 'START TRANSACTION;' );
+    }
+
+    /**
+     * Commit transaction
+     */
+    protected function commit_transaction() : void
+    {
+        $this->db()->query( 'COMMIT;' );
+        $this->db()->query( 'SET autocommit = 1;' );
+    }
+
+    /**
+     * Rollback transaction
+     */
+    protected function rollback_transaction() : void
+    {
+        $this->db()->query( 'ROLLBACK;' );
+        $this->db()->query( 'SET autocommit = 1;' );
+    }
+    
+    /**
+     * ---------------------------
+     *   S A N I T I Z A T I O N
+     * ---------------------------
+     */
+
+    /**
+     * Strip backticks from a SQL keyname
+     */
+    protected function strip_backticks( string $keyname ) : string
+    {
+        return preg_replace( '/`/', '', $keyname );
+    }
+    
+    /**
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
+     */
+
+    /**
+     * Get charset collation
+     */
+    protected function get_collate() : string
+    {
+        return $this->db()->get_charset_collate();
+    }
+
+    /**
+     * Get WordPress database class
+     */
+    protected function db() : wpdb
+    {
+        return $this->db;
+    }
+
+}   // End of class

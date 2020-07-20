@@ -66,7 +66,6 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
     public function tearDown() : void
     {
         $this->drop_table();
-        $this->wpdb->suppress_errors( false );
         $this->db_table = null;
         parent::tearDown();
     }
@@ -89,16 +88,6 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
         ]);
 
         $this->assertNull( $result );
-    }
-
-    /**
-     * TEST: Can get charset collation
-     */
-    public function testCanGetCollate() : void
-    {
-        $collate = $this->db_table->get_collate();
-
-        $this->assertIsString( $collate );
     }
 
     /**
@@ -193,68 +182,6 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
         $val = $sanitized[ $col ];
         $this->assertEquals( '`column_with_backtick`', $col, 'Failed to assert that a column keyname was sanitized for safe use in SQL queries.' );
         $this->assertEquals( "'value with \\'apostrophe'", $val, 'Failed to assert that a value was sanitized for safe use in SQL queries.' );
-    }
-
-    /**
-     * ---------------------------
-     *   T R A N S A C T I O N S
-     * ---------------------------
-     */
-
-    /**
-     * TEST: Can commit a transaction
-     */
-    public function testCanCommitTransaction() : void
-    {
-        $this->db_table->start_transaction();
-        $this->insert_record( self::NARF );
-        $this->db_table->commit_transaction();
-
-        $this->assertIsArray( $this->get_record('narf') );
-    }
-
-    /**
-     * TEST: Can rollback a transaction
-     * 
-     * @depends testCanCommitTransaction
-     */
-    public function testCanRollbackTransaction() : void
-    {
-        $this->db_table->start_transaction();
-        $this->insert_record( self::NARF );
-        $this->db_table->rollback_transaction();
-
-        $this->assertNull( $this->get_record('narf') );
-    }
-
-    /**
-     * -----------------------------
-     *   G E N E R I C   Q U E R Y
-     * -----------------------------
-     */
-
-    /**
-     * TEST: Can execute generic query
-     */
-    public function testCanExecuteGenericQuery() : void
-    {
-        $this->db_table->execute_query( "INSERT INTO {$this->get_table()} (unique_identifier) VALUES ('narf') ;" );
-
-        $record = $this->get_record('narf');
-        $this->assertEquals( 'narf', $record['unique_identifier'] );
-    }
-
-    /**
-     * TEST: Sql error in generic query throws exception
-     * 
-     * @depends testCanExecuteGenericQuery
-     */
-    public function testSqlErrorInGenericQueryThrowsException() : void
-    {
-        $this->expectException( Exceptions\SqlErrorException::class );
-
-        $this->wpdb->suppress_errors();
-        $this->db_table->execute_query( "SELECT * FROM {$this->get_table()} WHERE invalid_column = 'narf';" );
     }
 
     /**
@@ -395,7 +322,6 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
      * 
      * @depends testCanSanitizeColumnValuePairs
      * @depends testRequestingUndefinedTableNameThrowsException
-     * @depends testSqlErrorInGenericQueryThrowsException
      */
     public function testCanSaveNewRecord() : void
     {
