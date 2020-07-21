@@ -9,6 +9,7 @@ namespace Mtgtools\Cards;
 
 use Mtgtools\Db\Db_Ops;
 use Mtgtools\Db\Db_Table;
+use Mtgtools\Db\Sql_Tokens\Sql_Current_Timestamp;
 use Mtgtools\Exceptions\Db as Exceptions;
 
 // Exit if accessed directly
@@ -130,13 +131,7 @@ class Card_Db_Ops extends Db_Ops
             'card_id' => $card_id,
             'type' => $image->get_type(),
             'uri' => $image->get_uri(),
-
-            /**
-             * This is a bug. It will insert current server time
-             * rather than current db time. Should be unescaped
-             * "now()" in query instead.
-             */
-            'cached' => date( 'Y-m-d H:i:s' ),
+            'cached' => new Sql_Current_Timestamp(),
         ]);
     }
 

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Db\Db_Ops;
+use Mtgtools\Db\Sql_Tokens\Sql_Token;
 use Mtgtools\Exceptions\Db as Exceptions;
 
 /**
@@ -13,6 +14,7 @@ class Db_Ops_Nonabstract extends Db_Ops
     public function start()             { return $this->start_transaction(); }
     public function commit()            { return $this->commit_transaction(); }
     public function rollback()          { return $this->rollback_transaction(); }
+    public function token( $c, $t )     { return $this->get_whitelisted_token( $c, $t ); }
     public function strip( $key )       { return $this->strip_backticks( $key ); }
     public function collate()           { return $this->get_collate(); }
 }
@@ -26,6 +28,7 @@ class Db_Ops_DbTest extends Mtgtools_UnitTestCase
     const NARF = [
         'unique_identifier' => 'narf',
     ];
+    const TOKEN_CONTEXT = 'sensitive_and_dangerous';
 
     /**
      * SUT object
@@ -77,6 +80,12 @@ class Db_Ops_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * ---------------------------
+     *   S A N I T I Z A T I O N
+     * ---------------------------
+     */
+
+    /**
      * TEST: Can strip backticks
      */
     public function testCanStripBackticks() : void
@@ -84,6 +93,38 @@ class Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $clean = $this->db_ops->strip( 'column_with_`````backticks' );
 
         $this->assertEquals( 'column_with_backticks', $clean );
+    }
+
+    /**
+     * TEST: Can get whitelisted token string
+     */
+    public function testCanGetWhitelistedTokenString() : void
+    {
+        $token = $this->createMock( Sql_Token::class );
+        $token->method('is_safe_for')
+            ->with( $this->equalTo( self::TOKEN_CONTEXT ) )
+            ->willReturn( true );
+
+        $snippet = $this->db_ops->token( self::TOKEN_CONTEXT, $token );
+
+        $this->assertIsString( $snippet );
+    }
+
+    /**
+     * TEST: Invalid whitelisted token throws exception
+     * 
+     * @depends testCanGetWhitelistedTokenString
+     */
+    public function testInvalidWhitelistedTokenThrowsException() : void
+    {
+        $token = $this->createMock( Sql_Token::class );
+        $token->method('is_safe_for')
+            ->with( $this->equalTo( self::TOKEN_CONTEXT ) )
+            ->willReturn( false );
+        
+        $this->expectException( DomainException::class );
+
+        $snippet = $this->db_ops->token( self::TOKEN_CONTEXT, $token );
     }
 
     /**

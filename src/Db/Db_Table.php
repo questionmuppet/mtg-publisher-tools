@@ -7,6 +7,7 @@
 
 namespace Mtgtools\Db;
 
+use Mtgtools\Db\Sql_Tokens\Sql_Token;
 use Mtgtools\Exceptions\Db as Exceptions;
 
 // Exit if accessed directly
@@ -244,7 +245,9 @@ class Db_Table extends Db_Ops
                 $this->strip_backticks( $column )
             );
             $placeholder = $this->get_column_placeholder( $column );
-            $sanitized[ $key ] = $this->db()->prepare( $placeholder, $value );
+            $sanitized[ $key ] = $value instanceof Sql_Token
+                ? $this->get_whitelisted_token( 'column_value', $value )
+                : $this->db()->prepare( $placeholder, $value );
         }
         return $sanitized;
     }

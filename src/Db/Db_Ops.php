@@ -8,6 +8,7 @@
 namespace Mtgtools\Db;
 
 use \wpdb;
+use Mtgtools\Db\Sql_Tokens\Sql_Token;
 use Mtgtools\Exceptions\Db as Exceptions;
 
 // Exit if accessed directly
@@ -95,6 +96,25 @@ abstract class Db_Ops
      *   S A N I T I Z A T I O N
      * ---------------------------
      */
+    
+    /**
+     * Get a whitelisted token safe for use in SQL queries
+     */
+    protected function get_whitelisted_token( string $context, Sql_Token $token ) : string
+    {
+        if ( !$token->is_safe_for( $context ) )
+        {
+            throw new \DomainException(
+                sprintf(
+                    "%s was provided an invalid SQL token for use in a query. %s token is not whitelisted for '%s' context.",
+                    get_called_class(),
+                    $token->get_name(),
+                    $context
+                )
+            );
+        }
+        return $token->get_token();
+    }
 
     /**
      * Strip backticks from a SQL keyname
