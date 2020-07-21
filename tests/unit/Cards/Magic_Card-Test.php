@@ -14,6 +14,7 @@ class Magic_Card_Test extends WP_UnitTestCase
     const SET_CODE = 'WWK';
     const LANGUAGE = 'English';
     const COLLECTOR_NUMBER = '42a';
+    const BACKFACE = false;
 
     /**
      * Dependencies
@@ -56,6 +57,7 @@ class Magic_Card_Test extends WP_UnitTestCase
         $this->assertEquals( self::SET_CODE, $card->get_set_code(), "Could not retrieve public property 'set_code'." );
         $this->assertEquals( self::COLLECTOR_NUMBER, $card->get_collector_number(), "Could not retrieve public property 'collector_number'." );
         $this->assertEquals( self::LANGUAGE, $card->get_language(), "Could not retrieve public property 'language'." );
+        $this->assertEquals( self::BACKFACE, $card->is_backface(), "Could not check if card is the backface of a dfc." );
         $this->assertCount( 2, $card->get_images(), "Failed to assert that a card contained the expected number of image uris." );
         $this->assertIsString( $card->get_name_with_edition(), "Could not retrieve human-readable name string with edition." );
         $this->assertIsString( $card->get_alt_text(), "Could not retreive alt-text string." );

@@ -64,7 +64,7 @@ class Db_Table extends Db_Ops
      * Update a table row, or create it if it doesn't exist
      * 
      * @param array $values     Associative array of "column" => "value" attributes to save. Will be escaped.
-     * @return int              Rows affected per MySQL
+     * @return int              AUTO_INCREMENT id of newly inserted/updated row
      * @throws SqlErrorException
      */
     public function save_record( array $values ) : int
@@ -79,15 +79,16 @@ class Db_Table extends Db_Ops
             $values
         );
 
-        return $this->execute_query(
+        $this->execute_query(
             sprintf(
-                "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s;",
+                "INSERT INTO `%s` (%s) VALUES (%s) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), %s;",
                 $this->strip_backticks( $this->get_table_name() ),
                 implode( ',', $columns ),
                 implode( ',', $values ),
                 implode( ',', $assignments )
             )
         );
+        return $this->db()->insert_id;
     }
 
     /**
@@ -97,7 +98,7 @@ class Db_Table extends Db_Ops
      * @return array            Exactly one record matching filters
      * @throws NoResultsException
      */
-    public function get_record( array $filters )
+    public function get_record( array $filters ) : array
     {
         $results = $this->find_records([
             'filters' => $filters,

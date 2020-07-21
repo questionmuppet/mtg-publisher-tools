@@ -193,6 +193,7 @@ class Scryfall_Cards extends Scryfall_Api_Handler
     {
         return new Cards\Magic_Card([
             'uuid' => $data['id'],
+            'backface' => $data['backface'] ?? false,
             'name' => $data['name'],
             'set_code' => $data['set'],
             'set_name' => $data['set_name'],
@@ -213,7 +214,6 @@ class Scryfall_Cards extends Scryfall_Api_Handler
         foreach ( $data['image_uris'] as $type => $uri )
         {
             $image = new Cards\Image_Uri([
-                'card_uuid' => $data['id'],
                 'uri' => $uri,
                 'type' => $type,
             ]);

@@ -89,7 +89,8 @@ class Card_Cache extends Module
         {
             // Search by unique id
             $filters = [
-                'uuid' => sanitize_text_field( $args['id'] )
+                'uuid' => sanitize_text_field( $args['id'] ),
+                'backface' => isset( $args['backface'] ) ? boolval( $args['backface'] ) : null,
             ];
         }
         elseif ( isset( $args['set'], $args['number'] ) )

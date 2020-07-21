@@ -19,8 +19,10 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      */
     const MOCK_CARD = [
         'uuid' => 'xxxxx',
+        'backface' => false,
         'name' => 'Stoneforge Mystic',
         'set_code' => 'WWK',
+        'set_name' => 'Worldwake',
         'language' => 'English',
         'collector_number' => '42a',
         'images' => [],
@@ -30,12 +32,10 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      * Mock image uri attributes
      */
     const IMAGE_1 = [
-        'card_uuid' => self::MOCK_CARD['uuid'],
         'type' => 'small',
         'uri' => 'https://www.example.com/small.png',
     ];
     const IMAGE_2 = [
-        'card_uuid' => self::MOCK_CARD['uuid'],
         'type' => 'large',
         'uri' => 'https://www.example.com/large.png',
     ];
@@ -162,8 +162,10 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     public function testNewlyInsertedCardHasCorrectAttributes( array $row ) : void
     {
         $this->assertEquals( self::MOCK_CARD['uuid'], $row['uuid'] );
+        $this->assertEquals( self::MOCK_CARD['backface'], boolval( $row['backface'] ) );
         $this->assertEquals( self::MOCK_CARD['name'], $row['name'] );
         $this->assertEquals( self::MOCK_CARD['set_code'], $row['set_code'] );
+        $this->assertEquals( self::MOCK_CARD['set_name'], $row['set_name'] );
         $this->assertEquals( self::MOCK_CARD['language'], $row['language'] );
         $this->assertEquals( self::MOCK_CARD['collector_number'], $row['collector_number'] );
     }
@@ -187,17 +189,10 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 
         $this->db_ops->cache_card_data( $card, 'small' );
 
-        $rows = $this->wpdb->get_results(
-            $this->wpdb->prepare(
-                "SELECT * FROM {$this->get_images_table()} WHERE card_uuid = %s",
-                self::MOCK_CARD['uuid']
-            ),
-            ARRAY_A
-        );
+        $images = $this->get_images_by_uuid( self::MOCK_CARD['uuid'] );
+        $this->assertCount( 1, $images, 'Failed to assert that exactly one image uri was cached when a valid type was provided.' );
 
-        $this->assertCount( 1, $rows, 'Failed to assert that exactly one image uri was cached when a valid type was provided.' );
-
-        return $rows[0];
+        return $images[0];
     }
 
     /**
@@ -207,7 +202,6 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      */
     public function testNewlyInsertedImageHasCorrectAttributes( array $row ) : void
     {
-        $this->assertEquals( self::IMAGE_1['card_uuid'], $row['card_uuid'] );
         $this->assertEquals( self::IMAGE_1['type'], $row['type'] );
         $this->assertEquals( self::IMAGE_1['uri'], $row['uri'] );
         $this->assertLessThanOrEqual( time(), $row['cached'], 'Failed to assert that the timestamp on a newly cached image uri is equal to or older than current time.' );
@@ -231,21 +225,6 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 
         $this->assertGreaterThan( $first, $second, 'Failed to assert that a newly cached uri updated the timestamp.' );
     }
-    
-    /**
-     * Check timestamp of a cached image
-     */
-    private function get_cache_timestamp( string $uuid, string $type ) : string
-    {
-        return $this->wpdb->get_var(
-            $this->wpdb->prepare(
-                "SELECT cached FROM {$this->get_images_table()}
-                WHERE card_uuid = %s && type = %s",
-                $uuid,
-                $type
-            )
-        );
-    }
 
     /**
      * TEST: Can cache all image uris
@@ -259,13 +238,8 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 
         $this->db_ops->cache_card_data( $card );
 
-        $rows = $this->wpdb->get_results(
-            $this->wpdb->prepare(
-                "SELECT * FROM {$this->get_images_table()} WHERE card_uuid = %s",
-                self::MOCK_CARD['uuid']
-            )
-        );
-        $this->assertCount( 2, $rows );
+        $images = $this->get_images_by_uuid( self::MOCK_CARD['uuid'] );
+        $this->assertCount( 2, $images );
     }
 
     /**
@@ -362,6 +336,38 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      *   P R O V I D E R S
      * ---------------------
      */
+    
+    /**
+     * Check timestamp of a cached image
+     */
+    private function get_cache_timestamp( string $uuid, string $type ) : string
+    {
+        return $this->wpdb->get_var(
+            $this->wpdb->prepare(
+                "SELECT cached FROM {$this->get_images_table()} i
+                INNER JOIN {$this->get_cards_table()} c ON c.id = i.card_id
+                WHERE uuid = %s && type = %s",
+                $uuid,
+                $type
+            )
+        );
+    }
+
+    /**
+     * Get images matching a uuid
+     */
+    private function get_images_by_uuid( string $uuid ) : array
+    {
+        return $this->wpdb->get_results(
+            $this->wpdb->prepare(
+                "SELECT * FROM {$this->get_images_table()} i
+                INNER JOIN {$this->get_cards_table()} c ON c.id = i.card_id
+                WHERE uuid = %s",
+                $uuid
+            ),
+            ARRAY_A
+        );
+    }
 
     /**
      * Get mock Magic card with image uris
@@ -372,7 +378,8 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $card = $this->createMock( Magic_Card::class );
         foreach ( $props as $key => $prop )
         {
-            $card->method( "get_{$key}" )->willReturn( $prop );
+            $method = 'backface' === $key ? 'is_backface' : "get_{$key}";
+            $card->method( $method )->willReturn( $prop );
         }
         return $card;
     }

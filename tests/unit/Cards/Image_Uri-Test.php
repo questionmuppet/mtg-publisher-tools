@@ -8,7 +8,6 @@ class Image_Uri_Test extends WP_UnitTestCase
     /**
      * Constants
      */
-    const CARD_UUID = 'xxxxx';
     const URI = 'https://www.example.com/image.svg';
     const TYPE = 'small';
     const CACHE_PERIOD = WEEK_IN_SECONDS;
@@ -20,7 +19,6 @@ class Image_Uri_Test extends WP_UnitTestCase
     {
         $img = $this->create_image_uri();
 
-        $this->assertEquals( self::CARD_UUID, $img->get_card_uuid(), "Could not retrieve public property 'card_uuid'." );
         $this->assertEquals( self::URI, $img->get_uri(), "Could not retrieve public property 'uri'." );
         $this->assertEquals( self::TYPE, $img->get_type(), "Could not retrieve public property 'type'." );
     }
@@ -78,7 +76,6 @@ class Image_Uri_Test extends WP_UnitTestCase
     private function create_image_uri( array $args = [] ) : Image_Uri
     {
         $args = array_replace([
-            'card_uuid' => self::CARD_UUID,
             'uri' => self::URI,
             'type' => self::TYPE,
             'cached' => $this->timetostr(),

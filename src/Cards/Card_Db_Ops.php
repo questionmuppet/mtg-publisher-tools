@@ -47,7 +47,7 @@ class Card_Db_Ops extends Db_Ops
         $card = $this->cards()->get_record( $filters );
         $images = $this->images()->find_records([
             'filters' => [
-                'card_uuid' => $card['uuid']
+                'card_id' => $card['id']
             ]
         ]);
         $card['images'] = $this->create_images( $images );
@@ -91,45 +91,43 @@ class Card_Db_Ops extends Db_Ops
      */
     public function cache_card_data( Magic_Card $card, string $img_type = '' ) : void
     {
-        $this->cards()->save_record([
+        $id = $this->cards()->save_record([
             'uuid' => $card->get_uuid(),
+            'backface' => $card->is_backface(),
             'name' => $card->get_name(),
             'set_code' => $card->get_set_code(),
             'set_name' => $card->get_set_name(),
             'language' => $card->get_language(),
             'collector_number' => $card->get_collector_number(),
         ]);
-        $this->cache_image_uris( $card->get_images(), $img_type );
+        $this->cache_image_uris( $card->get_images(), $img_type, $id );
     }
     
     /**
      * Update image uris and reset timestamp
      */
-    private function cache_image_uris( array $images, string $type ) : void
+    private function cache_image_uris( array $images, string $type, int $card_id ) : void
     {
-        array_key_exists( $type, $images )
-            ? $this->update_image( $images[ $type ] )
-            : $this->update_multiple_images( $images );
-    }
-
-    /**
-     * Update multiple image uris
-     */
-    private function update_multiple_images( array $images )
-    {
-        foreach ( $images as $image )
+        $to_cache = array_key_exists( $type, $images )
+            ? array( $images[ $type ] )
+            : $images;
+        
+        foreach ( $to_cache as $image )
         {
-            $this->update_image( $image );
+            $this->update_image( $image, $card_id );
         }
     }
 
     /**
      * Update image uri
+     * 
+     * @param Image_Uri $image      Instantiated image object
+     * @param int $card_id          AUTO_INCREMENT id in cards table
      */
-    private function update_image( Image_Uri $image ) : void
+    private function update_image( Image_Uri $image, int $card_id ) : void
     {
         $this->images()->save_record([
-            'card_uuid' => $image->get_card_uuid(),
+            'card_id' => $card_id,
             'type' => $image->get_type(),
             'uri' => $image->get_uri(),
 
@@ -201,15 +199,16 @@ class Card_Db_Ops extends Db_Ops
     {
         return $this->execute_query(
             "CREATE TABLE IF NOT EXISTS {$this->get_cards_table_name()} (
-                id int(20) UNSIGNED AUTO_INCREMENT,
-                name text NOT NULL,
-                uuid varchar(128) UNIQUE NOT NULL,
-                set_code varchar(16) NOT NULL,
-                set_name tinytext NOT NULL,
-                collector_number varchar(16) NOT NULL,
-                language varchar(16) NOT NULL,
+                id INT UNSIGNED AUTO_INCREMENT,
+                name TEXT NOT NULL,
+                uuid VARCHAR(128) NOT NULL,
+                backface BOOLEAN NOT NULL DEFAULT false,
+                set_code VARCHAR(16) NOT NULL,
+                set_name TINYTEXT NOT NULL,
+                collector_number VARCHAR(16) NOT NULL,
+                language VARCHAR(16) NOT NULL,
                 PRIMARY KEY (id),
-                UNIQUE KEY printing (set_code, collector_number, language)
+                UNIQUE KEY unique_face (uuid, backface)
             ) {$this->get_collate()};"
         );
     }
@@ -221,17 +220,17 @@ class Card_Db_Ops extends Db_Ops
     {
         return $this->execute_query(
             "CREATE TABLE IF NOT EXISTS {$this->get_images_table_name()} (
-                id int(20) UNSIGNED AUTO_INCREMENT,
-                card_uuid varchar(128) NOT NULL,
-                type varchar(16) NOT NULL,
-                uri text NOT NULL,
-                cached timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                id INT UNSIGNED AUTO_INCREMENT,
+                card_id INT UNSIGNED NOT NULL,
+                type VARCHAR(16) NOT NULL,
+                uri TEXT NOT NULL,
+                cached TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
-                FOREIGN KEY (card_uuid)
-                    REFERENCES {$this->get_cards_table_name()}(uuid)
+                FOREIGN KEY (card_id)
+                    REFERENCES {$this->get_cards_table_name()}(id)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE,
-                UNIQUE KEY image_address (card_uuid, type)
+                UNIQUE KEY image_address (card_id, type)
             ) {$this->get_collate()};"
         );
     }
@@ -275,9 +274,9 @@ class Card_Db_Ops extends Db_Ops
     }
 
     /**
-     * ---------------------------
-     *   D E P E N D E N C I E S
-     * ---------------------------
+     * ---------------
+     *   T A B L E S
+     * ---------------
      */
 
     /**
@@ -291,12 +290,15 @@ class Card_Db_Ops extends Db_Ops
                 'table' => 'mtgtools_cards',
                 'filters' => [
                     'uuid',
+                    'backface',
                     'name',
                     'set_code',
                     'collector_number',
                     'language',
                 ],
-                'field_types' => [],
+                'field_types' => [
+                    'backface' => '%d',
+                ],
             ]);
         }
         return $this->tables['cards'];
@@ -312,7 +314,7 @@ class Card_Db_Ops extends Db_Ops
             $this->tables['images'] = new Db_Table( $this->db(), [
                 'table' => 'mtgtools_images',
                 'filters' => [
-                    'card_uuid',
+                    'card_id',
                     'type',
                 ],
                 'field_types' => [],

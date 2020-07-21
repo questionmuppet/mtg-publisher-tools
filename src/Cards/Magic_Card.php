@@ -30,6 +30,7 @@ class Magic_Card extends Data
     protected $defaults = [
         'images' => [],
         'set_name' => '',
+        'backface' => false,
     ];
 
     /**
@@ -196,6 +197,14 @@ class Magic_Card extends Data
     public function get_language() : string
     {
         return $this->get_prop( 'language' );
+    }
+
+    /**
+     * Check if card is the backface of a dfc
+     */
+    public function is_backface() : bool
+    {
+        return boolval( $this->get_prop( 'backface' ) );
     }
 
 }   // End of class

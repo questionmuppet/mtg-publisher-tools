@@ -23,6 +23,7 @@ class Mtgtools_Images extends Module
      */
     private $search_filters = [
         'id',
+        'backface',
         'name',
         'set',
         'number',

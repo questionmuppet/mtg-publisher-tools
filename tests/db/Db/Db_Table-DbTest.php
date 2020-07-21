@@ -325,13 +325,11 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
      */
     public function testCanSaveNewRecord() : void
     {
-        $rows = $this->db_table->save_record( self::POIT );
+        $id = $this->db_table->save_record( self::POIT );
 
         $row = $this->get_record('poit');
-
-        $this->assertIsArray( $row );
         $this->assertEquals( self::POIT['string_attribute'], $row['string_attribute'] );
-        $this->assertEquals( 1, $rows, 'Failed to assert that save_record() returned the number of rows inserted.' );
+        $this->assertEquals( $row['id'], $id, 'Failed to assert that save_record() returned the id of an inserted record.' );
     }
 
     /**
@@ -347,11 +345,12 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
         $new['string_attribute'] = 'An even healthier string';
         $new['search_term_1'] = 'entirely new information';
 
-        $this->db_table->save_record( $new );
+        $id = $this->db_table->save_record( $new );
 
         $row = $this->get_record('poit');
         $this->assertEquals( 'An even healthier string', $row['string_attribute'] );
         $this->assertEquals( 'entirely new information', $row['search_term_1'] );
+        $this->assertEquals( $row['id'], $id, "Failed to assert that save_record() returned the id of an updated record." );
     }
 
     /**

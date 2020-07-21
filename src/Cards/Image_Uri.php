@@ -17,7 +17,6 @@ class Image_Uri extends Data
      * Required properties
      */
     protected $required = array(
-        'card_uuid',
         'uri',
         'type',
     );
@@ -57,14 +56,6 @@ class Image_Uri extends Data
      *   P R O P S
      * -------------
      */
-
-    /**
-     * Get corresponding card uuid
-     */
-    public function get_card_uuid() : string
-    {
-        return $this->get_prop( 'card_uuid' );
-    }
 
     /**
      * Get uri to image file
