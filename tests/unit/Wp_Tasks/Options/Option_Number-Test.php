@@ -31,7 +31,7 @@ class Option_Number_Test extends WP_UnitTestCase
      */
     public function testCanSanitizeSaveValue() : void
     {
-        $value = $this->opt->sanitize( 10 );
+        $value = $this->opt->sanitize_save_value( 10 );
 
         $this->assertIsNumeric( $value );
     }
@@ -43,7 +43,7 @@ class Option_Number_Test extends WP_UnitTestCase
      */
     public function testMaxValueEnforcedDuringSanitization() : void
     {
-        $value = $this->opt->sanitize( self::MAX + 10 );
+        $value = $this->opt->sanitize_save_value( self::MAX + 10 );
 
         $this->assertEquals( self::MAX, $value, 'Failed to assert that the maximum value is enforced during sanitization.' );
     }
@@ -55,7 +55,7 @@ class Option_Number_Test extends WP_UnitTestCase
      */
     public function testMinValueEnforcedDuringSanitization() : void
     {
-        $value = $this->opt->sanitize( self::MIN - 10 );
+        $value = $this->opt->sanitize_save_value( self::MIN - 10 );
     
         $this->assertEquals( self::MIN, $value, 'Failed to assert that the minimum value is enforced during sanitization.' );
     }
@@ -67,7 +67,7 @@ class Option_Number_Test extends WP_UnitTestCase
      */
     public function testStepIncrementEnforcedDuringSanitization() : void
     {
-        $value = $this->opt->sanitize( 13.14159 );
+        $value = $this->opt->sanitize_save_value( 13.14159 );
 
         $remainder = $value % self::STEP;
 
@@ -99,7 +99,6 @@ class Option_Number_Test extends WP_UnitTestCase
     {
         $args = array_replace([
             'id' => 'fake_option',
-            'page' => 'fake_options_page',
             'min' => self::MIN,
             'max' => self::MAX,
             'step' => self::STEP,

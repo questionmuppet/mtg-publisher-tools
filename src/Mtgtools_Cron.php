@@ -38,7 +38,7 @@ class Mtgtools_Cron extends Module
     public function add_hooks() : void
     {
         add_action( self::CRON_HOOK, array( $this->updates(), 'check_for_updates' ) );
-        add_filter( 'mtgtools_save_option_check_for_updates', array( $this, 'on_checks_enabled_change' ), 10, 2 );
+        add_action( 'mtgtools_save_option_check_for_updates', array( $this, 'on_checks_enabled_change' ), 10, 2 );
     }
     
     /**
@@ -50,13 +50,12 @@ class Mtgtools_Cron extends Module
     /**
      * Update schedule when checks-enabled option changes
      */
-    public function on_checks_enabled_change( $new, $old )
+    public function on_checks_enabled_change( $new, $old ) : void
     {
         if ( $new != $old ) // Loose comparison so 1 = true
         {
             $this->set_schedule( $new );
         }
-        return boolval( $new );
     }
 
     /**

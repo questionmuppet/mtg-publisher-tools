@@ -8,10 +8,8 @@
 namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Wp_Tasks\Options\Option;
-use Mtgtools\Wp_Tasks\Options\Option_Factory;
+use Mtgtools\Wp_Tasks\Options\Options_Manager;
 use Mtgtools\Wp_Tasks\Options\Settings_Section;
-use Mtgtools\Interfaces\Mtg_Data_Source;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -19,49 +17,27 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 class Mtgtools_Settings extends Module
 {
     /**
-     * Section defs
-     */
-    private $section_defs = [
-        [
-            'id' => 'mtgtools_card_images',
-            'title' => 'Card images',
-            'page' => 'settings',
-            'description' => 'Settings to control Magic card images in popups and inline content.',
-        ],
-        [
-            'id' => 'mtgtools_updates',
-            'title' => 'Automated updates',
-            'page' => 'settings',
-            'description' => 'Settings to control automated updates to Magic card data.',
-        ],
-    ];
-
-    /**
      * Sections
      */
     private $sections;
 
     /**
-     * Option defs
+     * Section definitions
      */
-    private $option_defs;
+    private $section_defs;
 
     /**
-     * Options
+     * Option manager
      */
-    private $options = [];
-
-    /**
-     * Option factory
-     */
-    private $option_factory;
+    private $options_manager;
 
     /**
      * Constructor
      */
-    public function __construct( Option_Factory $factory, $plugin )
+    public function __construct( Options_Manager $options_manager, $plugin )
     {
-        $this->option_factory = $factory;
+        $this->options_manager = $options_manager;
+        $this->section_defs = $this->get_section_definitions();
         parent::__construct( $plugin );
     }
 
@@ -81,10 +57,6 @@ class Mtgtools_Settings extends Module
         foreach ( $this->get_setting_sections() as $section )
         {
             $section->wp_register();
-        }
-        foreach ( $this->get_all_options() as $option )
-        {
-            $option->wp_register();
         }
     }
 
@@ -116,75 +88,10 @@ class Mtgtools_Settings extends Module
         $sections = [];
         foreach ( $this->section_defs as $params )
         {
-            $section = new Settings_Section( $params );
-            $sections[ $section->get_id() ] = $section;
+            $params['options'] = $this->get_options_for_section( $params['options'] );
+            $sections[] = new Settings_Section( $params );
         }
         return $sections;
-    }
-    
-    /**
-     * -----------------
-     *   O P T I O N S
-     * -----------------
-     */
-
-    /**
-     * Get plugin option
-     */
-    public function get_plugin_option( string $key ) : Option
-    {
-        if ( !$this->option_instantiated( $key ) )
-        {
-            $this->options[ $key ] = $this->create_option( $key );
-        }
-        return $this->options[ $key ];
-    }
-
-    /**
-     * Get all plugin options for settings pages
-     * 
-     * @return Option[]
-     */
-    private function get_all_options() : array
-    {
-        foreach ( $this->get_option_defs() as $key => $params )
-        {
-            if ( !$this->option_instantiated( $key ) )
-            {
-                $this->options[ $key ] = $this->create_option( $key );
-            }
-        }
-        return $this->options;
-    }
-    
-    /**
-     * Create plugin option from defined params
-     */
-    private function create_option( string $key ) : Option
-    {
-        if ( !$this->option_exists( $key ) )
-        {
-            throw new \OutOfRangeException( get_called_class() . " tried to retrieve an undefined plugin option. No option registered for key '{$key}'." );
-        }
-        $params = $this->get_option_defs()[ $key ];
-        $params['id'] = $key;
-        return $this->option_factory()->create_option( $params );
-    }
-
-    /**
-     * Check if option is instantiated
-     */
-    private function option_instantiated( string $key ) : bool
-    {
-        return isset( $this->options[ $key ] );
-    }
-
-    /**
-     * Check if a plugin option is defined
-     */
-    private function option_exists( string $key ) : bool
-    {
-        return array_key_exists( $key, $this->get_option_defs() );
     }
 
     /**
@@ -192,19 +99,7 @@ class Mtgtools_Settings extends Module
      *   D E F I N I T I O N S
      * -------------------------
      */
-
-    /**
-     * Add a plugin option definition
-     */
-    public function add_plugin_option( array $params ) : void
-    {
-        if ( !isset( $params['id'] ) )
-        {
-            throw new \DomainException( "Tried to register a plugin option without a valid id." );
-        }
-        $this->option_defs[ $params['id'] ] = $params;
-    }
-
+    
     /**
      * Add a setting section definition
      */
@@ -214,88 +109,54 @@ class Mtgtools_Settings extends Module
     }
 
     /**
-     * Get option definitions
+     * Get section definitions
      */
-    private function get_option_defs() : array
+    private function get_section_definitions() : array
     {
-        if ( !isset( $this->option_defs ) )
+        return [
+            [
+                'id' => 'mtgtools_card_images',
+                'title' => 'Card images',
+                'page' => 'settings',
+                'description' => 'Settings to control Magic card images in popups and inline content.',
+                'options' => [
+                    'inline_image_type',
+                    'lazy_fetch_images',
+                    'image_cache_period_in_seconds',
+                    'popup_tooltip_location',
+                    'default_language',
+                ],
+            ],
+            [
+                'id' => 'mtgtools_updates',
+                'title' => 'Automated updates',
+                'page' => 'settings',
+                'description' => 'Settings to control automated updates to Magic card data.',
+                'options' => [
+                    'check_for_updates',
+                    'show_update_notices',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * -----------------
+     *   O P T I O N S
+     * -----------------
+     */
+
+    /**
+     * Get plugin options assigned to a section
+     */
+    private function get_options_for_section( array $option_keys ) : array
+    {
+        $opts = [];
+        foreach ( $option_keys as $key )
         {
-            $this->option_defs = [
-                'inline_image_type' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_card_images',
-                    'type' => 'select',
-                    'label' => 'Inline image size',
-                    'default_value' => $this->source()->get_default_image_type(),
-                    'options_callback' => array( $this->source(), 'get_image_types' ),
-                ],
-                'lazy_fetch_images' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_card_images',
-                    'type' => 'checkbox',
-                    'label' => 'Image uris',
-                    'default_value' => true,
-                    'input_args' => [
-                        'label' => 'Fetch card images lazily.',
-                    ],
-                ],
-                'image_cache_period_in_seconds' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_card_images',
-                    'type' => 'select',
-                    'label' => 'Refresh cached images',
-                    'default_value' => strval( MONTH_IN_SECONDS ),
-                    'options' => [
-                        DAY_IN_SECONDS => 'Daily',
-                        WEEK_IN_SECONDS => 'Weekly',
-                        MONTH_IN_SECONDS => 'Monthly',
-                        YEAR_IN_SECONDS => 'Yearly',
-                    ],
-                ],
-                'popup_tooltip_location' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_card_images',
-                    'type' => 'select',
-                    'label' => 'Image popup location (relative to link)',
-                    'default_value' => 'right',
-                    'options' => [
-                        'left' => 'Left',
-                        'right' => 'Right',
-                        'top' => 'Top',
-                        'bottom' => 'Bottom',
-                    ],
-                ],
-                'default_language' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_card_images',
-                    'type' => 'select',
-                    'label' => 'Default language for card images',
-                    'default_value' => $this->source()->get_default_language(),
-                    'options_callback' => array( $this->source(), 'get_languages' ),
-                ],
-                'check_for_updates' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_updates',
-                    'type' => 'checkbox',
-                    'default_value' => true,
-                    'label' => 'Update checker',
-                    'input_args' => [
-                        'label' => 'Check for updates automatically',
-                    ],
-                ],
-                'show_update_notices' => [
-                    'page' => 'settings',
-                    'section' => 'mtgtools_updates',
-                    'type' => 'checkbox',
-                    'default_value' => true,
-                    'label' => 'Admin notices',
-                    'input_args' => [
-                        'label' => 'Notify me about updates and connection issues on the WordPress dashboard',
-                    ],
-                ],
-            ];
+            $opts[] = $this->options_manager()->get_option( $key );
         }
-        return $this->option_defs;
+        return $opts;
     }
 
     /**
@@ -305,19 +166,11 @@ class Mtgtools_Settings extends Module
      */
 
     /**
-     * Get option factory
+     * Get option manager
      */
-    private function option_factory() : Option_Factory
+    private function options_manager() : Options_Manager
     {
-        return $this->option_factory;
-    }
-
-    /**
-     * Get data source
-     */
-    private function source() : Mtg_Data_Source
-    {
-        return $this->plugin()->get_mtg_data_source();
+        return $this->options_manager;
     }
 
 }   // End of class

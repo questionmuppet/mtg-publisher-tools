@@ -54,7 +54,8 @@ abstract class Module
      */
     protected function get_plugin_option( string $key )
     {
-        return $this->plugin()->settings()->get_plugin_option( $key )->get_value();
+        $opt = $this->plugin()->options_manager()->get_option( $key );
+        return $opt->get_value();
     }
 
     /**
@@ -64,7 +65,8 @@ abstract class Module
      */
     protected function update_plugin_option( string $key, $value ) : void
     {
-        $this->plugin()->settings()->get_plugin_option( $key )->update( $value );
+        $opt = $this->plugin()->options_manager()->get_option( $key );
+        $opt->update( $value );
     }
 
     /**

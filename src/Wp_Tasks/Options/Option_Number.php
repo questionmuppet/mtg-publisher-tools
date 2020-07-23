@@ -11,7 +11,7 @@ use Mtgtools\Wp_Tasks\Inputs\Input_Number;
 // Exit if accessed directly
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
-class Option_Number extends Option
+class Option_Number extends Plugin_Option
 {
     /**
      * Default properties
@@ -26,7 +26,7 @@ class Option_Number extends Option
     /**
      * Sanitization callback
      */
-    public function sanitize( $value )
+    protected function sanitize( $value )
     {
         $bound = $this->find_min(
             $this->find_max(

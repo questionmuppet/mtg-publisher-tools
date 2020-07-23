@@ -24,6 +24,7 @@ class Settings_Section extends Data
     protected $defaults = array(
         'title' => null,
         'description' => '',
+        'options' => [],
     );
 
     /**
@@ -36,6 +37,33 @@ class Settings_Section extends Data
             $this->get_title(),
             array( $this, 'print_description' ),
             $this->get_page()
+        );
+        $this->register_fields();
+    }
+    
+    /**
+     * Register settings fields
+     */
+    private function register_fields() : void
+    {
+        foreach ( $this->get_plugin_options() as $option )
+        {
+            $this->add_field( $option );
+        }
+    }
+
+    /**
+     * Add an option as a setting field
+     */
+    private function add_field( Plugin_Option $option ) : void
+    {
+        add_settings_field(
+            $option->get_id(),
+            $option->get_label(),
+            array( $option, 'print_input' ),
+            $this->get_page(),
+            $this->get_id(),
+            array( 'label_for' => $option->get_id() )
         );
     }
 
@@ -95,6 +123,16 @@ class Settings_Section extends Data
     public function get_id() : string
     {
         return $this->get_prop( 'id' );
+    }
+
+    /**
+     * Get plugin options contained in section
+     * 
+     * @return Plugin_Option[]
+     */
+    private function get_plugin_options() : array
+    {
+        return $this->get_prop( 'options' );
     }
 
 }   // End of class

@@ -2,7 +2,7 @@
 /**
  * Option_Checkbox
  * 
- * Single plugin option with boolean checkbox
+ * Plugin option with boolean checkbox input
  */
 
 namespace Mtgtools\Wp_Tasks\Options;
@@ -11,7 +11,7 @@ use Mtgtools\Wp_Tasks\Inputs\Input_Checkbox;
 // Exit if accessed directly
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
-class Option_Checkbox extends Option
+class Option_Checkbox extends Plugin_Option
 {
     /**
      * Default properties
@@ -23,7 +23,7 @@ class Option_Checkbox extends Option
     /**
      * Sanitization callback
      */
-    public function sanitize( $value )
+    protected function sanitize( $value ) : bool
     {
         return boolval( $value );
     }

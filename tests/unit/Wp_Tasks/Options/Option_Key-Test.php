@@ -12,7 +12,7 @@ class Option_Key_Test extends WP_UnitTestCase
     {
         $opt = $this->create_option();
 
-        $value = $opt->sanitize( 'Valid_Portion$;*&@!' );
+        $value = $opt->sanitize_save_value( 'Valid_Portion$;*&@!' );
 
         $this->assertEquals( 'Valid_Portion', $value );
     }
@@ -44,7 +44,6 @@ class Option_Key_Test extends WP_UnitTestCase
     {
         $args = array_replace([
             'id' => 'fake_option',
-            'page' => 'fake_options_page',
         ], $args );
         return new Option_Key( $args );
     }

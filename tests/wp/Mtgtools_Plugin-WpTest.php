@@ -47,6 +47,18 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
      */
 
     /**
+     * TEST: Can get options manager
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetOptionsManager( Mtgtools_Plugin $instance ) : void
+    {
+        $manager = $instance->options_manager();
+
+        $this->assertInstanceOf( Mtgtools\Wp_Tasks\Options\Options_Manager::class, $manager );
+    }
+
+    /**
      * TEST: Can get task library
      * 
      * @depends testCanGetInstance

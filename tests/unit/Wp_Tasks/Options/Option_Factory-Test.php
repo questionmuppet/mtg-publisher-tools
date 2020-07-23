@@ -10,7 +10,6 @@ class Option_Factory_Test extends WP_UnitTestCase
      * Constants
      */
     const ID = 'fake_option';
-    const PAGE = 'fake_options_page';
 
     /**
      * Factory object
@@ -34,7 +33,6 @@ class Option_Factory_Test extends WP_UnitTestCase
         $opt = $this->factory->create_option([
             'type' => 'text',
             'id' => self::ID,
-            'page' => self::PAGE,
         ]);
 
         $this->assertInstanceOf( Options\Option_Text::class, $opt );
@@ -48,7 +46,6 @@ class Option_Factory_Test extends WP_UnitTestCase
         $opt = $this->factory->create_option([
             'type' => 'key',
             'id' => self::ID,
-            'page' => self::PAGE,
         ]);
 
         $this->assertInstanceOf( Options\Option_Key::class, $opt );
@@ -62,7 +59,6 @@ class Option_Factory_Test extends WP_UnitTestCase
         $opt = $this->factory->create_option([
             'type' => 'number',
             'id' => self::ID,
-            'page' => self::PAGE,
         ]);
 
         $this->assertInstanceOf( Options\Option_Number::class, $opt );
@@ -76,7 +72,6 @@ class Option_Factory_Test extends WP_UnitTestCase
         $opt = $this->factory->create_option([
             'type' => 'checkbox',
             'id' => self::ID,
-            'page' => self::PAGE,
         ]);
 
         $this->assertInstanceOf( Options\Option_Checkbox::class, $opt );
@@ -90,7 +85,6 @@ class Option_Factory_Test extends WP_UnitTestCase
         $opt = $this->factory->create_option([
             'type' => 'select',
             'id' => self::ID,
-            'page' => self::PAGE,
         ]);
 
         $this->assertInstanceOf( Options\Option_Select::class, $opt );

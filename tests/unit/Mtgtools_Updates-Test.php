@@ -107,8 +107,8 @@ class Mtgtools_Updates_Test extends Mtgtools_UnitTestCase
     public function testCanPrintNotices() : void
     {
         // Use live settings module
-        $settings = Mtgtools\Mtgtools_Plugin::get_instance()->settings();
-        $this->plugin->method('settings')->willReturn( $settings );
+        $manager = Mtgtools\Mtgtools_Plugin::get_instance()->options_manager();
+        $this->plugin->method('options_manager')->willReturn( $manager );
         $result = $this->updates->print_notices();
 
         $this->assertNull( $result );

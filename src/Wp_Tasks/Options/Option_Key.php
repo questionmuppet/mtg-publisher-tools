@@ -11,14 +11,14 @@ use Mtgtools\Wp_Tasks\Inputs\Input_Text;
 // Exit if accessed directly
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
-class Option_Key extends Option
+class Option_Key extends Plugin_Option
 {
     /**
      * Sanitization callback
      */
-    public function sanitize( $value )
+    protected function sanitize( $value ) : string
     {
-        return preg_replace( '/[^a-zA-Z0-9_\-.]/', '', $value );
+        return preg_replace( '/[^a-zA-Z0-9_\-.]/', '', sanitize_text_field( $value ) );
     }
 
     /**

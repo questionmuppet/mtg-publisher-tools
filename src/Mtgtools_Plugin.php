@@ -13,7 +13,7 @@ use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Scryfall\Services;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
-use Mtgtools\Wp_Tasks\Options\Option_Factory;
+use Mtgtools\Wp_Tasks\Options;
 use Mtgtools\Cards\Card_Cache;
 
 // Exit if accessed directly
@@ -32,6 +32,11 @@ class Mtgtools_Plugin
 	private $action_links;
 	private $editor;
 	private $cron;
+
+	/**
+	 * Plugin options
+	 */
+	private $options_manager;
 
 	/**
 	 * Module task library
@@ -125,8 +130,7 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->settings ) )
 		{
-			$factory = new Option_Factory();
-			$this->settings = new Mtgtools_Settings( $factory, $this );
+			$this->settings = new Mtgtools_Settings( $this->options_manager(), $this );
 		}
 		return $this->settings;
 	}
@@ -194,6 +198,96 @@ class Mtgtools_Plugin
 	{
 		global $wpdb;
 		return new Card_Db_Ops( $wpdb );
+	}
+
+	/**
+	 * -------------------------------
+	 *   P L U G I N   O P T I O N S
+	 * -------------------------------
+	 */
+
+	/**
+	 * Get options manager
+	 */
+	public function options_manager() : Options\Options_Manager
+	{
+		if ( !isset( $this->options_manager ) )
+		{
+			$factory = new Options\Option_Factory();
+			$this->options_manager = new Options\Options_Manager( $factory );
+			foreach ( $this->get_option_defs() as $key => $params )
+			{
+				$this->options_manager->register_option( $key, $params );
+			}
+		}
+		return $this->options_manager;
+	}
+
+	/**
+	 * Get plugin option definitions
+	 */
+	private function get_option_defs() : array
+	{
+		return [
+			'inline_image_type' => [
+				'type' => 'select',
+				'label' => 'Inline image size',
+				'default_value' => $this->get_mtg_data_source()->get_default_image_type(),
+				'options_callback' => array( $this->get_mtg_data_source(), 'get_image_types' ),
+			],
+			'lazy_fetch_images' => [
+				'type' => 'checkbox',
+				'label' => 'Image uris',
+				'default_value' => true,
+				'input_args' => [
+					'label' => 'Fetch card images lazily.',
+				],
+			],
+			'image_cache_period_in_seconds' => [
+				'type' => 'select',
+				'label' => 'Refresh cached images',
+				'default_value' => MONTH_IN_SECONDS,
+				'options' => [
+					DAY_IN_SECONDS => 'Daily',
+					WEEK_IN_SECONDS => 'Weekly',
+					MONTH_IN_SECONDS => 'Monthly',
+					YEAR_IN_SECONDS => 'Yearly',
+				],
+			],
+			'popup_tooltip_location' => [
+				'type' => 'select',
+				'label' => 'Image popup location (relative to link)',
+				'default_value' => 'right',
+				'options' => [
+					'left' => 'Left',
+					'right' => 'Right',
+					'top' => 'Top',
+					'bottom' => 'Bottom',
+				],
+			],
+			'default_language' => [
+				'type' => 'select',
+				'label' => 'Default language for card images',
+				'default_value' => $this->get_mtg_data_source()->get_default_language(),
+				'options_callback' => array( $this->get_mtg_data_source(), 'get_languages' ),
+			],
+			'check_for_updates' => [
+				'type' => 'checkbox',
+				'default_value' => true,
+				'label' => 'Update checker',
+				'input_args' => [
+					'label' => 'Check for updates automatically',
+				],
+			],
+			'show_update_notices' => [
+				'type' => 'checkbox',
+				'default_value' => true,
+				'label' => 'Admin notices',
+				'input_args' => [
+					'label' => 'Notify me about updates and connection issues on the WordPress dashboard',
+				],
+			],
+		];
 	}
 
 	/**

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Wp_Tasks\Options\Settings_Section;
+use Mtgtools\Wp_Tasks\Options\Plugin_Option;
 
 class Settings_Section_Test extends Mtgtools_UnitTestCase
 {
@@ -15,7 +16,11 @@ class Settings_Section_Test extends Mtgtools_UnitTestCase
      */
     public function testCanRegisterWithWp() : void
     {
-        $section = $this->create_section();
+        $opts = [
+            $this->createMock( Plugin_Option::class ),
+            $this->createMock( Plugin_Option::class ),
+        ];
+        $section = $this->create_section([ 'options' => $opts ]);
 
         $result = $section->wp_register();
 

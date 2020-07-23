@@ -141,8 +141,8 @@ class Mtgtools_Images_Test extends WP_UnitTestCase
      */
     public function add_live_settings() : void
     {
-        $settings = Mtgtools_Plugin::get_instance()->settings();
-        $this->plugin->method('settings')->willReturn( $settings );
+        $manager = Mtgtools_Plugin::get_instance()->options_manager();
+        $this->plugin->method('options_manager')->willReturn( $manager );
     }
 
 }   // End of class

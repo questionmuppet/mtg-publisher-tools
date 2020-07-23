@@ -134,9 +134,8 @@ class Mtgtools_Cron_DbTest extends WP_UnitTestCase
     public function testChecksEnabledOptionTriggerCanSetSchedule() : void
     {
         $this->cron->add_hooks();
-        $value = $this->cron->on_checks_enabled_change( true, false );
+        $this->cron->on_checks_enabled_change( true, false );
 
-        $this->assertTrue( $value, 'Failed to assert that the "checks-enabled" option trigger callback returned the save value unchanged.' );
         $this->assertNotFalse( wp_next_scheduled( self::HOOK ) );
     }
 

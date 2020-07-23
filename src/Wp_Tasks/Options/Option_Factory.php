@@ -24,13 +24,13 @@ class Option_Factory extends Factory
         'select' => 'Option_Select',
     ];
     protected $default_type = 'text';
-    protected $base_class = 'Option';
+    protected $base_class = 'Plugin_Option';
     protected $namespace = __NAMESPACE__;
 
     /**
      * Create a plugin option
      */
-    public function create_option( array $params ) : Option
+    public function create_option( array $params ) : Plugin_Option
     {
         return $this->create_object( $params );
     }

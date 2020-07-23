@@ -51,6 +51,7 @@ class Mtgtools_Setup
      */
     public function uninstall() : void
     {
+        $this->mtgtools()->options_manager()->delete_options();
         $this->mtgtools()->symbols()->delete_db_tables();
         $this->mtgtools()->cards_db()->drop_tables();
     }

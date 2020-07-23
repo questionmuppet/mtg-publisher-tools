@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Wp_Tasks\Options\Option;
+use Mtgtools\Wp_Tasks\Options\Plugin_Option;
 
 /**
  * Class to implement abstract option
  */
-class Option_Nonabstract extends Option
+class Option_Nonabstract extends Plugin_Option
 {
-    public function sanitize( $value ) {
-        Option_WPTest::augment_call_count( 'sanitize' );
+    protected function sanitize( $value ) {
+        Plugin_Option_WPTest::augment_call_count( 'sanitize' );
         return $value;
     }
     public function print_input() : void {}
@@ -18,7 +18,7 @@ class Option_Nonabstract extends Option
 /**
  * Test class
  */
-class Option_WPTest extends Mtgtools_UnitTestCase
+class Plugin_Option_WPTest extends Mtgtools_UnitTestCase
 {
     /**
      * Include call counter
@@ -30,6 +30,7 @@ class Option_WPTest extends Mtgtools_UnitTestCase
      */
     const ID = 'fake_option';
     const FULL_NAME = 'mtgtools_' . self::ID;
+    const LABEL = 'fake label';
     const DEFAULT = 'fake initial value';
     const CUSTOM_CALLBACK_VALUE = 'Match, Poit, & Narf';
 
@@ -50,29 +51,13 @@ class Option_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * ---------------------------
-     *   S E T T I N G S   A P I
-     * ---------------------------
+     * TEST: Can get public properties
      */
-
-    /**
-     * TEST: Can register setting
-     */
-    public function testCanRegisterSetting() : void
+    public function testCanGetPublicProps() : void
     {
-        $result = $this->opt->wp_register();
-
-        $this->assertNull( $result );
-    }
-
-    /**
-     * TEST: Can get option id
-     */
-    public function testCanGetId() : void
-    {
-        $id = $this->opt->get_id();
-
-        $this->assertEquals( self::ID, $id );
+        $this->assertEquals( self::ID, $this->opt->get_id(), "Failed to retreieve public property 'id'." );
+        $this->assertEquals( self::LABEL, $this->opt->get_label(), "Failed to retreieve public property 'label'." );
+        $this->assertEquals( self::FULL_NAME, $this->opt->get_option_name(), "Failed to assert that public property 'option_name' contained the expected prefix." );
     }
 
     /**
@@ -167,6 +152,28 @@ class Option_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Save-option action hook passes correct arguments
+     * 
+     * @depends testCanUpdateOption
+     */
+    public function testSaveOptionActionHookPassesCorrectArguments() : void
+    {
+        $callback = $this->createPartialMock( stdClass::class, ['__invoke'] );
+        $callback
+            ->expects( $this->once() )
+            ->method('__invoke')
+            ->with(
+                'Narf!',
+                self::DEFAULT,
+                $this->isInstanceOf( Plugin_Option::class )
+            );
+        
+        add_action( 'mtgtools_save_option_' . self::ID, $callback, 10, 3 );
+
+        $this->opt->update( 'Narf!' );
+    }
+
+    /**
      * ---------------------
      *   P R O V I D E R S
      * ---------------------
@@ -179,10 +186,8 @@ class Option_WPTest extends Mtgtools_UnitTestCase
     {
         $args = array_replace([
             'id' => self::ID,
-            'page' => 'fake_options_page',
             'default_value' => self::DEFAULT,
-            'label' => 'fake_label',
-            'section' => 'fake_section',
+            'label' => self::LABEL,
         ], $args );
         return new Option_Nonabstract( $args );
     }

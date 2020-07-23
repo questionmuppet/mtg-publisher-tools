@@ -21,7 +21,7 @@ class Option_Select_Test extends WP_UnitTestCase
     {
         $opt = $this->create_option();
 
-        $value = $opt->sanitize( 'poit' );
+        $value = $opt->sanitize_save_value( 'poit' );
 
         $this->assertEquals( self::DEFAULT, $value, 'Failed to assert that an invalid option is reverted to the default value.' );
     }
@@ -40,7 +40,7 @@ class Option_Select_Test extends WP_UnitTestCase
             ];
         }]);
 
-        $value = $opt->sanitize( 'poit' );
+        $value = $opt->sanitize_save_value( 'poit' );
 
         $this->assertEquals( 'poit', $value, 'Failed to assert that select options could be provided via callback.' );
     }
@@ -72,7 +72,6 @@ class Option_Select_Test extends WP_UnitTestCase
     {
         $args = array_replace([
             'id' => 'fake_option',
-            'page' => 'fake_options_page',
             'options' => self::OPTIONS,
             'default_value' => self::DEFAULT,
         ], $args );

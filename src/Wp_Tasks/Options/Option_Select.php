@@ -11,7 +11,7 @@ use Mtgtools\Wp_Tasks\Inputs\Input_Select;
 // Exit if accessed directly
 defined( 'ABSPATH' ) or die("Don't mess with it!");
 
-class Option_Select extends Option
+class Option_Select extends Plugin_Option
 {
     /**
      * Default properties
@@ -25,10 +25,9 @@ class Option_Select extends Option
     /**
      * Sanitization callback
      */
-    public function sanitize( $value )
+    protected function sanitize( $value )
     {
-        $validated = $this->is_valid_option( $value ) ? $value : $this->get_default_value();
-        return sanitize_text_field( $validated );
+        return $this->is_valid_option( $value ) ? $value : $this->get_default_value();
     }
     
     /**
@@ -69,9 +68,17 @@ class Option_Select extends Option
     }
 
     /**
-     * Check for valid option
+     * -------------
+     *   P R O P S
+     * -------------
      */
-    private function is_valid_option( string $key ) : bool
+
+    /**
+     * Check for valid option
+     * 
+     * @param mixed $key
+     */
+    private function is_valid_option( $key ) : bool
     {
         return array_key_exists( $key, $this->get_options() );
     }
