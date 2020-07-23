@@ -32,6 +32,7 @@ class Mtgtools_Plugin
 	private $action_links;
 	private $editor;
 	private $cron;
+	private $setup;
 
 	/**
 	 * Plugin options
@@ -186,6 +187,18 @@ class Mtgtools_Plugin
 	}
 
 	/**
+	 * Get setup module
+	 */
+	public function setup() : Mtgtools_Setup
+	{
+		if ( !isset( $this->setup ) )
+		{
+			$this->setup = new Mtgtools_Setup( $this );
+		}
+		return $this->setup;
+	}
+
+	/**
 	 * -------------------
 	 *   D A T A B A S E
 	 * -------------------
@@ -330,48 +343,6 @@ class Mtgtools_Plugin
 		$symbols = new Services\Scryfall_Symbols();
 		$cards = new Services\Scryfall_Cards();
 		return new Scryfall_Data_Source( $symbols, $cards );
-	}
-
-	/**
-	 * ---------------------------
-	 *   I N S T A L L A T I O N
-	 * ---------------------------
-	 */
-
-	/**
-	 * Activate plugin
-	 * 
-	 * @hooked activate_mtg-publisher-tools/mtg-publisher-tools.php
-	 */
-	public function activate() : void
-	{
-		$this->setup()->activate();
-	}
-
-	/**
-	 * Deactivate plugin
-	 * 
-	 * @hooked deactivate_mtg-publisher-tools/mtg-publisher-tools.php
-	 */
-	public function deactivate() : void
-	{
-		$this->setup()->deactivate();
-	}
-
-	/**
-	 * Uninstall plugin
-	 */
-	public function uninstall() : void
-	{
-		$this->setup()->uninstall();
-	}
-
-	/**
-	 * Get setup module
-	 */
-	private function setup() : Mtgtools_Setup
-	{
-		return new Mtgtools_Setup( $this );
 	}
 
 }   // End of class

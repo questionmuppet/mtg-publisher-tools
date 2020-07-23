@@ -38,6 +38,7 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
         $this->assertInstanceOf( Mtgtools\Mtgtools_Action_Links::class, $instance->action_links(), 'Could not retreive the action_links module.' );
         $this->assertInstanceOf( Mtgtools\Mtgtools_Editor::class, $instance->editor(), 'Could not retreive the editor module.' );
         $this->assertInstanceOf( Mtgtools\Mtgtools_Cron::class, $instance->cron(), 'Could not retreive the cron module.' );
+        $this->assertInstanceOf( Mtgtools\Mtgtools_Setup::class, $instance->setup(), 'Could not retreive the setup module.' );
     }
 
     /**

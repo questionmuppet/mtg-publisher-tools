@@ -27,11 +27,9 @@ require_once( MTGTOOLS__PATH . 'vendor/autoload.php' );
 // Plugin instance
 $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
 
-// Activation hooks
-register_activation_hook( __FILE__, array( $plugin, 'activate' ) );
-register_deactivation_hook( __FILE__, array( $plugin, 'deactivate' ) );
-
-// Cron jobs
+// Pre-init hooks
+register_activation_hook( __FILE__, array( $plugin->setup(), 'activate' ) );
+register_deactivation_hook( __FILE__, array( $plugin->setup(), 'deactivate' ) );
 $plugin->cron()->add_hooks();
 
 // Initialize
