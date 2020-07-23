@@ -8,7 +8,7 @@
 namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
 
@@ -166,26 +166,6 @@ class Mtgtools_Symbols extends Module
         {
             $this->db_ops->add_symbol( $symbol );
         }
-    }
-
-    /**
-     * Install database tables
-     * 
-     * @hooked Plugin activation
-     */
-    public function install_db_tables() : void
-    {
-        $this->db_ops->create_table();
-    }
-
-    /**
-     * Delete database tables
-     * 
-     * @hooked Plugin uninstall
-     */
-    public function delete_db_tables() : void
-    {
-        $this->db_ops->drop_table();
     }
 
 }   // End of class

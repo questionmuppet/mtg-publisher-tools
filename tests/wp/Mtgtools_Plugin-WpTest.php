@@ -48,6 +48,18 @@ class Mtgtools_Plugin_WPTest extends Mtgtools_UnitTestCase
      */
 
     /**
+     * TEST: Can get database services
+     * 
+     * @depends testCanGetInstance
+     */
+    public function testCanGetDatabaseServices( Mtgtools_Plugin $instance ) : void
+    {
+        $database = $instance->database();
+
+        $this->assertInstanceOf( Mtgtools\Database_Services::class, $database );
+    }
+
+    /**
      * TEST: Can get options manager
      * 
      * @depends testCanGetInstance

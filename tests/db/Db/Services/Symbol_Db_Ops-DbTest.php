@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Updates\Db_Update_Checker;
 use Mtgtools\Symbols\Mana_Symbol;
 use Mtgtools\Exceptions\Db as Exceptions;

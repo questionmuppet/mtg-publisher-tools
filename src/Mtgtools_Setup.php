@@ -18,9 +18,8 @@ class Mtgtools_Setup extends Module
      */
     public function activate() : void
     {
-        $this->plugin()->symbols()->install_db_tables();
+        $this->plugin()->database()->install();
         $this->plugin()->symbols()->import_symbols();
-        $this->plugin()->cards_db()->create_tables();
         $this->plugin()->cron()->schedule_update_checks();
     }
 
@@ -37,9 +36,8 @@ class Mtgtools_Setup extends Module
      */
     public function uninstall() : void
     {
+        $this->plugin()->database()->uninstall();
         $this->plugin()->options_manager()->delete_options();
-        $this->plugin()->symbols()->delete_db_tables();
-        $this->plugin()->cards_db()->drop_tables();
     }
 
 }   // End of class

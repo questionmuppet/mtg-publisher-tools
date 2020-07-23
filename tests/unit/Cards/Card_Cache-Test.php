@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Cards;
+use Mtgtools\Db\Services\Card_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Exceptions\Mtg;
@@ -37,7 +38,7 @@ class Card_Cache_Test extends WP_UnitTestCase
     public function setUp() : void
     {
         parent::setUp();
-        $this->db_ops = $this->createMock( Cards\Card_Db_Ops::class );
+        $this->db_ops = $this->createMock( Card_Db_Ops::class );
         $this->source = $this->createMock( Mtg_Data_Source::class );
         $this->plugin = $this->createMock( Mtgtools_Plugin::class );
         $this->cache = new Cards\Card_Cache( $this->db_ops, $this->source, $this->plugin );

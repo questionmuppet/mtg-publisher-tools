@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Cards\Card_Db_Ops;
+use Mtgtools\Db\Services\Card_Db_Ops;
 use Mtgtools\Cards\Magic_Card;
 use Mtgtools\Cards\Image_Uri;
 use Mtgtools\Exceptions\Db as Exceptions;

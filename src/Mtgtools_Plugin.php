@@ -7,8 +7,8 @@
 
 namespace Mtgtools;
 
-use Mtgtools\Symbols\Symbol_Db_Ops;
-use Mtgtools\Cards\Card_Db_Ops;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Card_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Scryfall\Scryfall_Data_Source;
 use Mtgtools\Scryfall\Services;
@@ -33,6 +33,11 @@ class Mtgtools_Plugin
 	private $editor;
 	private $cron;
 	private $setup;
+
+	/**
+	 * Database services
+	 */
+	private $database;
 
 	/**
 	 * Plugin options
@@ -90,9 +95,9 @@ class Mtgtools_Plugin
     {
 		if ( !isset( $this->symbols ) )
 		{
-			global $wpdb;
-			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this );
+			$db_ops = $this->database()->symbols();
+			$source = $this->get_mtg_data_source();
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $source, $this );
 		}
 		return $this->symbols;
 	}
@@ -117,9 +122,9 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->updates ) )
 		{
-			global $wpdb;
-			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this );
+			$db_ops = $this->database()->symbols();
+			$source = $this->get_mtg_data_source();
+			$this->updates = new Mtgtools_Updates( $db_ops, $source, $this );
 		}
 		return $this->updates;
 	}
@@ -131,7 +136,8 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->settings ) )
 		{
-			$this->settings = new Mtgtools_Settings( $this->options_manager(), $this );
+			$options = $this->options_manager();
+			$this->settings = new Mtgtools_Settings( $options, $this );
 		}
 		return $this->settings;
 	}
@@ -144,7 +150,7 @@ class Mtgtools_Plugin
 		if ( !isset( $this->images ) )
 		{
 			$source = $this->get_mtg_data_source();
-			$cache = new Card_Cache( $this->cards_db(), $source, $this );
+			$cache = new Card_Cache( $this->database()->cards(), $source, $this );
 			$this->images = new Mtgtools_Images( $cache, $source->get_default_image_type(), $this );
 		}
 		return $this->images;
@@ -196,21 +202,6 @@ class Mtgtools_Plugin
 			$this->setup = new Mtgtools_Setup( $this );
 		}
 		return $this->setup;
-	}
-
-	/**
-	 * -------------------
-	 *   D A T A B A S E
-	 * -------------------
-	 */
-
-	/**
-	 * Get db ops for cards
-	 */
-	public function cards_db() : Card_Db_Ops
-	{
-		global $wpdb;
-		return new Card_Db_Ops( $wpdb );
 	}
 
 	/**
@@ -305,7 +296,7 @@ class Mtgtools_Plugin
 
 	/**
 	 * ---------------------------------
-	 *   W P   T A S K   L I B R A R Y
+	 *   M O D U L E   S E R V I C E S
 	 * ---------------------------------
 	 */
 
@@ -319,6 +310,19 @@ class Mtgtools_Plugin
 			$this->wp_tasks = new Wp_Task_Library();
 		}
 		return $this->wp_tasks;
+	}
+	
+	/**
+	 * Get database services
+	 */
+	public function database() : Database_Services
+	{
+		if ( !isset( $this->database ) )
+		{
+			global $wpdb;
+			$this->database = new Database_Services( $wpdb );
+		}
+		return $this->database;
 	}
 
 	/**

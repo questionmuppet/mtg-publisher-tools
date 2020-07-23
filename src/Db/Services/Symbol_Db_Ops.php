@@ -5,11 +5,14 @@
  * Handles database operations for mana symbols
  */
 
-namespace Mtgtools\Symbols;
+namespace Mtgtools\Db\Services;
 use Mtgtools\Abstracts\Data;
 use Mtgtools\Updates\Db_Update_Checker;
 use Mtgtools\Exceptions\Db as Exceptions;
 use \wpdb;
+
+use Mtgtools\Symbols\Mana_Symbol;
+use Mtgtools\Symbols\Symbols_Hash_Map;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

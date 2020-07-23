@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Updates;
-use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Interfaces\Mtg_Data_Source;
 use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Mtgtools_Dashboard;

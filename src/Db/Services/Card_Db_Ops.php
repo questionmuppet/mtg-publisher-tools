@@ -5,7 +5,10 @@
  * Handles database operations for Magic cards
  */
 
-namespace Mtgtools\Cards;
+namespace Mtgtools\Db\Services;
+
+use Mtgtools\Cards\Magic_Card;
+use Mtgtools\Cards\Image_Uri;
 
 use Mtgtools\Db\Db_Ops;
 use Mtgtools\Db\Db_Table;

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Symbols;
-use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Interfaces\Mtg_Data_Source;
@@ -133,26 +133,6 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
         $this->source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
 
         $result = $this->symbols->import_symbols();
-
-        $this->assertNull( $result );
-    }
-    
-    /**
-     * TEST: Can install db tables
-     */
-    public function testCanInstallTables() : void
-    {
-        $result = $this->symbols->install_db_tables();
-
-        $this->assertNull( $result );
-    }
-
-    /**
-     * TEST: Can delete db tables
-     */
-    public function testCanDeleteTables() : void
-    {
-        $result = $this->symbols->delete_db_tables();
 
         $this->assertNull( $result );
     }
