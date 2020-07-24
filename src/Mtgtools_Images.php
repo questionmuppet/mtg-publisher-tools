@@ -57,6 +57,7 @@ class Mtgtools_Images extends Module
     {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
         add_shortcode( 'mtg_card', array( $this, 'add_card_link' ) );
+        add_action( 'mtgtools_dashboard_tabs', array( $this, 'add_dash_tab' ), 40, 1 );
         $this->register_post_handlers([
             [
                 'type' => 'ajax',
@@ -76,11 +77,40 @@ class Mtgtools_Images extends Module
     {
         if ( $this->get_plugin_option( 'enable_card_popups' ) )
         {
-            $this->add_style([
+            foreach ( $this->get_popup_assets() as $asset )
+            {
+                $asset->enqueue();
+            }
+        }
+    }
+
+    /**
+     * Add dashboard tab
+     * 
+     * @hooked mtgtools_dashboard_tabs
+     */
+    public function add_dash_tab( Mtgtools_Dashboard $dashboard ) : void
+    {
+        $dashboard->add_tab([
+            'id' => 'popups',
+            'title' => 'Card Popups',
+            'assets' => $this->get_popup_assets(),
+        ]);
+    }
+
+    /**
+     * Get assets for popups
+     * 
+     * @return Asset[]
+     */
+    private function get_popup_assets() : array
+    {
+        return [
+            $this->wp_tasks()->create_style([
                 'key' => 'mtgtools-card-links',
                 'path' => 'card-links.css',
-            ]);
-            $this->add_script([
+            ]),
+            $this->wp_tasks()->create_script([
                 'key' => 'mtgtools-card-links',
                 'path' => 'card-links.js',
                 'deps' => array('jquery'),
@@ -90,8 +120,8 @@ class Mtgtools_Images extends Module
                         'nonce' => wp_create_nonce('mtgtools_get_card_popup'),
                     ]
                 ],
-            ]);
-        }
+            ]),
+        ];
     }
 
     /**

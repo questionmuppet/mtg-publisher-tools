@@ -53,7 +53,7 @@ class Mtgtools_Symbols extends Module
         add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_assets' ) );
         add_shortcode( 'mana_symbols',                    array( $this, 'parse_mana_symbols' ) );
         add_shortcode( 'mana_symbol',                     array( $this, 'insert_single_symbol' ) );
-        add_action( 'mtgtools_dashboard_tabs',            array( $this, 'add_dash_tab' ), 10, 1 );
+        add_action( 'mtgtools_dashboard_tabs',            array( $this, 'add_dash_tab' ), 50, 1 );
     }
 
     /**
