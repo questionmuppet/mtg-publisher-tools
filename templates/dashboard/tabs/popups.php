@@ -23,7 +23,7 @@ current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
 
         <p>The simplest version of a card link puts the name within tags, like so: <code>[mtg_card]Tarmogoyf[/mtg_card]</code>. That will show the default printing returned by Scryfall (usually the most recent). Different printings can be specified by passing additional parameters to the shortcode.</p>
 
-        <p>The examples below are intended to showcase some common use-cases. For a comprehensive list of search patterns, refer to the <a href="#" target="_blank">MTG Publisher Tools documentation</a>.</p>
+        <p>The examples below are intended to showcase some common use-cases. For a comprehensive list of search patterns, refer to the <a href="https://github.com/questionmuppet/mtg-publisher-tools#readme" target="_blank">MTG Publisher Tools documentation</a>.</p>
 
         <?php $examples = [
             '[mtg_card set="PGPX"]Stoneforge Mystic[/mtg_card]',
