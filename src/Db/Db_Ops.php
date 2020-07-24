@@ -17,6 +17,11 @@ defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 abstract class Db_Ops
 {
     /**
+     * Rows affected from last query
+     */
+    private $rows_affected = 0;
+
+    /**
      * Database class
      */
     private $db;
@@ -55,7 +60,16 @@ abstract class Db_Ops
                 )
             );
         }
-        return (int) $result; // wpdb::query() returns int|true on success
+        // wpdb::query() returns int|true on success
+        return $this->rows_affected = (int) $result;
+    }
+
+    /**
+     * Get rows affected from latest query
+     */
+    public function get_rows_affected() : int
+    {
+        return $this->rows_affected;
     }
     
     /**
