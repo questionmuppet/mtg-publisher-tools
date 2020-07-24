@@ -105,7 +105,7 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     {
         $success = $this->db_ops->create_tables();
 
-        $this->assertTrue( $success );
+        $this->assertNull( $success );
     }
 
     /**
@@ -119,7 +119,7 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 
         $success = $this->db_ops->drop_tables();
 
-        $this->assertTrue( $success );
+        $this->assertNull( $success );
     }
 
     /**
@@ -247,16 +247,6 @@ class Card_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      *   Q U E R Y
      * -------------
      */
-
-    /**
-     * TEST: Query without filters throws DomainException
-     */
-    public function testQueryWithoutFiltersThrowsDomainException() : void
-    {
-        $this->expectException( \DomainException::class );
-
-        $card = $this->db_ops->find_card([]);
-    }
 
     /**
      * TEST: Can find card by uuid

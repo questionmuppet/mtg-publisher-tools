@@ -171,9 +171,9 @@ class Card_Db_Ops extends Db_Ops
     /**
      * Create custom tables in db
      * 
-     * @return bool True if successful, false on error
+     * @throws SqlErrorException
      */
-    public function create_tables() : bool
+    public function create_tables() : void
     {
         try
         {
@@ -181,21 +181,20 @@ class Card_Db_Ops extends Db_Ops
             $this->create_cards_table();
             $this->create_images_table();
             $this->commit_transaction();
-            return true;
         }
         catch ( Exceptions\SqlErrorException $e )
         {
             $this->rollback_transaction();
-            return false;
+            throw $e;
         }
     }
     
     /**
      * Create cards table
      */
-    private function create_cards_table() : bool
+    private function create_cards_table() : void
     {
-        return $this->execute_query(
+        $this->execute_query(
             "CREATE TABLE IF NOT EXISTS {$this->get_cards_table_name()} (
                 id INT UNSIGNED AUTO_INCREMENT,
                 name TEXT NOT NULL,
@@ -214,9 +213,9 @@ class Card_Db_Ops extends Db_Ops
     /**
      * Create images table
      */
-    private function create_images_table() : bool
+    private function create_images_table() : void
     {
-        return $this->execute_query(
+        $this->execute_query(
             "CREATE TABLE IF NOT EXISTS {$this->get_images_table_name()} (
                 id INT UNSIGNED AUTO_INCREMENT,
                 card_id INT UNSIGNED NOT NULL,
@@ -236,9 +235,9 @@ class Card_Db_Ops extends Db_Ops
     /**
      * Remove tables from db
      * 
-     * @return bool True if successful, false on error
+     * @throws SqlErrorException
      */
-    public function drop_tables() : bool
+    public function drop_tables() : void
     {
         try
         {
@@ -246,12 +245,11 @@ class Card_Db_Ops extends Db_Ops
             $this->execute_query( "DROP TABLE IF EXISTS {$this->get_images_table_name()};" );
             $this->execute_query( "DROP TABLE IF EXISTS {$this->get_cards_table_name()};" );
             $this->commit_transaction();
-            return true;
         }
         catch ( Exceptions\SqlErrorException $e )
         {
             $this->rollback_transaction();
-            return false;
+            throw $e;
         }
     }
 
