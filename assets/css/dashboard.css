@@ -26,6 +26,23 @@ form.inline-form {
 }
 
 /**
+ * User guide panels
+ */
+.mtgtools-information-panel {
+    max-width: 800px;
+    font-size: 125%;
+}
+.mtgtools-information-panel p {
+    font-size: 100%;
+}
+.mtgtools-information-panel hr {
+    margin-top: 2em;
+}
+.mtgtools-screenshot {
+    border: 1px solid gray;
+}
+
+/**
  * Info tables
  */
 table.info-table {
