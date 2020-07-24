@@ -148,18 +148,20 @@ class Mtgtools_Images extends Module
         {
             $type = $this->get_default_image_type();
             $card = $this->get_magic_card( $filters, $type );
+            $image = $card->get_image( $type );
 
             $template = $this->wp_tasks()->create_template([
                 'path' => 'components/card-popup.php',
                 'vars' => [
                     'card' => $card,
-                    'image' => $card->get_image( $type ),
+                    'image' => $image,
                     'tooltip' => $this->get_tooltip_location(),
                 ],
             ]);
             
             return [
                 'transients' => [ 'popup' => $template->get_markup() ],
+                'href' => $image->get_uri(),
             ];
         }
         catch ( Mtg\MtgDataException $e )
