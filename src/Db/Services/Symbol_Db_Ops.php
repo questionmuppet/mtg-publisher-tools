@@ -75,6 +75,24 @@ class Symbol_Db_Ops extends Db\Db_Ops
      */
     
     /**
+     * Get a single mana symbol by its plaintext key
+     * 
+     * @throws NoResultsException
+     */
+    public function get_symbol_by_plaintext( string $key ) : Mana_Symbol
+    {
+        if ( $this->symbol_cached( $key ) )
+        {
+            return $this->get_cached_symbol( $key );
+        }
+        return $this->create_symbol(
+            $this->db_table()->get_record([
+                'plaintext' => $key
+            ])
+        );
+    }
+    
+    /**
      * Get mana symbols with optional filters
      * 
      * @param array $filters    Associative array of "column" => "value" pairs to filter results
