@@ -9,14 +9,19 @@ use Mtgtools\Exceptions\Db as Exceptions;
 class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
 {
     /**
-     * Dummy table name
+     * Table name
      */
-    const TEST_TABLE = 'mtgtools_symbols_TEST';
+    const TEST_TABLE = 'mtgtools_symbols';
 
     /**
-     * Symbol_Db_Ops object
+     * SUT object
      */
     private $db_ops;
+
+    /**
+     * Dependencies
+     */
+    private $wpdb;
 
     /**
      * Setup
@@ -25,9 +30,8 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     {
         parent::setUp();
         global $wpdb;
-        $this->db_ops = new Symbol_Db_Ops( $wpdb, [
-            'table' => self::TEST_TABLE
-        ]);
+        $this->wpdb = $wpdb;
+        $this->db_ops = new Symbol_Db_Ops( $this->wpdb );
     }
 
     /**
@@ -35,11 +39,10 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      */
     public function tearDown() : void
     {
-        global $wpdb;
-        $wpdb->query(
+        $this->wpdb->query(
             sprintf(
                 "DROP TABLE IF EXISTS %s",
-                sanitize_key( $wpdb->prefix . self::TEST_TABLE )
+                sanitize_key( $this->wpdb->prefix . self::TEST_TABLE )
             )
         );
         parent::tearDown();
@@ -57,7 +60,8 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     public function testCanCreateTable() : void
     {
         $result = $this->db_ops->create_table();
-        $this->assertTrue( $result );
+
+        $this->assertNull( $result );
     }
 
     /**
@@ -66,7 +70,8 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
     public function testCanDropTable() : void
     {
         $result = $this->db_ops->drop_table();
-        $this->assertTrue( $result );
+
+        $this->assertNull( $result );
     }
 
     /**
@@ -79,22 +84,22 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $symbol = $this->get_mock_symbol();
         $this->db_ops->create_table();
         
-        $result = $this->db_ops->add_symbol( $symbol );
+        $rows_affected = $this->db_ops->add_symbol( $symbol );
         
-        $this->assertTrue( $result );
+        $this->assertEquals( 1, $rows_affected );
     }
 
     /**
-     * TEST: Cannnot add invalid symbol
+     * TEST: Adding invalid symbol throws exception
      * 
      * @depends testCanAddValidSymbol
      */
-    public function testAddingInvalidSymbolThrowsDbException() : void
+    public function testAddingInvalidSymbolThrowsException() : void
     {
         $symbol = $this->get_mock_symbol([ 'is_valid' => false ]);
         $this->db_ops->create_table();
 
-        $this->expectException( Exceptions\DbException::class );
+        $this->expectException( DomainException::class );
 
         $this->db_ops->add_symbol( $symbol );
     }
@@ -111,9 +116,9 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
         $this->db_ops->add_symbol( $symbol );
 
         $symbol_2 = $this->get_mock_symbol([ 'english_phrase' => 'A nice, new phrase.' ]);
-        $result = $this->db_ops->add_symbol( $symbol_2 );
+        $rows_affected = $this->db_ops->add_symbol( $symbol_2 );
 
-        $this->assertTrue( $result );
+        $this->assertEquals( 2, $rows_affected );
     }
     
     /**
@@ -174,14 +179,14 @@ class Symbol_Db_Ops_DbTest extends Mtgtools_UnitTestCase
      * 
      * @depends testCanGetManaSymbolsWithFilter
      */
-    public function testInvalidQueryFilterThrowsDbException() : void
+    /* public function testInvalidQueryFilterThrowsDbException() : void
     {
         $this->db_ops->create_table();
 
         $this->expectException( Exceptions\DbException::class );
         
         $this->db_ops->get_mana_symbols([ 'invalid_param' => 'Uh, oh! Better put the kibbosh on it!' ]);
-    }
+    } */
 
     /**
      * -------------------------------

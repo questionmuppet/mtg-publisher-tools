@@ -6,52 +6,33 @@
  */
 
 namespace Mtgtools\Db\Services;
-use Mtgtools\Abstracts\Data;
-use Mtgtools\Updates\Db_Update_Checker;
+
+use Mtgtools\Db;
 use Mtgtools\Exceptions\Db as Exceptions;
-use \wpdb;
 
 use Mtgtools\Symbols\Mana_Symbol;
 use Mtgtools\Symbols\Symbols_Hash_Map;
+use Mtgtools\Updates\Db_Update_Checker;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Symbol_Db_Ops extends Data
+class Symbol_Db_Ops extends Db\Db_Ops
 {
     /**
-     * Default properties
+     * Db tables
      */
-    protected $defaults = array(
-        'table' => 'mtgtools_symbols',
-    );
+    private $table;
 
     /**
-     * Valid filter arguments for query
+     * Unprefixed table name
      */
-    private $valid_filters = array(
-        'plaintext',
-        'english_phrase',
-    );
+    private $table_keyname = 'mtgtools_symbols';
 
     /**
      * Mana_Symbol cache
      */
     private $symbols = [];
-
-    /**
-     * Database class
-     */
-    private $db;
-
-    /**
-     * Constructor
-     */
-    public function __construct( wpdb $db, array $props = [] )
-    {
-        $this->db = $db;
-        parent::__construct( $props );
-    }
 
     /**
      * -----------------
@@ -67,7 +48,7 @@ class Symbol_Db_Ops extends Data
     public function get_update_checker( array $symbols ) : Db_Update_Checker
     {
         return new Db_Update_Checker(
-            $this->db,
+            $this->db(),
             $this->get_hash_map( $symbols ),
             [
                 'db_table' => $this->get_table_short_name(),
@@ -117,43 +98,10 @@ class Symbol_Db_Ops extends Data
      */
     private function get_symbol_rows( array $filters = [] ) : array
     {
-        $WHERE = count( $filters )
-            ? $this->generate_where_clause( $filters )
-            : '';
-        
-        return $this->db->get_results(
-            "SELECT plaintext, english_phrase, svg_uri FROM {$this->get_table()} {$WHERE};",
-            ARRAY_A
-        );
-    }
-
-    /**
-     * Generate WHERE clause from filters
-     */
-    private function generate_where_clause( array $filters ) : string
-    {
-        $conditions = [];
-        foreach ( $filters as $key => $value )
-        {
-            if ( !$this->is_valid_filter( $key ) )
-            {
-                throw new Exceptions\DbException( get_called_class() . " tried to retrieve database rows using an unknown filter key '{$key}'." );
-            }
-            $conditions[] = $this->generate_where_condition( $key, $value );
-        }
-        return 'WHERE ' . implode( ' && ', $conditions );
-    }
-    
-    /**
-     * Generate WHERE condition
-     */
-    private function generate_where_condition( string $key, string $value ) : string
-    {
-        $column = sanitize_key( $key );
-        return $this->db->prepare(
-            "{$column} LIKE %s",
-            '%' . $this->db->esc_like( $value ) . '%'
-        );
+        return $this->db_table()->find_records([
+            'filters' => $filters,
+            'exact' => false,
+        ]);
     }
     
     /**
@@ -195,61 +143,37 @@ class Symbol_Db_Ops extends Data
      */
     
     /**
-     * Add a new mana symbol to the database
+     * Add a new mana symbol or update an old one
      * 
-     * @return bool True if successful, false on error
+     * @return int Number of rows affected
      */
-    public function add_symbol( Mana_Symbol $symbol ) : bool
+    public function add_symbol( Mana_Symbol $symbol ) : int
     {
         if ( !$symbol->is_valid() )
         {
-            throw new Exceptions\DbException( get_called_class() . " tried to add an invalid mana symbol with key '{$symbol->get_plaintext()}' to the database." );
+            throw new \DomainException(
+                sprintf(
+                    "%s tried to add an invalid mana symbol with key '%s' to the database.",
+                    get_called_class(),
+                    $symbol->get_plaintext()
+                )
+            );
         }
-        $values = [
+        $this->db_table()->save_record([
             'plaintext'      => $symbol->get_plaintext(),
             'english_phrase' => $symbol->get_english_phrase(),
             'svg_uri'        => $symbol->get_svg_uri(),
             'update_hash'    => $symbol->get_update_hash(),
-        ];
-        return boolval(
-            $this->symbol_exists( $symbol->get_plaintext() )
-            ? $this->update_symbol( $values )
-            : $this->insert_symbol( $values )
-        );
+        ]);
+        return $this->db_table()->get_rows_affected();
     }
 
     /**
-     * Update an extant row in symbols table
-     * 
-     * @return int|false Rows updated, false on error
-     */
-    private function update_symbol( array $values )
-    {
-        return $this->db->update(
-            $this->get_table(),
-            $values,
-            array( 'plaintext' => $values['plaintext'] ),   // Where clause
-            '%s',                                           // Values format
-            '%s'                                            // Where format
-        );
-    }
-    
-    /**
-     * Insert new row into symbols table
-     * 
-     * @return int|false Rows inserted, false on error
-     */
-    private function insert_symbol( array $values )
-    {
-        return $this->db->insert( $this->get_table(), $values, '%s' );
-    }
-
-     /**
      * Delete a mana symbol from the database
      */
     public function delete_symbol( string $key ) : bool
     {
-        $rows = $this->db->delete(
+        $rows = $this->db()->delete(
             $this->get_table(),
             [
                 'plaintext' => $key
@@ -258,41 +182,27 @@ class Symbol_Db_Ops extends Data
         );
         return boolval( $rows );
     }
-    
-    /**
-     * Check if mana symbol is defined
-     */
-    private function symbol_exists( string $key ) : bool
-    {
-        $id = $this->db->get_var(
-            $this->db->prepare(
-                "SELECT id FROM {$this->get_table()} WHERE plaintext = %s",
-                $key
-            )
-        );
-        return !is_null( $id );
-    }
 
     /**
-     * -------------------------------
-     *   T A B L E   C R E A T I O N
-     * -------------------------------
+     * ---------------------------
+     *   I N S T A L L A T I O N
+     * ---------------------------
      */
 
     /**
      * Create symbols table in db
      * 
-     * @return bool True if successful, false on error
+     * @throws SqlErrorException
      */
-    public function create_table() : bool
+    public function create_table() : void
     {
-        return $this->db->query(
+        $this->execute_query(
             "CREATE TABLE IF NOT EXISTS {$this->get_table()} (
-                id smallint(5) UNSIGNED AUTO_INCREMENT,
-                plaintext varchar(16) UNIQUE NOT NULL,
-                english_phrase text NOT NULL,
-                svg_uri text NOT NULL,
-                update_hash text NOT NULL,
+                id SMALLINT UNSIGNED AUTO_INCREMENT,
+                plaintext VARCHAR(16) UNIQUE NOT NULL,
+                english_phrase TEXT NOT NULL,
+                svg_uri TEXT NOT NULL,
+                update_hash TEXT NOT NULL,
                 PRIMARY KEY  (id)
             ) {$this->get_collate()};"
         );
@@ -301,49 +211,51 @@ class Symbol_Db_Ops extends Data
     /**
      * Remove symbols table from db
      * 
-     * @return bool True if successful, false on error
+     * @throws SqlErrorException
      */
-    public function drop_table() : bool
+    public function drop_table() : void
     {
-        return $this->db->query( "DROP TABLE IF EXISTS {$this->get_table()};" );
+        $this->execute_query( "DROP TABLE IF EXISTS {$this->get_table()};" );
     }
 
     /**
-     * -----------------------
-     *   P R O P E R T I E S
-     * -----------------------
+     * ---------------
+     *   T A B L E S
+     * ---------------
      */
-
-    /**
-     * Check if a query filter is valid
-     */
-    private function is_valid_filter( string $key ) : bool
-    {
-        return in_array( $key, $this->valid_filters );
-    }
 
     /**
      * Get db table name
      */
     private function get_table() : string
     {
-        return sanitize_key( $this->db->prefix . $this->get_table_short_name() );
+        return $this->db_table()->get_table_name();
     }
 
+    /**
+     * Get symbols db table
+     */
+    private function db_table() : Db\Db_Table
+    {
+        if ( !isset( $this->table ) )
+        {
+            $this->table = new Db\Db_Table( $this->db(), [
+                'table' => $this->get_table_short_name(),
+                'filters' => [
+                    'plaintext',
+                    'english_phrase',
+                ],
+            ]);
+        }
+        return $this->table;
+    }
+    
     /**
      * Get non-prefixed part of table name
      */
     private function get_table_short_name() : string
     {
-        return $this->get_prop( 'table' );
-    }
-
-    /**
-     * Get charset collation
-     */
-    private function get_collate() : string
-    {
-        return $this->db->get_charset_collate();
+        return $this->table_keyname;
     }
 
 }   // End of class
