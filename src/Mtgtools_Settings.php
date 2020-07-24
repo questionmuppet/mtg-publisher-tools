@@ -120,11 +120,21 @@ class Mtgtools_Settings extends Module
                 'page' => 'settings',
                 'description' => 'Settings to control Magic card images in popups and inline content.',
                 'options' => [
-                    'inline_image_type',
+                    //'inline_image_type',
                     'lazy_fetch_images',
                     'image_cache_period_in_seconds',
                     'popup_tooltip_location',
-                    'default_language',
+                    //'default_language',
+                ],
+            ],
+            [
+                'id' => 'mtgtools_assets',
+                'title' => 'Page assets',
+                'page' => 'settings',
+                'description' => 'Controls the JavaScript and CSS files that MTG Publisher Tools will include on front-end pages.',
+                'options' => [
+                    'enable_card_popups',
+                    'enqueue_component_styles',
                 ],
             ],
             [

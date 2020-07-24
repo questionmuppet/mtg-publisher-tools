@@ -241,10 +241,10 @@ class Mtgtools_Plugin
 			],
 			'lazy_fetch_images' => [
 				'type' => 'checkbox',
-				'label' => 'Image uris',
+				'label' => 'Lazy fetch',
 				'default_value' => true,
 				'input_args' => [
-					'label' => 'Fetch card images lazily.',
+					'label' => 'Wait until the user hovers over a link to download external data.',
 				],
 			],
 			'image_cache_period_in_seconds' => [
@@ -260,7 +260,7 @@ class Mtgtools_Plugin
 			],
 			'popup_tooltip_location' => [
 				'type' => 'select',
-				'label' => 'Image popup location (relative to link)',
+				'label' => 'Popup position (relative to link)',
 				'default_value' => 'right',
 				'options' => [
 					'left' => 'Left',
@@ -288,7 +288,23 @@ class Mtgtools_Plugin
 				'default_value' => true,
 				'label' => 'Admin notices',
 				'input_args' => [
-					'label' => 'Notify me about updates and connection issues on the WordPress dashboard',
+					'label' => 'Notify me about issues on the WordPress dashboard',
+				],
+			],
+			'enable_card_popups' => [
+				'type' => 'checkbox',
+				'default_value' => true,
+				'label' => 'Popups',
+				'input_args' => [
+					'label' => 'Enable hover-over images.',
+				],
+			],
+			'enqueue_component_styles' => [
+				'type' => 'checkbox',
+				'default_value' => true,
+				'label' => 'Component styles',
+				'input_args' => [
+					'label' => 'Use default styles for mana symbols and popups.',
 				],
 			],
 		];

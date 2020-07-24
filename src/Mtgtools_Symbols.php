@@ -59,11 +59,14 @@ class Mtgtools_Symbols extends Module
      */
     public function enqueue_assets() : void
     {
-        $style = $this->wp_tasks()->create_style([
-            'key'  => 'mtgtools-symbols',
-            'path' => 'mtgtools-symbols.css',
-        ]);
-        $style->enqueue();
+        if ( $this->get_plugin_option( 'enqueue_component_styles' ) )
+        {
+            $style = $this->wp_tasks()->create_style([
+                'key'  => 'mtgtools-symbols',
+                'path' => 'mtgtools-symbols.css',
+            ]);
+            $style->enqueue();
+        }
     }
 
     /**

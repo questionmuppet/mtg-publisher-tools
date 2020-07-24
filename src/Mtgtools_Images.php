@@ -74,21 +74,24 @@ class Mtgtools_Images extends Module
      */
     public function enqueue() : void
     {
-        $this->add_style([
-            'key' => 'mtgtools-card-links',
-            'path' => 'card-links.css',
-        ]);
-        $this->add_script([
-            'key' => 'mtgtools-card-links',
-            'path' => 'card-links.js',
-            'deps' => array('jquery'),
-            'data' => [
-                'mtgtoolsCardLinkData' => [
-                    'ajaxurl' => admin_url( 'admin-ajax.php' ),
-                    'nonce' => wp_create_nonce('mtgtools_get_card_popup'),
-                ]
-            ],
-        ]);
+        if ( $this->get_plugin_option( 'enable_card_popups' ) )
+        {
+            $this->add_style([
+                'key' => 'mtgtools-card-links',
+                'path' => 'card-links.css',
+            ]);
+            $this->add_script([
+                'key' => 'mtgtools-card-links',
+                'path' => 'card-links.js',
+                'deps' => array('jquery'),
+                'data' => [
+                    'mtgtoolsCardLinkData' => [
+                        'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                        'nonce' => wp_create_nonce('mtgtools_get_card_popup'),
+                    ]
+                ],
+            ]);
+        }
     }
 
     /**
