@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Mtgtools\Updates\Db_Update_Checker;
-use Mtgtools\Interfaces\Hash_Map;
+use Mtgtools\Updates\Hash_Map;
 
 class Db_Update_Checker_DbTest extends Mtgtools_UnitTestCase
 {

@@ -5,7 +5,7 @@
  * Exposes objects as a set of key-hash pairs for db comparison
  */
 
-namespace Mtgtools\Interfaces;
+namespace Mtgtools\Updates;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");

@@ -8,7 +8,6 @@
 namespace Mtgtools\Updates;
 
 use Mtgtools\Abstracts\Data;
-use Mtgtools\Interfaces\Hash_Map;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
