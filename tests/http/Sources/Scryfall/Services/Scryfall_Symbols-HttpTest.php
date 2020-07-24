@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Scryfall\Services\Scryfall_Symbols;
+use Mtgtools\Sources\Scryfall\Services\Scryfall_Symbols;
 use Mtgtools\Symbols\Mana_Symbol;
 
 class Scryfall_Symbols_HttpTest extends Mtgtools_UnitTestCase

@@ -5,7 +5,7 @@
  * Fetches card data from Scryfall API
  */
 
-namespace Mtgtools\Scryfall\Services;
+namespace Mtgtools\Sources\Scryfall\Services;
 
 use Mtgtools\Cards;
 use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;

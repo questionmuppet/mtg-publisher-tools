@@ -5,7 +5,7 @@ use Mtgtools\Mtgtools_Symbols;
 use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Mtgtools_Plugin;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Sources\Mtg_Data_Source;
 
 class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 {

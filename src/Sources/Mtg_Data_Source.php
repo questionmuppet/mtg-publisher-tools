@@ -5,7 +5,7 @@
  * Interface that exposes external Magic: The Gathering data to consumer classes
  */
 
-namespace Mtgtools\Interfaces;
+namespace Mtgtools\Sources;
 use Mtgtools\Cards\Magic_Card;
 
 // Exit if accessed directly

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Mtgtools\Scryfall\Services\Scryfall_Cards;
+use Mtgtools\Sources\Scryfall\Services\Scryfall_Cards;
 use Mtgtools\Cards\Magic_Card;
 use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;
 

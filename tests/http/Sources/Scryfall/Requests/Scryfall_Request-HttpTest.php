@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-use Mtgtools\Scryfall\Requests\Scryfall_Request;
+use Mtgtools\Sources\Scryfall\Requests\Scryfall_Request;
 use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;
 use Mtgtools\Exceptions\Api\ApiStatusException;
 

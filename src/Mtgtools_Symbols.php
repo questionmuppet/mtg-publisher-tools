@@ -9,7 +9,7 @@ namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
 use Mtgtools\Db\Services\Symbol_Db_Ops;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Sources\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
 
 // Exit if accessed directly

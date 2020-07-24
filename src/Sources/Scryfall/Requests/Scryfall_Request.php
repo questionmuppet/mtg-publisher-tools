@@ -5,7 +5,7 @@
  * Performs a call to the Scryfall API and returns the result
  */
 
-namespace Mtgtools\Scryfall\Requests;
+namespace Mtgtools\Sources\Scryfall\Requests;
 use Mtgtools\Abstracts\Data;
 use Mtgtools\Api;
 use Mtgtools\Exceptions\Sources\Scryfall as Exceptions;

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use Mtgtools\Cards;
 use Mtgtools\Db\Services\Card_Db_Ops;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Sources\Mtg_Data_Source;
 use Mtgtools\Mtgtools_Plugin;
 use Mtgtools\Exceptions\Mtg;
 use Mtgtools\Exceptions\Sources\MtgSourceException;

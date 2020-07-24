@@ -5,11 +5,11 @@
  * Exposes Scryfall Api data using a standardized interface
  */
 
-namespace Mtgtools\Scryfall;
+namespace Mtgtools\Sources\Scryfall;
 
-use Mtgtools\Interfaces\Mtg_Data_Source;
-use Mtgtools\Scryfall\Services\Scryfall_Symbols;
-use Mtgtools\Scryfall\Services\Scryfall_Cards;
+use Mtgtools\Sources\Mtg_Data_Source;
+use Mtgtools\Sources\Scryfall\Services\Scryfall_Symbols;
+use Mtgtools\Sources\Scryfall\Services\Scryfall_Cards;
 use Mtgtools\Cards\Magic_Card;
 
 // Exit if accessed directly

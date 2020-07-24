@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use Mtgtools\Scryfall\Scryfall_Data_Source;
-use Mtgtools\Scryfall\Services;
+use Mtgtools\Sources\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Sources\Scryfall\Services;
 use Mtgtools\Cards\Magic_Card;
 
 class Scryfall_Data_Source_Test extends TestCase

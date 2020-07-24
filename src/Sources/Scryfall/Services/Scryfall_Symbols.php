@@ -5,7 +5,7 @@
  * Fetches mana symbol data from Scryfall API
  */
 
-namespace Mtgtools\Scryfall\Services;
+namespace Mtgtools\Sources\Scryfall\Services;
 use Mtgtools\Symbols\Mana_Symbol;
 
 // Exit if accessed directly

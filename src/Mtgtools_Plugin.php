@@ -9,9 +9,9 @@ namespace Mtgtools;
 
 use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Db\Services\Card_Db_Ops;
-use Mtgtools\Interfaces\Mtg_Data_Source;
-use Mtgtools\Scryfall\Scryfall_Data_Source;
-use Mtgtools\Scryfall\Services;
+use Mtgtools\Sources\Mtg_Data_Source;
+use Mtgtools\Sources\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Sources\Scryfall\Services;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Wp_Tasks\Options;
 use Mtgtools\Cards\Card_Cache;

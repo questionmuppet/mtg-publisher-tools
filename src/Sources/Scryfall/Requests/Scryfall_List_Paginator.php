@@ -5,7 +5,7 @@
  * Fetches a paginated list from the Scryfall API
  */
 
-namespace Mtgtools\Scryfall\Requests;
+namespace Mtgtools\Sources\Scryfall\Requests;
 use Mtgtools\Abstracts\Data;
 
 // Exit if accessed directly
