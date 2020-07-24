@@ -80,13 +80,28 @@ class Mtgtools_DashboardTest extends Mtgtools_UnitTestCase
      */
     
     /**
-     * TEST: Can print info table
+     * TEST: Can print transposed table
      */
-    public function testCanPrintInfoTable() : void
+    public function testCanPrintTransposedTable() : void
     {
         $rows = [];
 
-        $result = $this->dashboard->print_info_table( $rows );
+        $result = $this->dashboard->print_transposed_table( $rows );
+
+        $this->assertNull( $result );
+    }
+
+    /**
+     * TEST: Can print simple table
+     */
+    public function testCanPrintSimpleTable() : void
+    {
+        $params = [
+            'columns' => [],
+            'rows' => [],
+        ];
+
+        $result = $this->dashboard->print_simple_table( $params );
 
         $this->assertNull( $result );
     }

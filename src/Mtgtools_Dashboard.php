@@ -146,7 +146,7 @@ class Mtgtools_Dashboard extends Module
      */
     public function display_dashboard() : void
     {
-        $this->display_template([
+        $this->print_template([
             'path'      => 'dashboard/dashboard.php',
             'themeable' => false,
             'vars'      => [
@@ -163,22 +163,14 @@ class Mtgtools_Dashboard extends Module
         $tab = $this->get_active_tab();
         $this->enqueue_table_assets();
         
-        $this->display_template([
+        $this->print_template([
             'path' => 'dashboard/data-table/table.php',
+            'themeable' => false,
             'vars' => [
                 'active_tab' => $tab,
                 'table_data' => $tab->get_table_data( $key )
             ],
         ]);
-    }
-
-    /**
-     * Display a dashboard template
-     */
-    private function display_template( array $params ) : void
-    {
-        $template = $this->wp_tasks()->create_template( $params );
-        $template->include();
     }
 
     /**
@@ -239,16 +231,32 @@ class Mtgtools_Dashboard extends Module
      */
 
     /**
-     * Print a simple table of static information
+     * Print a static table with header column on the left
      */
-    public function print_info_table( array $rows ) : void
+    public function print_transposed_table( array $rows ) : void
     {
         $this->print_template([
-            'path' => 'dashboard/components/info-table.php',
+            'path' => 'dashboard/components/transposed-table.php',
             'themeable' => false,
             'vars' => [
                 'classes' => [],
                 'rows' => $rows
+            ]
+        ]);
+    }
+
+    /**
+     * Print a static table with header row at the top
+     */
+    public function print_simple_table( array $params ) : void
+    {
+        $this->print_template([
+            'path' => 'dashboard/components/simple-table.php',
+            'themeable' => false,
+            'vars' => [
+                'columns' => $params['columns'],
+                'rows' => $params['rows'],
+                'classes' => [],
             ]
         ]);
     }
