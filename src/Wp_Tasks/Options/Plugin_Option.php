@@ -32,6 +32,24 @@ abstract class Plugin_Option extends Data
     ];
 
     /**
+     * ---------------------------
+     *   S E T T I N G S   A P I
+     * ---------------------------
+     */
+
+    /**
+     * Whitelist option for saving on settings page
+     */
+    public function wp_register( string $page ) : void
+    {
+        register_setting(
+            $page,
+            $this->get_option_name(),
+            array( 'sanitize_callback' => array( $this, 'sanitize_save_value' ) )
+        );
+    }
+
+    /**
      * -----------------------
      *   U S E R   I N P U T
      * -----------------------
