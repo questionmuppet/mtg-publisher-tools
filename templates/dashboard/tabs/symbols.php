@@ -21,7 +21,7 @@ current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
 
         <p>Mana symbols can be included in posts and themes using the <code>[mana_symbols]</code> shortcode. Wrap whatever text you want to parse within the shortcode tags, and WordPress handles the rest. You can also show a single symbol with the alternate shortcode <code>[mana_symbol]</code>.</p>
 
-        <p>By default MTG Publisher Tools pulls its data from Scryfall. Text copied from either Scryfall or Gatherer should be parsable by <code>[mana_symbol]</code> tags. When in doubt, refer to the table on this page for the correct code.</p>
+        <p>By default MTG Publisher Tools pulls its data from Scryfall. Both official Oracle text and text copied from Scryfall should be parsable by <code>[mana_symbol]</code> tags. When in doubt, refer to the table on this page for the correct code.</p>
 
         <?php $examples = [
             '[mana_symbol key="{E}"]',
