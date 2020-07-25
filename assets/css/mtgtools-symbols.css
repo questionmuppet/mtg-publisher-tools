@@ -12,3 +12,10 @@ img.mtg-symbol {
     height: .9em;
     margin: 0 .1em;
 }
+
+/**
+ * Styles for oracle text effects
+ */
+.mtg-reminder-text {
+    font-style: italic;
+}

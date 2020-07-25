@@ -23,7 +23,7 @@ current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
 
         <p>The simplest version of a card link puts the name within tags, like so: <code>[mtg_card]Tarmogoyf[/mtg_card]</code>. That will show the default printing returned by Scryfall (usually the most recent). Different printings can be specified by passing additional parameters to the shortcode.</p>
 
-        <p>The examples below are intended to showcase some common use-cases. For a comprehensive list of search patterns, refer to the <a href="https://github.com/questionmuppet/mtg-publisher-tools#readme" target="_blank">MTG Publisher Tools documentation</a>.</p>
+        <p>The examples below are intended to showcase common use-cases. For a comprehensive explanation of search parameters, refer to the <a href="https://github.com/questionmuppet/mtg-publisher-tools#readme" target="_blank">MTG Publisher Tools documentation</a>.</p>
 
         <?php $examples = [
             '[mtg_card set="PGPX"]Stoneforge Mystic[/mtg_card]',
@@ -43,7 +43,7 @@ current_user_can( 'manage_options' ) or die("Quit 'yer sneakin around!");
         
         <h2>Toolbar Button</h2>
         
-        <p>Within Classic blocks and the Classic Editor, card link tags can be inserted using the toolbar. To do this, highlight the text you want to wrap and click the card link button.</p>
+        <p>Within Classic blocks and the Classic Editor, <code>[mtg_card]</code> tags can be inserted using the toolbar. To do this, highlight the text you want to wrap and click the card link button.</p>
         
         <img
             src="<?php echo esc_url( MTGTOOLS__ASSETS_URL . 'img/card-link-tags-toolbar.png' ); ?>"

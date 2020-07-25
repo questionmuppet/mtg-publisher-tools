@@ -51,7 +51,7 @@ class Mtgtools_Symbols extends Module
     {
         add_action( 'wp_enqueue_scripts',                 array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_assets' ) );
-        add_shortcode( 'mana_symbols',                    array( $this, 'parse_mana_symbols' ) );
+        add_shortcode( 'oracle_text',                    array( $this, 'parse_oracle_text' ) );
         add_shortcode( 'mana_symbol',                     array( $this, 'insert_single_symbol' ) );
         add_action( 'mtgtools_dashboard_tabs',            array( $this, 'add_dash_tab' ), 50, 1 );
     }
@@ -89,11 +89,11 @@ class Mtgtools_Symbols extends Module
     }
 
     /**
-     * Parse mana symbols
+     * Parse oracle text
      * 
      * @return string Content with plaintext mana symbols replaced by <img> markup
      */
-    public function parse_mana_symbols( $atts, $content = '' ) : string
+    public function parse_oracle_text( $atts, $content = '' ) : string
     {
         $patterns = $replacements = [];
         foreach ( $this->db_ops()->get_mana_symbols() as $symbol )
@@ -104,7 +104,19 @@ class Mtgtools_Symbols extends Module
                 $replacements[] = $symbol->get_markup( $this->wp_tasks() );
             }
         }
-        return preg_replace( $patterns, $replacements, $content );
+        return preg_replace( $patterns, $replacements, $this->wrap_reminder_text( $content ) );
+    }
+
+    /**
+     * Wrap reminder text in <span>s so it can be styled
+     */
+    private function wrap_reminder_text( string $content ) : string
+    {
+        return preg_replace( 
+            '/(\([^\)]+\))/',
+            '<span class="mtg-reminder-text">$1</span>',
+            $content
+        );
     }
 
     /**
