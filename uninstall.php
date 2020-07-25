@@ -16,4 +16,4 @@ require_once( MTGTOOLS__PATH . 'vendor/autoload.php' );
 
 // Run uninstall procedure
 $plugin = Mtgtools\Mtgtools_Plugin::get_instance();
-$plugin->uninstall();
+$plugin->setup()->uninstall();

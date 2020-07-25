@@ -11,7 +11,7 @@
                     if (selection != '')
                     {
                         editor.undoManager.beforeChange();
-                        editor.selection.setContent('[mana_symbols]' + selection + '[/mana_symbols]');
+                        editor.selection.setContent('[oracle_text]' + selection + '[/oracle_text]');
                         editor.undoManager.add();
 					}
                 }

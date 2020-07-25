@@ -233,12 +233,24 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
      */
     public function testCanGenerateWhereStatement() : void
     {
-        $where = $this->db_table->where_conditions([
+        $where = $this->db_table->where_statement([
             'search_term_1' => 'one',
             'search_term_2' => 'two',
         ]);
 
-        $this->assertEquals( "`search_term_1` = 'one' && `search_term_2` = 'two'", $where );
+        $this->assertEquals( "WHERE `search_term_1` = 'one' && `search_term_2` = 'two'", $where );
+    }
+
+    /**
+     * TEST: No filters yield empty WHERE statement
+     * 
+     * @depends testCanGenerateWhereStatement
+     */
+    public function testNoFiltersYieldsEmptyWhereStatement() : void
+    {
+        $where = $this->db_table->where_statement([]);
+
+        $this->assertEquals( '', $where );
     }
 
     /**
@@ -250,7 +262,7 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
     {
         $this->expectException( DomainException::class );
         
-        $this->db_table->where_conditions([
+        $this->db_table->where_statement([
             'search_term_1' => 'one',
             'string_attribute' => 'invalid',
         ]);
@@ -377,15 +389,19 @@ class Db_Table_DbTest extends Mtgtools_UnitTestCase
     }
 
     /**
-     * TEST: Finding records with no filters throws exception
+     * TEST: Can find all records
      * 
      * @depends testCanFindMultipleRecords
      */
-    public function testFindingRecordsWithNoFiltersThrowsException() : void
+    public function testCanFindAllRecords() : void
     {
-        $this->expectException( DomainException::class );
+        $this->db_table->save_record( self::NARF );
+        $this->db_table->save_record( self::ZORT );
+        $this->db_table->save_record( self::POIT );
 
-        $this->db_table->find_records([]);
+        $rows = $this->db_table->find_records();
+
+        $this->assertCount( 3, $rows );
     }
 
     /**

@@ -2,10 +2,11 @@
 declare(strict_types=1);
 
 use Mtgtools\Mtgtools_Symbols;
-use Mtgtools\Symbols\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
 use Mtgtools\Mtgtools_Dashboard;
 use Mtgtools\Mtgtools_Plugin;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Sources\Mtg_Data_Source;
+use Mtgtools\Exceptions\Db\NoResultsException;
 
 class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 {
@@ -58,6 +59,43 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
 
         $this->assertNull( $result );
     }
+    
+    /**
+     * TEST: Can generate a single symbol
+     */
+    public function testCanGenerateSingleSymbol() : void
+    {
+        $this->db_ops
+            ->method('get_symbol_by_plaintext')
+            ->with( $this->equalTo('{U}') )
+            ->willReturn( $this->get_mock_symbol() );
+        
+        $html = $this->symbols->insert_single_symbol([
+            'key' => '{U}'
+        ]);
+
+        $this->assertIsString( $html );
+    }
+
+    /**
+     * TEST: Inserting invalid symbol key returns content
+     * 
+     * @depends testCanGenerateSingleSymbol
+     */
+    public function testInsertingInvalidSymbolKeyReturnsContent() : void
+    {
+        $this->db_ops
+            ->method('get_symbol_by_plaintext')
+            ->with( $this->equalTo('invalid_code') )
+            ->willThrowException( new NoResultsException( "Invalid code. No symbol found." ) );
+        
+        $content = 'A nice string.';
+        $html = $this->symbols->insert_single_symbol([
+            'key' => 'invalid_code'
+        ], $content );
+
+        $this->assertEquals( $content, $html );
+    }
 
     /**
      * TEST: Can parse shortcode
@@ -69,9 +107,23 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
         ]);
         $this->db_ops->method('get_mana_symbols')->willReturn( array( $symbol ) );
         
-        $html = $this->symbols->parse_mana_symbols( [], "{T}: Do some biz; {Q}: Do some other biz" );
+        $html = $this->symbols->parse_oracle_text( [], "{T}: Do some biz; {Q}: Do some other biz" );
 
         $this->assertContainsSelector( 'p.fake-content', $html, 'Could not find replacement string in shortcode output.' );
+    }
+
+    /**
+     * TEST: Reminder text in oracle text is wrapped
+     * 
+     * @depends testCanParseShortcode
+     */
+    public function testReminderTextInOracleTextIsWrapped() : void
+    {
+        $reminder = "(Each time you attack alone pump a creature's biz.)";
+        $html = $this->symbols->parse_oracle_text( [], "Exalted $reminder" );
+
+        $this->assertContainsSelector( 'span.mtg-reminder-text', $html, 'Failed to assert that the reminder text <span> tag was inserted.' );
+        $this->assertElementContains( $reminder, 'span.mtg-reminder-text', $html, 'Failed to assert that the reminder text was contained in the <span> tags.' );
     }
 
     /**
@@ -133,26 +185,6 @@ class Mtgtools_Symbols_Test extends Mtgtools_UnitTestCase
         $this->source->method('get_mana_symbols')->willReturn( $this->get_mock_symbols(2) );
 
         $result = $this->symbols->import_symbols();
-
-        $this->assertNull( $result );
-    }
-    
-    /**
-     * TEST: Can install db tables
-     */
-    public function testCanInstallTables() : void
-    {
-        $result = $this->symbols->install_db_tables();
-
-        $this->assertNull( $result );
-    }
-
-    /**
-     * TEST: Can delete db tables
-     */
-    public function testCanDeleteTables() : void
-    {
-        $result = $this->symbols->delete_db_tables();
 
         $this->assertNull( $result );
     }

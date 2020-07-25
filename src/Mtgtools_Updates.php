@@ -8,8 +8,8 @@
 namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Symbols\Symbol_Db_Ops;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
+use Mtgtools\Sources\Mtg_Data_Source;
 use Mtgtools\Exceptions\Api\ApiException;
 
 // Exit if accessed directly

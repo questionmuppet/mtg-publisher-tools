@@ -95,12 +95,13 @@ mtgtoolsCardLinks = ( function($) {
             /**
              * Handle server response
              * 
-             * @param {PlainObject} data Result of the ajax request
+             * @param {PlainObject} response Result of the ajax request
              * @param {string} status Status of the request
              */
-            function handleResponse(data, status) {
-                if ('success' === status && data.success) {
-                    createPopup(data.data.transients.popup);
+            function handleResponse(response, status) {
+                if ('success' === status && response.success) {
+                    createPopup(response.data.transients.popup);
+                    link.attr('href', response.data.href);
                     if (active) {
                         showPopup();
                     }

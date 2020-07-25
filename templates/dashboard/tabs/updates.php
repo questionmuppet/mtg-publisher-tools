@@ -53,7 +53,7 @@ $dashboard->print_action_notices([
 
     <p>MTG Publisher Tools is set to check for new updates <?php echo esc_html( $updates->get_update_period('for_cron') ); ?>. To change this behavior, go to the <a href="<?php echo esc_url( $dashboard->get_tab_url('settings') ); ?>">Settings</a> page.</p>
 
-    <?php $dashboard->print_info_table( $updates->get_status_info() ); ?>
+    <?php $dashboard->print_transposed_table( $updates->get_status_info() ); ?>
 
     <form action="<?php echo esc_url( $post_url ); ?>" class="inline-form" method="POST">
 

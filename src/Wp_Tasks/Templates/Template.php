@@ -43,7 +43,7 @@ class Template extends Data
     {
         ob_start();
         $this->include();
-        return ob_get_clean();
+        return trim( ob_get_clean() );
     }
 
     /**

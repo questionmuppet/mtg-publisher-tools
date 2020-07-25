@@ -6,36 +6,21 @@
  */
 
 namespace Mtgtools;
-
-use Mtgtools\Cards\Card_Db_Ops;
+use Mtgtools\Abstracts\Module;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
 
-class Mtgtools_Setup
+class Mtgtools_Setup extends Module
 {
-    /**
-     * Plugin instance
-     */
-    private $plugin;
-    
-    /**
-     * Constructor
-     */
-    public function __construct( Mtgtools_Plugin $plugin )
-    {
-        $this->plugin = $plugin;
-    }
-
     /**
      * Activate
      */
     public function activate() : void
     {
-        $this->mtgtools()->symbols()->install_db_tables();
-        $this->mtgtools()->symbols()->import_symbols();
-        $this->mtgtools()->cards_db()->create_tables();
-        $this->mtgtools()->cron()->schedule_update_checks();
+        $this->plugin()->database()->install();
+        $this->plugin()->symbols()->import_symbols();
+        $this->plugin()->cron()->schedule_update_checks();
     }
 
     /**
@@ -43,7 +28,7 @@ class Mtgtools_Setup
      */
     public function deactivate() : void
     {
-        $this->mtgtools()->cron()->cancel_update_checks();
+        $this->plugin()->cron()->cancel_update_checks();
     }
 
     /**
@@ -51,17 +36,8 @@ class Mtgtools_Setup
      */
     public function uninstall() : void
     {
-        $this->mtgtools()->options_manager()->delete_options();
-        $this->mtgtools()->symbols()->delete_db_tables();
-        $this->mtgtools()->cards_db()->drop_tables();
-    }
-
-    /**
-     * Get plugin instance
-     */
-    private function mtgtools() : Mtgtools_Plugin
-    {
-        return $this->plugin;
+        $this->plugin()->database()->uninstall();
+        $this->plugin()->options_manager()->delete_options();
     }
 
 }   // End of class

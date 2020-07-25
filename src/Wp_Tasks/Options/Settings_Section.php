@@ -57,6 +57,7 @@ class Settings_Section extends Data
      */
     private function add_field( Plugin_Option $option ) : void
     {
+        $option->wp_register( $this->get_page() );
         add_settings_field(
             $option->get_id(),
             $option->get_label(),

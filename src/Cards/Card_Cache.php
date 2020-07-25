@@ -8,7 +8,9 @@
 namespace Mtgtools\Cards;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Sources\Mtg_Data_Source;
+
+use Mtgtools\Db\Services\Card_Db_Ops;
 
 use Mtgtools\Exceptions\Cache;
 use Mtgtools\Exceptions\Mtg;

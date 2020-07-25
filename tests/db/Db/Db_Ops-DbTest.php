@@ -170,9 +170,10 @@ class Db_Ops_DbTest extends Mtgtools_UnitTestCase
      */
     public function testCanExecuteGenericQuery() : void
     {
-        $this->db_ops->execute( "INSERT INTO {$this->get_table()} (unique_identifier) VALUES ('narf') ;" );
+        $rows = $this->db_ops->execute( "INSERT INTO {$this->get_table()} (unique_identifier) VALUES ('narf') ;" );
 
         $record = $this->get_record('narf');
+        $this->assertEquals( 1, $rows, 'Failed to assert that execute_query() returned the number of rows affected.' );
         $this->assertEquals( 'narf', $record['unique_identifier'] );
     }
 
@@ -187,6 +188,20 @@ class Db_Ops_DbTest extends Mtgtools_UnitTestCase
 
         $this->wpdb->suppress_errors();
         $this->db_ops->execute( "SELECT * FROM {$this->get_table()} WHERE invalid_column = 'narf';" );
+    }
+
+    /**
+     * TEST: Can get rows affected by query
+     * 
+     * @depends testCanExecuteGenericQuery
+     */
+    public function testCanGetRowsAffectedByQuery() : void
+    {
+        $this->db_ops->execute( "INSERT INTO {$this->get_table()} (unique_identifier) VALUES ('narf') ;" );
+
+        $rows = $this->db_ops->get_rows_affected();
+
+        $this->assertEquals( 1, $rows );
     }
 
     /**

@@ -8,9 +8,10 @@
 namespace Mtgtools;
 
 use Mtgtools\Abstracts\Module;
-use Mtgtools\Symbols\Symbol_Db_Ops;
-use Mtgtools\Interfaces\Mtg_Data_Source;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
+use Mtgtools\Sources\Mtg_Data_Source;
 use Mtgtools\Symbols\Mana_Symbol;
+use Mtgtools\Exceptions\Db\NoResultsException;
 
 // Exit if accessed directly
 defined( 'MTGTOOLS__PATH' ) or die("Don't mess with it!");
@@ -50,8 +51,9 @@ class Mtgtools_Symbols extends Module
     {
         add_action( 'wp_enqueue_scripts',                 array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_assets' ) );
-        add_shortcode( 'mana_symbols',                    array( $this, 'parse_mana_symbols' ) );
-        add_action( 'mtgtools_dashboard_tabs',            array( $this, 'add_dash_tab' ), 10, 1 );
+        add_shortcode( 'oracle_text',                    array( $this, 'parse_oracle_text' ) );
+        add_shortcode( 'mana_symbol',                     array( $this, 'insert_single_symbol' ) );
+        add_action( 'mtgtools_dashboard_tabs',            array( $this, 'add_dash_tab' ), 50, 1 );
     }
 
     /**
@@ -59,22 +61,42 @@ class Mtgtools_Symbols extends Module
      */
     public function enqueue_assets() : void
     {
-        $style = $this->wp_tasks()->create_style([
-            'key'  => 'mtgtools-symbols',
-            'path' => 'mtgtools-symbols.css',
-        ]);
-        $style->enqueue();
+        if ( $this->get_plugin_option( 'enqueue_component_styles' ) )
+        {
+            $style = $this->wp_tasks()->create_style([
+                'key'  => 'mtgtools-symbols',
+                'path' => 'mtgtools-symbols.css',
+            ]);
+            $style->enqueue();
+        }
     }
 
     /**
-     * Parse mana symbols
+     * Insert a single mana symbol from shortcode
+     */
+    public function insert_single_symbol( $atts, $content = '' ) : string
+    {
+        try
+        {
+            $key = sanitize_text_field( $atts['key'] ?? '' );
+            $symbol = $this->db_ops()->get_symbol_by_plaintext( $key );
+            return $symbol->get_markup( $this->wp_tasks() );
+        }
+        catch ( NoResultsException $e )
+        {
+            return $content;
+        }
+    }
+
+    /**
+     * Parse oracle text
      * 
      * @return string Content with plaintext mana symbols replaced by <img> markup
      */
-    public function parse_mana_symbols( $atts, $content = '' ) : string
+    public function parse_oracle_text( $atts, $content = '' ) : string
     {
         $patterns = $replacements = [];
-        foreach ( $this->db_ops->get_mana_symbols() as $symbol )
+        foreach ( $this->db_ops()->get_mana_symbols() as $symbol )
         {
             if ( $symbol->is_valid() )
             {
@@ -82,7 +104,19 @@ class Mtgtools_Symbols extends Module
                 $replacements[] = $symbol->get_markup( $this->wp_tasks() );
             }
         }
-        return preg_replace( $patterns, $replacements, $content );
+        return preg_replace( $patterns, $replacements, $this->wrap_reminder_text( $content ) );
+    }
+
+    /**
+     * Wrap reminder text in <span>s so it can be styled
+     */
+    private function wrap_reminder_text( string $content ) : string
+    {
+        return preg_replace( 
+            '/(\([^\)]+\))/',
+            '<span class="mtg-reminder-text">$1</span>',
+            $content
+        );
     }
 
     /**
@@ -140,7 +174,7 @@ class Mtgtools_Symbols extends Module
     {
         $filters = array_filter([ 'plaintext' => $filter ]);
         $rows = [];
-        foreach ( $this->db_ops->get_mana_symbols( $filters ) as $symbol )
+        foreach ( $this->db_ops()->get_mana_symbols( $filters ) as $symbol )
         {
             $rows[] = array(
                 'plaintext' => $symbol->get_plaintext(),
@@ -164,28 +198,22 @@ class Mtgtools_Symbols extends Module
     {
         foreach ( $this->source->get_mana_symbols() as $symbol )
         {
-            $this->db_ops->add_symbol( $symbol );
+            $this->db_ops()->add_symbol( $symbol );
         }
     }
 
     /**
-     * Install database tables
-     * 
-     * @hooked Plugin activation
+     * ---------------------------
+     *   D E P E N D E N C I E S
+     * ---------------------------
      */
-    public function install_db_tables() : void
-    {
-        $this->db_ops->create_table();
-    }
 
     /**
-     * Delete database tables
-     * 
-     * @hooked Plugin uninstall
+     * Get symbol db ops
      */
-    public function delete_db_tables() : void
+    private function db_ops() : Symbol_Db_Ops
     {
-        $this->db_ops->drop_table();
+        return $this->db_ops;
     }
 
 }   // End of class

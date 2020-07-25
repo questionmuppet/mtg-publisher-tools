@@ -124,29 +124,21 @@ class Db_Table extends Db_Ops
      * @param array $args['filters']        One or more filters to search by
      * @param int $args['limit']            Maximum results to return. Default: No limit
      * @param int $args['offset']           Beginning offset. Default: 0
+     * @param bool $args['exact']           Set to false to fuzzy-search. Default: true.
      * @return array                        Zero or more rows. Each row is an associative array keyed by column.
      */
-    public function find_records( array $args ) : array
+    public function find_records( array $args = [] ) : array
     {
         $filters = $args['filters'] ?? [];
         $limit = $args['limit'] ?? 0;
         $offset = $args['offset'] ?? 0;
-
-        if ( !count( $filters ) )
-        {
-            throw new \DomainException(
-                sprintf(
-                    "%s cannot find records without search criteria. No filters were provided to search table '%s'.",
-                    get_called_class(),
-                    $this->get_table_name()
-                )
-            );
-        }
+        $exact = $args['exact'] ?? true;
+        
         return $this->db()->get_results(
             sprintf(
-                "SELECT * FROM %s WHERE %s %s;",
+                "SELECT * FROM `%s` %s %s;",
                 $this->get_table_name(),
-                $this->where_conditions( $filters ),
+                $this->where_statement( $filters, $exact ),
                 $this->limit_statement( $limit, $offset )
             ),
             ARRAY_A
@@ -160,13 +152,28 @@ class Db_Table extends Db_Ops
      */
 
     /**
+     * Generate WHERE statement
+     * 
+     * @return string Sanitized WHERE statement or empty string
+     */
+    public function where_statement( array $filters, bool $exact = true ) : string
+    {
+        return count( $filters )
+            ? sprintf(
+                "WHERE %s",
+                $this->where_conditions( $filters, $exact )
+            )
+            : '';
+    }
+
+    /**
      * Generate WHERE conditions from filters
      * 
      * @param array $filters    One or more "column" => "value" pairs to use as conditions
      * @param bool $exact       Whether to search for an exact match in string comparisons
      * @return string           Sanitized expression for use in WHERE statement
      */
-    public function where_conditions( array $filters, bool $exact = true ) : string
+    protected function where_conditions( array $filters, bool $exact = true ) : string
     {
         $conditions = [];
         foreach ( $filters as $key => $value )
@@ -320,15 +327,14 @@ class Db_Table extends Db_Ops
      */
     public function set_table_props( array $props ) : void
     {
-        $props = array_replace([
-            'table' => null,
-            'filters' => null,
-            'field_types' => null,
-        ], $props );
-        
-        is_null( $props['table'] ) ?: $this->set_table( $props['table'] );
-        is_null( $props['filters'] ) ?: $this->set_filters( $props['filters'] );
-        is_null( $props['field_types'] ) ?: $this->set_field_types( $props['field_types'] );
+        foreach ( $props as $key => $value )
+        {
+            $method = array( $this, "set_{$key}" );
+            if ( is_callable( $method ) && !is_null( $value ) )
+            {
+                call_user_func( $method, $value );
+            }
+        }
     }
 
     /**

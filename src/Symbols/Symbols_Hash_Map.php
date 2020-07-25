@@ -6,7 +6,7 @@
  */
 
 namespace Mtgtools\Symbols;
-use Mtgtools\Interfaces\Hash_Map;
+use Mtgtools\Updates\Hash_Map;
 
 class Symbols_Hash_Map implements Hash_Map
 {

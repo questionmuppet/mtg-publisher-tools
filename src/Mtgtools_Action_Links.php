@@ -18,7 +18,20 @@ class Mtgtools_Action_Links extends Module
      */
     public function add_hooks() : void
     {
+        add_filter( 'plugin_row_meta', array( $this, 'add_meta_links' ), 10, 2 );
         add_filter( 'plugin_action_links_' . MTGTOOLS__BASENAME, array( $this, 'add_action_links' ) );
+    }
+
+    /**
+     * Add row-meta links
+     */
+    public function add_meta_links( array $links, string $plugin_file ) : array
+    {
+        if ( false !== strpos( MTGTOOLS__BASENAME, $plugin_file ) )
+        {
+            $links[] = '<a href="https://github.com/questionmuppet/mtg-publisher-tools#readme" target="_blank">Documentation</a>';
+        }
+        return $links;
     }
     
 	/**

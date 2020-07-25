@@ -61,6 +61,16 @@ class Plugin_Option_WPTest extends Mtgtools_UnitTestCase
     }
 
     /**
+     * TEST: Can whitelist for WP settings pages
+     */
+    public function testCanRegisterWithWp() : void
+    {
+        $result = $this->opt->wp_register( 'fake_page' );
+
+        $this->assertNull( $result );
+    }
+
+    /**
      * -----------
      *   C R U D
      * -----------

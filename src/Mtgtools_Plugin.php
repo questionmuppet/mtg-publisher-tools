@@ -7,11 +7,11 @@
 
 namespace Mtgtools;
 
-use Mtgtools\Symbols\Symbol_Db_Ops;
-use Mtgtools\Cards\Card_Db_Ops;
-use Mtgtools\Interfaces\Mtg_Data_Source;
-use Mtgtools\Scryfall\Scryfall_Data_Source;
-use Mtgtools\Scryfall\Services;
+use Mtgtools\Db\Services\Symbol_Db_Ops;
+use Mtgtools\Db\Services\Card_Db_Ops;
+use Mtgtools\Sources\Mtg_Data_Source;
+use Mtgtools\Sources\Scryfall\Scryfall_Data_Source;
+use Mtgtools\Sources\Scryfall\Services;
 use Mtgtools\Dashboard\Tabs\Dashboard_Tab_Factory;
 use Mtgtools\Wp_Tasks\Options;
 use Mtgtools\Cards\Card_Cache;
@@ -32,6 +32,12 @@ class Mtgtools_Plugin
 	private $action_links;
 	private $editor;
 	private $cron;
+	private $setup;
+
+	/**
+	 * Database services
+	 */
+	private $database;
 
 	/**
 	 * Plugin options
@@ -89,9 +95,9 @@ class Mtgtools_Plugin
     {
 		if ( !isset( $this->symbols ) )
 		{
-			global $wpdb;
-			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->symbols = new Mtgtools_Symbols( $db_ops, $this->get_mtg_data_source(), $this );
+			$db_ops = $this->database()->symbols();
+			$source = $this->get_mtg_data_source();
+			$this->symbols = new Mtgtools_Symbols( $db_ops, $source, $this );
 		}
 		return $this->symbols;
 	}
@@ -116,9 +122,9 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->updates ) )
 		{
-			global $wpdb;
-			$db_ops = new Symbol_Db_Ops( $wpdb );
-			$this->updates = new Mtgtools_Updates( $db_ops, $this->get_mtg_data_source(), $this );
+			$db_ops = $this->database()->symbols();
+			$source = $this->get_mtg_data_source();
+			$this->updates = new Mtgtools_Updates( $db_ops, $source, $this );
 		}
 		return $this->updates;
 	}
@@ -130,7 +136,8 @@ class Mtgtools_Plugin
 	{
 		if ( !isset( $this->settings ) )
 		{
-			$this->settings = new Mtgtools_Settings( $this->options_manager(), $this );
+			$options = $this->options_manager();
+			$this->settings = new Mtgtools_Settings( $options, $this );
 		}
 		return $this->settings;
 	}
@@ -143,7 +150,7 @@ class Mtgtools_Plugin
 		if ( !isset( $this->images ) )
 		{
 			$source = $this->get_mtg_data_source();
-			$cache = new Card_Cache( $this->cards_db(), $source, $this );
+			$cache = new Card_Cache( $this->database()->cards(), $source, $this );
 			$this->images = new Mtgtools_Images( $cache, $source->get_default_image_type(), $this );
 		}
 		return $this->images;
@@ -186,18 +193,15 @@ class Mtgtools_Plugin
 	}
 
 	/**
-	 * -------------------
-	 *   D A T A B A S E
-	 * -------------------
+	 * Get setup module
 	 */
-
-	/**
-	 * Get db ops for cards
-	 */
-	public function cards_db() : Card_Db_Ops
+	public function setup() : Mtgtools_Setup
 	{
-		global $wpdb;
-		return new Card_Db_Ops( $wpdb );
+		if ( !isset( $this->setup ) )
+		{
+			$this->setup = new Mtgtools_Setup( $this );
+		}
+		return $this->setup;
 	}
 
 	/**
@@ -237,10 +241,10 @@ class Mtgtools_Plugin
 			],
 			'lazy_fetch_images' => [
 				'type' => 'checkbox',
-				'label' => 'Image uris',
+				'label' => 'Lazy fetch',
 				'default_value' => true,
 				'input_args' => [
-					'label' => 'Fetch card images lazily.',
+					'label' => 'Wait until the user hovers over a link to download external data.',
 				],
 			],
 			'image_cache_period_in_seconds' => [
@@ -256,7 +260,7 @@ class Mtgtools_Plugin
 			],
 			'popup_tooltip_location' => [
 				'type' => 'select',
-				'label' => 'Image popup location (relative to link)',
+				'label' => 'Popup position (relative to link)',
 				'default_value' => 'right',
 				'options' => [
 					'left' => 'Left',
@@ -284,7 +288,23 @@ class Mtgtools_Plugin
 				'default_value' => true,
 				'label' => 'Admin notices',
 				'input_args' => [
-					'label' => 'Notify me about updates and connection issues on the WordPress dashboard',
+					'label' => 'Notify me about issues on the WordPress dashboard',
+				],
+			],
+			'enable_card_popups' => [
+				'type' => 'checkbox',
+				'default_value' => true,
+				'label' => 'Popups',
+				'input_args' => [
+					'label' => 'Enable hover-over images.',
+				],
+			],
+			'enqueue_component_styles' => [
+				'type' => 'checkbox',
+				'default_value' => true,
+				'label' => 'Component styles',
+				'input_args' => [
+					'label' => 'Use default styles for mana symbols and popups.',
 				],
 			],
 		];
@@ -292,7 +312,7 @@ class Mtgtools_Plugin
 
 	/**
 	 * ---------------------------------
-	 *   W P   T A S K   L I B R A R Y
+	 *   M O D U L E   S E R V I C E S
 	 * ---------------------------------
 	 */
 
@@ -306,6 +326,19 @@ class Mtgtools_Plugin
 			$this->wp_tasks = new Wp_Task_Library();
 		}
 		return $this->wp_tasks;
+	}
+	
+	/**
+	 * Get database services
+	 */
+	public function database() : Database_Services
+	{
+		if ( !isset( $this->database ) )
+		{
+			global $wpdb;
+			$this->database = new Database_Services( $wpdb );
+		}
+		return $this->database;
 	}
 
 	/**
@@ -330,48 +363,6 @@ class Mtgtools_Plugin
 		$symbols = new Services\Scryfall_Symbols();
 		$cards = new Services\Scryfall_Cards();
 		return new Scryfall_Data_Source( $symbols, $cards );
-	}
-
-	/**
-	 * ---------------------------
-	 *   I N S T A L L A T I O N
-	 * ---------------------------
-	 */
-
-	/**
-	 * Activate plugin
-	 * 
-	 * @hooked activate_mtg-publisher-tools/mtg-publisher-tools.php
-	 */
-	public function activate() : void
-	{
-		$this->setup()->activate();
-	}
-
-	/**
-	 * Deactivate plugin
-	 * 
-	 * @hooked deactivate_mtg-publisher-tools/mtg-publisher-tools.php
-	 */
-	public function deactivate() : void
-	{
-		$this->setup()->deactivate();
-	}
-
-	/**
-	 * Uninstall plugin
-	 */
-	public function uninstall() : void
-	{
-		$this->setup()->uninstall();
-	}
-
-	/**
-	 * Get setup module
-	 */
-	private function setup() : Mtgtools_Setup
-	{
-		return new Mtgtools_Setup( $this );
 	}
 
 }   // End of class
