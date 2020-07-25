@@ -8,9 +8,10 @@ abbr.mtg-abbreviation {
 }
 img.mtg-symbol {
     position: relative;
-    bottom: .05em;
-    height: .9em;
-    margin: 0 .1em;
+    height: 1em;
+    margin: 0 .05em;
+    vertical-align: middle;
+    bottom: .1em;
 }
 
 /**
