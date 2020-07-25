@@ -1,0 +1,22 @@
+/**
+ * Styles for mana symbol svgs
+ */
+
+abbr.mtg-abbreviation {
+    display: inline-block;
+    position: relative;
+}
+img.mtg-symbol {
+    position: relative;
+    height: 1em;
+    margin: 0 .05em;
+    vertical-align: middle;
+    bottom: .1em;
+}
+
+/**
+ * Styles for oracle text effects
+ */
+.mtg-reminder-text {
+    font-style: italic;
+}

@@ -1,0 +1,97 @@
+/**
+ * Styles for admin dashboard
+ */
+
+/**
+ * Flex containers
+ */
+.mtgtools-flex {
+    display: flex;
+}
+.mtgtools-flex.horiz {
+    flex-direction: row;
+}
+.mtgtools-flex.vert {
+    flex-direction: column;
+}
+.mtgtools-flex-item {
+    margin: 10px;
+}
+
+/**
+ * Forms
+ */
+form.inline-form {
+    display: inline;
+}
+
+/**
+ * User guide panels
+ */
+.mtgtools-information-panel {
+    max-width: 800px;
+    font-size: 125%;
+}
+.mtgtools-information-panel p {
+    font-size: 100%;
+}
+.mtgtools-information-panel hr {
+    margin-top: 2em;
+}
+.mtgtools-screenshot {
+    border: 1px solid gray;
+}
+
+/**
+ * Info tables
+ */
+table.info-table {
+    margin: 1em 0;
+}
+.info-table-cell {
+    padding-right: 1em;
+    text-align: left;
+}
+
+/**
+ * Admin data tables
+ */
+.mtgtools-table-wrapper {
+    margin-top: 10px;
+    background-color: #f1f1f1;
+    font-size: 1.2em;
+}
+.mtgtools-table-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 0;
+}
+.mtgtools-table-scroll-wrapper {
+    max-height: 600px;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+}
+.mtgtools-table {
+    border-collapse: collapse;
+    background-color: #ffffff;
+}
+.mtgtools-table-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.mtgtools-table-body > tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+.mtgtools-table-cell {
+    padding: .5em 1em;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+th.mtgtools-table-cell {
+    background: linear-gradient(white, #e5e5e5);
+    font-weight: normal;
+    color: #666;
+    text-shadow: 1px 1px white;
+    border-top: 0;
+}

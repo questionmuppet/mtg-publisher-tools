@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite name="unit">
+			<directory prefix="" suffix="-Test.php">./tests/unit/</directory>
+		</testsuite>
+		<testsuite name="http">
+			<directory prefix="" suffix="-HttpTest.php">./tests/http/</directory>
+		</testsuite>
+		<testsuite name="db">
+			<directory prefix="" suffix="-DbTest.php">./tests/db/</directory>
+		</testsuite>
+		<testsuite name="wp">
+			<directory prefix="" suffix="-WpTest.php">./tests/wp/</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
