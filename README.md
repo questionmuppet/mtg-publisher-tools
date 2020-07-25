@@ -29,14 +29,16 @@ To display a single mana symbol, use the `[mana_symbol]` tag. It takes one argum
 Symbol codes follow the official convention for plaintext mana symbols established by Magic's [Comprehensive Rules][2]. For reference, a list of all currently available symbols can be found in plugin settings on the "Mana Symbols" tab.
 
 ## Card Popups
-Card popups make it easier for readers to follow along in articles when they may not know a particular card's text. They take the form of a hyperlink that activates when the user hovers over it with the mouse. Popup links are created using the `[mtg_card]` shortcode.
+Card popups make it easier for readers to follow along in articles when they may not know a particular card's text. They take the form of a hyperlink that activates when the user hovers over with the mouse. Popup links are created using the `[mtg_card]` shortcode.
 
     [mtg_card]Emrakul, the Aeons Torn[/mtg_card]
+
+![Emrakul card image in fron of text](assets/img/flying-spaghetti-monster.png)
 
 That will display the default printing (usually the most recent) of the card in question. Different versions can be specified by passing additional parameters to the shortcode.
 
 ### Search Parameters
-MTG Publisher Tools will try to narrow down its search using any filters you provide. `[mtg_card]` tags accept the following parameters:
+MTG Publisher Tools will try to narrow down its search using any filters you provide. The following parameters are available for use in `[mtg_card]` tags:
 
 | Parameter  | Description                                  | Default           | Case-Sensitive |
 |------------|----------------------------------------------|-------------------|----------------|
@@ -46,27 +48,27 @@ MTG Publisher Tools will try to narrow down its search using any filters you pro
 | `language` | Two-letter language code                     | EN (English)      | No             |
 | `id`       | Unique Scryfall id                           | -                 | Yes            |
 
-**Card Name**
+**Card Name**\
 By default, the content inside the shortcode is used for the card name. This is overridden when you provide a value for the `name` parameter. Specifying `name` directly can be useful when you want to reference a card by an alternate name.
 
     [mtg_card name="Tarmogoyf"]Goyf[/mtg_card]
 
-**Set**
+**Set**\
 To specify a set, you must use a code recognized by Scryfall. For the list of valid codes, consult the [Scryfall set listing][3]. Pretty much every variant or promo you can think of is available.
 
     [mtg_card set="M10"]Lightning Bolt[/mtg_card]
 
-**Collector Number**
+**Collector Number**\
 `number` will usually be accompanied by the `set` parameter, to narrow down to a specific printing. This is helpful for sets with multiple versions of the same card.
 
     [mtg_card set="FEM" number="38c"]Hymn to Tourach (Cloak)[/mtg_card]
 
-**Language**
+**Language**\
 Right now the `language` parameter has limited support. For it to affect results, it *must* be accompanied by both `set` and `number`. This may be expanded in a future release. As with set codes, you must use a language code [recognized by Scryfall][4].
 
     [mtg_card set="RAV" number="81" language="JA"]Dark Confidant[/mtg_card]
 
-**Scryfall Id**
+**Scryfall Id**\
 This is an internal code Scryfall uses to uniquely identify each printing. To find this value for a card, you will have to query the [Scryfall API][5] directly.
 
     [mtg_card id="11bf83bb-c95b-4b4f-9a56-ce7a1816307a"]Delver of Secrets[/mtg_card]
