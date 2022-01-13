@@ -1,5 +1,9 @@
 # MTG Publisher Tools
-MTG Publisher Tools is a WordPress plugin for adding Magic: The Gathering content to your posts, pages, and themes. Content is generated using several shortcodes, which output mana symbols and card popups. Magic-card data and assets are sourced from [Scryfall][1].
+MTG Publisher Tools is a WordPress plugin for adding Magic: The Gathering content to your posts, pages, and themes. Content is generated using shortcodes, which output mana symbols and card popups. Magic-card data and assets are sourced from [Scryfall][1].
+
+## Installation
+
+## Getting Started
 
 If you've used plugins like this before, the setup should be familiar. Copy the following into a post or page and check the preview:
 
@@ -9,7 +13,7 @@ If you've used plugins like this before, the setup should be familiar. Copy the 
 
 Hover over the link, and you should see an image of the card pop up. Voilà!
 
-And... that should be all you need to get started. For a discussion of more advanced features, continue reading.
+That should be all you need to get started. For a discussion of more advanced features, continue reading.
 
 ## Mana Symbols
 Mana symbols are shown inline with text using the `[oracle_text]` and `[mana_symbol]` shortcodes.
