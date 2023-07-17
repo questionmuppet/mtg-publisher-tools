@@ -16,5 +16,10 @@
         "psr-4": {
             "Mtgtools\\Tests\\": "tests/"
         }
-    }
+    },
+    "config": {
+        "optimize-autoloader": true
+    },
+    "prefer-stable": true,
+    "minimum-stability": "stable"
 }
