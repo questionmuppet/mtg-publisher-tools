@@ -112,7 +112,12 @@ class Card_Cache extends Module
                 'set_code' => sanitize_text_field( $args['set'] ?? '' ),
             ];
         }
-        return array_filter( $filters, 'strlen' );
+        return array_filter(
+            $filters,
+            function($item) {
+                return strlen(strval($item));
+            }
+        );
     }
     
     /**

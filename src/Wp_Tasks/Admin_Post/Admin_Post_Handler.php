@@ -40,7 +40,7 @@ abstract class Admin_Post_Handler extends Data
     /**
      * Constructor
      */
-    public function __construct( array $props = [], Admin_Request_Processor $processor )
+    public function __construct(array $props, Admin_Request_Processor $processor)
     {
         $this->processor = $processor;
         parent::__construct( $props );

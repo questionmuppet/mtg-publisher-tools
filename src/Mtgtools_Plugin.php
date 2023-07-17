@@ -47,7 +47,7 @@ class Mtgtools_Plugin
 	/**
 	 * Module task library
 	 */
-	private $task_library;
+	private $wp_tasks;
 
 	/**
 	 * Plugin instance

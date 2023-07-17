@@ -33,7 +33,7 @@ class Option_Number extends Plugin_Option
                 $value
             )
         );
-        return $bound - ( $bound % $this->get_step() );
+        return $bound - (intval($bound) % $this->get_step());
     }
 
     /**

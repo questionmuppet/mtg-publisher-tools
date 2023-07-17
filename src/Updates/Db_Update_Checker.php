@@ -212,7 +212,7 @@ class Db_Update_Checker extends Data
                 hash_key varchar(256) UNIQUE NOT NULL,
                 hash_value text NOT NULL,
                 PRIMARY KEY (id)
-            ) {$this->db->get_charset_collate()};"
+            );"
         );
     }
 
