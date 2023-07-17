@@ -1,3 +1,4 @@
 vendor/**
 bin/**
 *.code-workspace
+.phpunit.result.cache
